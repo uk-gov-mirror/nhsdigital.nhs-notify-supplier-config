@@ -48,13 +48,13 @@ The Excel parsing and event publishing functionality now lives in the `event-bui
 
 ```bash
 # Parse
-npm run cli:events --workspace=nhs-notify-supplier-config-event-builder -- parse -f ./specifications.xlsx
+npm run cli:events --workspace=nhs-notify-supplier-config-event-builder -- parse -f ./example_specifications.xlsx
 
 # Dry-run publish (no AWS calls)
-npm run cli:events --workspace=nhs-notify-supplier-config-event-builder -- publish -f ./specifications.xlsx -b my-bus --dry-run
+npm run cli:events --workspace=nhs-notify-supplier-config-event-builder -- publish -f ./example_specifications.xlsx -b my-bus --dry-run
 
 # Publish (requires AWS credentials with events:PutEvents)
-npm run cli:events --workspace=nhs-notify-supplier-config-event-builder -- publish -f ./specifications.xlsx -b my-bus -r eu-west-2
+npm run cli:events --workspace=nhs-notify-supplier-config-event-builder -- publish -f ./example_specifications.xlsx -b my-bus -r eu-west-2
 ```
 
 ### Envelope Defaults
