@@ -10,7 +10,7 @@ describe("Specification schema validation", () => {
   const standardLetterSpecification: PackSpecification = {
     id: PackSpecificationId("standard-letter"),
     name: "Standard Economy-class Letter",
-    status: "PUBLISHED",
+    status: "INT",
     createdAt: "2023-01-01T00:00:00Z",
     updatedAt: "2023-01-01T00:00:00Z",
     version: 1,

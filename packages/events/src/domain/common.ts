@@ -11,3 +11,9 @@ export const $Semver = z
   .regex(/^\d+\.\d+\.\d+$/)
   .brand("Version");
 export const Version = $Semver.parse;
+
+export const $EnvironmentStatus = z.enum(["DRAFT", "INT", "PROD"]).meta({
+  title: "EnvironmentStatus",
+  description:
+    "Indicates whether the configuration is in draft, or enabled in the integration or production environment.",
+});

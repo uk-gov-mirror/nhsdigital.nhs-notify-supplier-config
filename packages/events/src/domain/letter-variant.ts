@@ -1,4 +1,4 @@
-import { ConfigBase } from "@nhsdigital/nhs-notify-event-schemas-supplier-config/src/domain/common";
+import {$EnvironmentStatus, ConfigBase} from "@nhsdigital/nhs-notify-event-schemas-supplier-config/src/domain/common";
 import { idRef } from "@nhsdigital/nhs-notify-event-schemas-supplier-config/src/helpers/id-ref";
 import {
   $Constraints,
@@ -14,7 +14,7 @@ export const $LetterVariant = ConfigBase("LetterVariant")
     name: z.string(),
     description: z.string().optional(),
     type: $LetterType,
-    status: z.enum(["DRAFT", "PUBLISHED", "DISABLED"]),
+    status: $EnvironmentStatus,
     volumeGroupId: idRef($VolumeGroup),
     clientId: z.string().optional(),
     campaignIds: z.array(z.string()).optional(),

@@ -1,11 +1,11 @@
 import { z } from "zod";
-import { ConfigBase } from "./common";
+import { $EnvironmentStatus, ConfigBase } from "./common";
 
 export const $VolumeGroup = ConfigBase("VolumeGroup")
   .extend({
     name: z.string(),
     description: z.string().optional(),
-    status: z.enum(["DRAFT", "PUBLISHED", "DISABLED"]),
+    status: $EnvironmentStatus,
     startDate: z.iso.date(), // ISO date
     endDate: z.iso.date().optional(), // ISO date
   })

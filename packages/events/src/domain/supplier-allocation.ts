@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ConfigBase } from "./common";
+import { $EnvironmentStatus, ConfigBase } from "./common";
 import { idRef } from "../helpers/id-ref";
 import { $VolumeGroup } from "./volume-group";
 import { $Supplier } from "./supplier";
@@ -9,7 +9,7 @@ export const $SupplierAllocation = ConfigBase("SupplierAllocation")
     volumeGroup: idRef($VolumeGroup),
     supplier: idRef($Supplier),
     allocationPercentage: z.number().min(0).max(100),
-    status: z.enum(["PUBLISHED", "REMOVED"]),
+    status: $EnvironmentStatus,
   })
   .meta({
     title: "SupplierAllocation",
