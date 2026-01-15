@@ -6,8 +6,9 @@ import {
 import { EventEnvelope } from "./event-envelope";
 
 const variantStatuses = [
-  "PUBLISHED",
-  "DISABLED",
+  "DRAFT",
+  "INT",
+  "PROD",
 ] as const satisfies readonly LetterVariant["status"][];
 
 /**
@@ -50,6 +51,7 @@ For this event the status is always \`${status}\``,
 };
 
 export const letterVariantEvents = {
-  "letter-variant.published": specialiseLetterVariantEvent("PUBLISHED"),
-  "letter-variant.disabled": specialiseLetterVariantEvent("DISABLED"),
+  "letter-variant.draft": specialiseLetterVariantEvent("DRAFT"),
+  "letter-variant.int": specialiseLetterVariantEvent("INT"),
+  "letter-variant.prod": specialiseLetterVariantEvent("PROD"),
 } as const;

@@ -13,7 +13,7 @@ describe("SpecificationSupplier schema validation", () => {
   const standardLetterSpecification: PackSpecification = {
     id: "standard-letter" as any,
     name: "Standard Economy-class Letter",
-    status: "PUBLISHED",
+    status: "PROD",
     createdAt: "2023-01-01T00:00:00Z",
     updatedAt: "2023-01-01T00:00:00Z",
     version: 1,
@@ -33,7 +33,8 @@ describe("SpecificationSupplier schema validation", () => {
     id: "test-specification-supplier" as any,
     packSpecificationId: standardLetterSpecification.id,
     supplierId: SupplierId("supplier-123"),
-    status: "APPROVED",
+    approval: "APPROVED",
+    status: "PROD",
   };
 
   it("should validate a specification supplier", () => {

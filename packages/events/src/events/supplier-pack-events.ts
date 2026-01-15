@@ -3,8 +3,9 @@ import { $SupplierPack, SupplierPack } from "../domain";
 import { EventEnvelope } from "./event-envelope";
 
 const packStatuses = [
-  "APPROVED",
-  "DISABLED",
+  "DRAFT",
+  "INT",
+  "PROD",
 ] as const satisfies readonly SupplierPack["status"][];
 
 /**
@@ -47,6 +48,7 @@ For this event the status is always \`${status}\``,
 }
 
 export const supplierPackEvents = {
-  "supplier-pack.approved": specialiseSupplierPackEvent("APPROVED"),
-  "supplier-pack.disabled": specialiseSupplierPackEvent("DISABLED"),
+  "supplier-pack.draft": specialiseSupplierPackEvent("DRAFT"),
+  "supplier-pack.int": specialiseSupplierPackEvent("INT"),
+  "supplier-pack.prod": specialiseSupplierPackEvent("PROD"),
 } as const;

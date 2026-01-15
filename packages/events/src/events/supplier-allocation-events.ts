@@ -3,8 +3,9 @@ import { $SupplierAllocation, SupplierAllocation } from "../domain";
 import { EventEnvelope } from "./event-envelope";
 
 const allocationStatuses = [
-  "PUBLISHED",
-  "REMOVED",
+  "DRAFT",
+  "INT",
+  "PROD",
 ] as const satisfies readonly SupplierAllocation["status"][];
 
 /**
@@ -36,7 +37,7 @@ function specialiseSupplierAllocationEvent(
         status: z.literal(status),
       })
       .meta({
-        description: `Indicates whether this supplier allocation is currently active or has been removed.
+        description: `Indicates the environment status of this supplier allocation.
 
 For this event the status is always \`${status}\``,
       }),
@@ -48,7 +49,7 @@ For this event the status is always \`${status}\``,
 }
 
 export const supplierAllocationEvents = {
-  "supplier-allocation.published":
-    specialiseSupplierAllocationEvent("PUBLISHED"),
-  "supplier-allocation.removed": specialiseSupplierAllocationEvent("REMOVED"),
+  "supplier-allocation.draft": specialiseSupplierAllocationEvent("DRAFT"),
+  "supplier-allocation.int": specialiseSupplierAllocationEvent("INT"),
+  "supplier-allocation.prod": specialiseSupplierAllocationEvent("PROD"),
 } as const;

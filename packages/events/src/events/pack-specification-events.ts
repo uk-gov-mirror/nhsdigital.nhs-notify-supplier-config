@@ -6,8 +6,9 @@ import { z } from "zod";
 import { EventEnvelope } from "./event-envelope";
 
 const packStatuses = [
-  "PUBLISHED",
-  "DISABLED",
+  "DRAFT",
+  "INT",
+  "PROD",
 ] as const satisfies readonly PackSpecification["status"][];
 
 /**
@@ -47,6 +48,7 @@ For this event the status is always \`${status}\``,
 }
 
 export const packSpecificationEvents = {
-  "pack-specification.published": specialisePackSpecificationEvent("PUBLISHED"),
-  "pack-specification.disabled": specialisePackSpecificationEvent("DISABLED"),
+  "pack-specification.draft": specialisePackSpecificationEvent("DRAFT"),
+  "pack-specification.int": specialisePackSpecificationEvent("INT"),
+  "pack-specification.prod": specialisePackSpecificationEvent("PROD"),
 } as const;

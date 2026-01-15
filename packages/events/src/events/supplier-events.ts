@@ -3,8 +3,9 @@ import { $Supplier, Supplier } from "../domain";
 import { EventEnvelope } from "./event-envelope";
 
 const supplierStatuses = [
-  "PUBLISHED",
-  "DISABLED",
+  "DRAFT",
+  "INT",
+  "PROD",
 ] as const satisfies readonly Supplier["status"][];
 
 /**
@@ -40,6 +41,7 @@ function specialiseSupplierEvent(status: (typeof supplierStatuses)[number]) {
 }
 
 export const supplierEvents = {
-  "supplier.published": specialiseSupplierEvent("PUBLISHED"),
-  "supplier.disabled": specialiseSupplierEvent("DISABLED"),
+  "supplier.draft": specialiseSupplierEvent("DRAFT"),
+  "supplier.int": specialiseSupplierEvent("INT"),
+  "supplier.prod": specialiseSupplierEvent("PROD"),
 } as const;

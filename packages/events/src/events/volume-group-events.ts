@@ -3,8 +3,9 @@ import { $VolumeGroup, VolumeGroup } from "../domain";
 import { EventEnvelope } from "./event-envelope";
 
 const statuses = [
-  "PUBLISHED",
-  "DISABLED",
+  "DRAFT",
+  "INT",
+  "PROD",
 ] as const satisfies readonly VolumeGroup["status"][];
 
 /**
@@ -47,6 +48,7 @@ For this event the status is always \`${status}\``,
 }
 
 export const volumeGroupEvents = {
-  "volume-group.published": specialiseVolumeGroupEvent("PUBLISHED"),
-  "volume-group.disabled": specialiseVolumeGroupEvent("DISABLED"),
+  "volume-group.draft": specialiseVolumeGroupEvent("DRAFT"),
+  "volume-group.int": specialiseVolumeGroupEvent("INT"),
+  "volume-group.prod": specialiseVolumeGroupEvent("PROD"),
 } as const;
