@@ -1,9 +1,9 @@
-import { z } from "zod";
+import {z} from "zod";
 import {
   $EnvironmentStatus,
   ConfigBase,
 } from "@nhsdigital/nhs-notify-event-schemas-supplier-config/src/domain/common";
-import { idRef } from "@nhsdigital/nhs-notify-event-schemas-supplier-config/src/helpers/id-ref";
+import {idRef} from "@nhsdigital/nhs-notify-event-schemas-supplier-config/src/helpers/id-ref";
 
 export const $PackFeature = z.enum(["BRAILLE", "AUDIO", "ADMAIL", "SAME_DAY"]);
 export const $EnvelopeFeature = z.enum([
@@ -77,15 +77,11 @@ export const $Paper = ConfigBase("Paper")
     name: z.string(),
     weightGSM: z.number(),
     size: z.enum(["A5", "A4", "A3"]),
-    colour: z
-      .string()
-      .optional()
-      .meta({
-        title: "Colour",
-        description:
-          "The colour of the paper, if not standard white. This can be used to specify " +
-          "coloured paper options such as yellow or blue.",
-      }),
+    colour: z.enum(["WHITE"]).meta({
+      title: "Colour",
+      description:
+        "The colour of the paper. Currently we only define WHITE paper, but this may be extended in future.",
+    }),
     finish: z.enum(["MATT", "GLOSSY", "SILK"]).optional(),
     recycled: z.boolean(),
   })
