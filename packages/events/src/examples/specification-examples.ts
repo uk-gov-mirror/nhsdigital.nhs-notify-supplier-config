@@ -5,14 +5,15 @@ import {
 import {
   EnvelopeId,
   PackSpecification,
-  PackSpecificationId, PostageId,
+  PackSpecificationId,
+  PostageId,
 } from "@nhsdigital/nhs-notify-event-schemas-supplier-config/src/domain/pack-specification";
-import {VolumeGroupId} from "../domain";
+import { VolumeGroupId } from "../domain";
 
 const bauStandardC5: PackSpecification = {
   id: PackSpecificationId("bau-standard-c5"),
   name: "BAU Standard Letter C5",
-  status: "PUBLISHED",
+  status: "PROD",
   version: 1,
   createdAt: "2023-01-01T00:00:00Z",
   updatedAt: "2023-01-01T00:00:00Z",
@@ -22,7 +23,7 @@ const bauStandardC5: PackSpecification = {
   postage: {
     id: PostageId("ECONOMY"),
     size: "STANDARD",
-    deliverySLA: 3,
+    deliveryDays: 3,
   },
   assembly: {
     envelopeId: EnvelopeId("envelope-nhs-c5-economy"),
@@ -33,7 +34,7 @@ const bauStandardC5: PackSpecification = {
 const bauStandardC4: PackSpecification = {
   id: PackSpecificationId("bau-standard-c4"),
   name: "BAU Standard Letter C4",
-  status: "PUBLISHED",
+  status: "PROD",
   version: 1,
   createdAt: "2023-01-01T00:00:00Z",
   updatedAt: "2023-01-01T00:00:00Z",
@@ -43,7 +44,7 @@ const bauStandardC4: PackSpecification = {
   postage: {
     id: PostageId("ECONOMY"),
     size: "LARGE",
-    deliverySLA: 3,
+    deliveryDays: 3,
   },
   assembly: {
     envelopeId: EnvelopeId("envelope-nhs-c4-economy"),
@@ -54,7 +55,7 @@ const bauStandardC4: PackSpecification = {
 const braille: PackSpecification = {
   id: PackSpecificationId("braille"),
   name: "Braille Letter",
-  status: "PUBLISHED",
+  status: "PROD",
   version: 1,
   createdAt: "2023-01-01T00:00:00Z",
   updatedAt: "2023-01-01T00:00:00Z",
@@ -74,7 +75,7 @@ const braille: PackSpecification = {
 const audio: PackSpecification = {
   id: PackSpecificationId("audio"),
   name: "Audio Letter",
-  status: "PUBLISHED",
+  status: "PROD",
   version: 1,
   createdAt: "2023-01-01T00:00:00Z",
   updatedAt: "2023-01-01T00:00:00Z",
@@ -94,7 +95,7 @@ const audio: PackSpecification = {
 const sameDay: PackSpecification = {
   id: PackSpecificationId("same-day"),
   name: "Same Day Letter",
-  status: "PUBLISHED",
+  status: "PROD",
   version: 1,
   createdAt: "2023-01-01T00:00:00Z",
   updatedAt: "2023-01-01T00:00:00Z",
@@ -104,7 +105,7 @@ const sameDay: PackSpecification = {
   postage: {
     id: PostageId("FIRST"),
     size: "LARGE",
-    deliverySLA: 1,
+    deliveryDays: 1,
   },
   assembly: {
     envelopeId: EnvelopeId("envelope-nhs-c4-same-day"),
@@ -115,7 +116,7 @@ const sameDay: PackSpecification = {
 const clientPack1: PackSpecification = {
   id: PackSpecificationId("client1-campaign1"),
   name: "Client1 Letter Pack 1",
-  status: "PUBLISHED",
+  status: "PROD",
   version: 1,
   createdAt: "2023-01-01T00:00:00Z",
   updatedAt: "2023-01-01T00:00:00Z",
@@ -125,7 +126,7 @@ const clientPack1: PackSpecification = {
   postage: {
     id: PostageId("ADMAIL"),
     size: "STANDARD",
-    deliverySLA: 3,
+    deliveryDays: 3,
   },
   assembly: {
     envelopeId: EnvelopeId("client1-envelope1-c5"),
@@ -151,10 +152,10 @@ const variants: Record<string, LetterVariant> = {
     volumeGroupId: VolumeGroupId("volume-group-12345"),
     packSpecificationIds: [bauStandardC5.id, bauStandardC4.id],
     type: "STANDARD",
-    status: "PUBLISHED",
+    status: "PROD",
     constraints: {
       maxSheets: 20,
-      deliverySLA: 3,
+      deliveryDays: 3,
     },
   },
   braille: {
@@ -164,10 +165,10 @@ const variants: Record<string, LetterVariant> = {
     volumeGroupId: VolumeGroupId("volume-group-12345"),
     packSpecificationIds: [braille.id],
     type: "BRAILLE",
-    status: "PUBLISHED",
+    status: "PROD",
     constraints: {
       maxSheets: 5,
-      deliverySLA: 3,
+      deliveryDays: 3,
     },
   },
   audio: {
@@ -177,10 +178,10 @@ const variants: Record<string, LetterVariant> = {
     volumeGroupId: VolumeGroupId("volume-group-12345"),
     packSpecificationIds: [audio.id],
     type: "AUDIO",
-    status: "PUBLISHED",
+    status: "PROD",
     constraints: {
       maxSheets: 5,
-      deliverySLA: 3,
+      deliveryDays: 3,
     },
   },
   sameDay: {
@@ -189,11 +190,11 @@ const variants: Record<string, LetterVariant> = {
     description: "Same Day Letter",
     volumeGroupId: VolumeGroupId("volume-group-12345"),
     packSpecificationIds: [sameDay.id],
-    type: "SAME_DAY",
-    status: "PUBLISHED",
+    type: "STANDARD",
+    status: "PROD",
     constraints: {
       maxSheets: 5,
-      deliverySLA: 1,
+      deliveryDays: 1,
     },
   },
   campaign1: {
@@ -203,12 +204,12 @@ const variants: Record<string, LetterVariant> = {
     volumeGroupId: VolumeGroupId("volume-group-campaign1"),
     packSpecificationIds: [clientPack1.id],
     type: "STANDARD",
-    status: "PUBLISHED",
+    status: "PROD",
     clientId: "client1",
     campaignIds: ["client1-campaign1"],
     constraints: {
       maxSheets: 4,
-      deliverySLA: 3,
+      deliveryDays: 3,
     },
   },
 };

@@ -17,12 +17,11 @@ describe("Specification schema validation", () => {
     postage: {
       id: PostageId("economy"),
       size: "STANDARD",
-      deliverySLA: 4,
+      deliveryDays: 4,
     },
     assembly: {
       envelopeId: EnvelopeId("nhs-economy"),
       printColour: "BLACK",
-      features: ["MAILMARK"],
     },
   };
 

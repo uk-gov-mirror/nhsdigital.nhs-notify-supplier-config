@@ -1,14 +1,11 @@
 import { z } from "zod";
-import {$EnvironmentStatus, ConfigBase} from "@nhsdigital/nhs-notify-event-schemas-supplier-config/src/domain/common";
+import {
+  $EnvironmentStatus,
+  ConfigBase,
+} from "@nhsdigital/nhs-notify-event-schemas-supplier-config/src/domain/common";
 import { idRef } from "@nhsdigital/nhs-notify-event-schemas-supplier-config/src/helpers/id-ref";
 
-export const $PackFeature = z.enum([
-  "MAILMARK",
-  "BRAILLE",
-  "AUDIO",
-  "ADMAIL",
-  "SAME_DAY",
-]);
+export const $PackFeature = z.enum(["BRAILLE", "AUDIO", "ADMAIL", "SAME_DAY"]);
 export const $EnvelopeFeature = z.enum([
   "WHITEMAIL",
   "NHS_BRANDING",
@@ -39,17 +36,37 @@ export type InsertId = Insert["id"];
 
 export const $Constraints = z.object({
   maxSheets: z.number().optional(),
-  deliverySLA: z.number().optional(),
+  deliveryDays: z.number().optional(),
   blackCoveragePercentage: z.number().optional(),
   colourCoveragePercentage: z.number().optional(),
 });
 
 export const $Postage = ConfigBase("Postage")
   .extend({
-    size: z.enum(["STANDARD", "LARGE"]),
-    deliverySLA: z.number().optional(),
-    maxWeight: z.number().optional(),
-    maxThickness: z.number().optional(),
+    size: z.enum(["STANDARD", "LARGE", "PARCEL"]),
+    deliveryDays: z.number().optional().meta({
+      title: "Delivery Days",
+      description:
+        "The expected number of days for delivery under this postage option.",
+    }),
+    maxWeightGrams: z
+      .number()
+      .optional()
+      .meta({
+        title: "Max Weight (grams)",
+        description:
+          "The maximum weight in grams for this postage option. Places a " +
+          "constraint based on the number of sheets and paper weight.",
+      }),
+    maxThicknessMm: z
+      .number()
+      .optional()
+      .meta({
+        title: "Max Thickness (mm)",
+        description:
+          "The maximum thickness in millimetres for this postage option. " +
+          "Places a constraint based on the number of sheets and paper type.",
+      }),
   })
   .describe("Postage");
 export type Postage = z.infer<typeof $Postage>;
@@ -59,8 +76,17 @@ export const $Paper = ConfigBase("Paper")
   .extend({
     name: z.string(),
     weightGSM: z.number(),
-    size: z.enum(["A4", "A3"]),
-    colour: z.enum(["WHITE", "COLOURED"]),
+    size: z.enum(["A5", "A4", "A3"]),
+    colour: z
+      .string()
+      .optional()
+      .meta({
+        title: "Colour",
+        description:
+          "The colour of the paper, if not standard white. This can be used to specify " +
+          "coloured paper options such as yellow or blue.",
+      }),
+    finish: z.enum(["MATT", "GLOSSY", "SILK"]).optional(),
     recycled: z.boolean(),
   })
   .describe("Paper");
@@ -73,7 +99,11 @@ export const $PackSpecification = ConfigBase("PackSpecification")
     status: $EnvironmentStatus,
     createdAt: z.iso.datetime(),
     updatedAt: z.iso.datetime(),
-    version: z.int(),
+    version: z.int().meta({
+      title: "Version",
+      description:
+        "The version number of this Pack Specification, incremented with each update.",
+    }),
     billingId: z.string().optional(),
     constraints: $Constraints.optional(),
     postage: $Postage,

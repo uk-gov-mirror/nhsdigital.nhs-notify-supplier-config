@@ -1,12 +1,9 @@
 import {
-  $SupplierPack,
-  SupplierPack,
-} from "../supplier-pack";
-import {
   EnvelopeId,
   PackSpecification,
   PostageId,
 } from "@nhsdigital/nhs-notify-event-schemas-supplier-config/src/domain/pack-specification";
+import { $SupplierPack, SupplierPack } from "../supplier-pack";
 import { SupplierId } from "../supplier";
 
 describe("SpecificationSupplier schema validation", () => {
@@ -20,12 +17,11 @@ describe("SpecificationSupplier schema validation", () => {
     postage: {
       id: PostageId("economy"),
       size: "STANDARD",
-      deliverySLA: 4,
+      deliveryDays: 4,
     },
     assembly: {
       envelopeId: EnvelopeId("nhs-economy"),
       printColour: "BLACK",
-      features: ["MAILMARK"],
     },
   };
 

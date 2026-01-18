@@ -177,14 +177,14 @@ describe("LetterVariant Events", () => {
       expect(result.success).toBe(false);
     });
 
-    it("should validate specialised schema enforces PUBLISHED status", () => {
+    it("should validate specialised schema enforces PROD status", () => {
       const prodSchema = letterVariantEvents["letter-variant.prod"];
 
-      // Valid with PUBLISHED status
+      // Valid with PROD status
       const validResult = prodSchema.safeParse(validProdEvent);
       expect(validResult.success).toBe(true);
 
-      // Invalid with DISABLED status
+      // Invalid with INT status
       const invalidEvent = {
         ...validProdEvent,
         data: {
@@ -234,14 +234,14 @@ describe("LetterVariant Events", () => {
       expect(result.success).toBe(true);
     });
 
-    it("should validate specialised schema enforces DISABLED status", () => {
+    it("should validate specialised schema enforces INT status", () => {
       const intSchema = letterVariantEvents["letter-variant.int"];
 
-      // Valid with DISABLED status
+      // Valid with INT status
       const validResult = intSchema.safeParse(validIntEvent);
       expect(validResult.success).toBe(true);
 
-      // Invalid with PUBLISHED status
+      // Invalid with PROD status
       const invalidEvent = {
         ...validIntEvent,
         data: {
