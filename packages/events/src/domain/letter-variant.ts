@@ -7,7 +7,7 @@ import {
 import { z } from "zod";
 import { $VolumeGroup } from "./volume-group";
 
-export const $LetterType = z.enum(["STANDARD", "BRAILLE", "AUDIO", "SAME_DAY"]);
+export const $LetterType = z.enum(["STANDARD", "BRAILLE", "AUDIO"]);
 
 export const $LetterVariant = ConfigBase("LetterVariant")
   .extend({

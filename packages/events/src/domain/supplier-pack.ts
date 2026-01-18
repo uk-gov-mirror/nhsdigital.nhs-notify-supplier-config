@@ -12,7 +12,14 @@ export const $SupplierPack = ConfigBase("SupplierPack")
     packSpecificationId: idRef($PackSpecification),
     supplierId: idRef($Supplier),
     approval: z
-      .enum(["DRAFT", "SUBMITTED", "APPROVED", "REJECTED", "DISABLED"])
+      .enum([
+        "DRAFT",
+        "SUBMITTED",
+        "PROOF_RECEIVED",
+        "APPROVED",
+        "REJECTED",
+        "DISABLED",
+      ])
       .meta({
         title: "Approval Status",
         description:

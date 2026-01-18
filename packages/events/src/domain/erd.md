@@ -14,8 +14,8 @@ erDiagram
         string id
         string name
         string description
-        string type "enum: STANDARD, BRAILLE, AUDIO, SAME_DAY"
-        string status "enum: DRAFT, PUBLISHED, DISABLED"
+        string type "enum: STANDARD, BRAILLE, AUDIO"
+        string status "enum: DRAFT, INT, PROD"
         string volumeGroupId "ref: VolumeGroup"
         string clientId
         string[] campaignIds
@@ -31,7 +31,7 @@ erDiagram
     PackSpecification {
         string id
         string name
-        string status "enum: DRAFT, PUBLISHED, DISABLED"
+        string status "enum: DRAFT, INT, PROD"
         string createdAt
         string updatedAt
         number version "min: -9007199254740991, max: 9007199254740991"
@@ -58,7 +58,7 @@ erDiagram
         string printColour "enum: BLACK, COLOUR"
         Paper paper
         string[] insertIds "ref: Insert"
-        string[] features "enum: MAILMARK, BRAILLE, AUDIO, ADMAIL"
+        string[] features "enum: MAILMARK, BRAILLE, AUDIO, ADMAIL, SAME_DAY"
         Record additional "&lt;string, string&gt;"
     }
     Paper {
@@ -73,7 +73,7 @@ erDiagram
         string id
         string name
         string description
-        string status "enum: DRAFT, PUBLISHED, DISABLED"
+        string status "enum: DRAFT, INT, PROD"
         string startDate
         string endDate
     }
@@ -82,20 +82,21 @@ erDiagram
         string name
         string channelType "enum: NHSAPP, SMS, EMAIL, LETTER"
         number dailyCapacity "min: -9007199254740991, max: 9007199254740991"
-        string status "enum: PUBLISHED, DISABLED"
+        string status "enum: DRAFT, INT, PROD"
     }
     SupplierAllocation {
         string id
         string volumeGroup "ref: VolumeGroup"
         string supplier "ref: Supplier"
         number allocationPercentage "positive, max: 100"
-        string status "enum: PUBLISHED, REMOVED"
+        string status "enum: DRAFT, INT, PROD"
     }
     SupplierPack {
         string id
         string packSpecificationId "ref: PackSpecification"
         string supplierId "ref: Supplier"
-        string status "enum: SUBMITTED, APPROVED, REJECTED, DISABLED"
+        string approval "enum: DRAFT, SUBMITTED, PROOF_RECEIVED, APPROVED, REJECTED, DISABLED"
+        string status "enum: DRAFT, INT, PROD"
     }
     Envelope {
         string id
@@ -128,8 +129,8 @@ erDiagram
         string id
         string name
         string description
-        string type "enum: STANDARD, BRAILLE, AUDIO, SAME_DAY"
-        string status "enum: DRAFT, PUBLISHED, DISABLED"
+        string type "enum: STANDARD, BRAILLE, AUDIO"
+        string status "enum: DRAFT, INT, PROD"
         string volumeGroupId "ref: VolumeGroup"
         string clientId
         string[] campaignIds
@@ -156,7 +157,7 @@ erDiagram
     PackSpecification {
         string id
         string name
-        string status "enum: DRAFT, PUBLISHED, DISABLED"
+        string status "enum: DRAFT, INT, PROD"
         string createdAt
         string updatedAt
         number version "min: -9007199254740991, max: 9007199254740991"
@@ -183,7 +184,7 @@ erDiagram
         string printColour "enum: BLACK, COLOUR"
         Paper paper
         string[] insertIds "ref: Insert"
-        string[] features "enum: MAILMARK, BRAILLE, AUDIO, ADMAIL"
+        string[] features "enum: MAILMARK, BRAILLE, AUDIO, ADMAIL, SAME_DAY"
         Record additional "&lt;string, string&gt;"
     }
     Paper {
@@ -218,7 +219,7 @@ erDiagram
         string id
         string name
         string description
-        string status "enum: DRAFT, PUBLISHED, DISABLED"
+        string status "enum: DRAFT, INT, PROD"
         string startDate
         string endDate
     }
@@ -227,14 +228,14 @@ erDiagram
         string name
         string channelType "enum: NHSAPP, SMS, EMAIL, LETTER"
         number dailyCapacity "min: -9007199254740991, max: 9007199254740991"
-        string status "enum: PUBLISHED, DISABLED"
+        string status "enum: DRAFT, INT, PROD"
     }
     SupplierAllocation {
         string id
         string volumeGroup "ref: VolumeGroup"
         string supplier "ref: Supplier"
         number allocationPercentage "positive, max: 100"
-        string status "enum: PUBLISHED, REMOVED"
+        string status "enum: DRAFT, INT, PROD"
     }
     SupplierAllocation }o--|| VolumeGroup : "volumeGroup"
     SupplierAllocation }o--|| Supplier : "supplier"
@@ -250,7 +251,8 @@ erDiagram
         string id
         string packSpecificationId "ref: PackSpecification"
         string supplierId "ref: Supplier"
-        string status "enum: SUBMITTED, APPROVED, REJECTED, DISABLED"
+        string approval "enum: DRAFT, SUBMITTED, PROOF_RECEIVED, APPROVED, REJECTED, DISABLED"
+        string status "enum: DRAFT, INT, PROD"
     }
     SupplierPack }o--|| PackSpecification : "packSpecificationId"
     SupplierPack }o--|| Supplier : "supplierId"

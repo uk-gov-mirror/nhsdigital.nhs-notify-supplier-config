@@ -98,23 +98,6 @@ describe("LetterVariant Events", () => {
       expect(result.success).toBe(true);
     });
 
-    it("should validate SAME_DAY type variant", () => {
-      const sameDayEvent: LetterVariantEvent = {
-        ...validProdEvent,
-        data: {
-          id: LetterVariantId("same-day-variant"),
-          name: "Same Day Letter Variant",
-          volumeGroupId: VolumeGroupId("supplier-framework-123"),
-          type: "SAME_DAY",
-          status: "PROD",
-          packSpecificationIds: [PackSpecificationId("same-day")],
-        },
-      };
-
-      const result = $LetterVariantEvent.safeParse(sameDayEvent);
-      expect(result.success).toBe(true);
-    });
-
     it("should reject event with invalid type", () => {
       const invalidEvent = {
         ...validProdEvent,
