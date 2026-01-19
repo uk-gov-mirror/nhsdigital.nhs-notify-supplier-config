@@ -9,6 +9,7 @@ const variantStatuses = [
   "DRAFT",
   "INT",
   "PROD",
+  "DISABLED",
 ] as const satisfies readonly LetterVariant["status"][];
 
 /**
@@ -54,4 +55,5 @@ export const letterVariantEvents = {
   "letter-variant.draft": specialiseLetterVariantEvent("DRAFT"),
   "letter-variant.int": specialiseLetterVariantEvent("INT"),
   "letter-variant.prod": specialiseLetterVariantEvent("PROD"),
+  "letter-variant.disabled": specialiseLetterVariantEvent("DISABLED"),
 } as const;

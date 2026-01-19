@@ -15,23 +15,24 @@ erDiagram
         string name
         string description
         string type "enum: STANDARD, BRAILLE, AUDIO"
-        string status "enum: DRAFT, INT, PROD"
+        string status "enum: DRAFT, INT, PROD, DISABLED"
         string volumeGroupId "ref: VolumeGroup"
         string clientId
         string[] campaignIds
+        string supplierId "ref: Supplier"
         string[] packSpecificationIds "ref: PackSpecification"
         Constraints constraints
     }
     Constraints {
         number maxSheets
-        number deliverySLA
+        number deliveryDays
         number blackCoveragePercentage
         number colourCoveragePercentage
     }
     PackSpecification {
         string id
         string name
-        string status "enum: DRAFT, INT, PROD"
+        string status "enum: DRAFT, INT, PROD, DISABLED"
         string createdAt
         string updatedAt
         number version "min: -9007199254740991, max: 9007199254740991"
@@ -42,38 +43,39 @@ erDiagram
     }
     Constraints {
         number maxSheets
-        number deliverySLA
+        number deliveryDays
         number blackCoveragePercentage
         number colourCoveragePercentage
     }
     Postage {
         string id
-        string size "enum: STANDARD, LARGE"
-        number deliverySLA
-        number maxWeight
-        number maxThickness
+        string size "enum: STANDARD, LARGE, PARCEL"
+        number deliveryDays
+        number maxWeightGrams
+        number maxThicknessMm
     }
     Assembly {
         string envelopeId "ref: Envelope"
         string printColour "enum: BLACK, COLOUR"
         Paper paper
         string[] insertIds "ref: Insert"
-        string[] features "enum: MAILMARK, BRAILLE, AUDIO, ADMAIL, SAME_DAY"
+        string[] features "enum: BRAILLE, AUDIO, ADMAIL, SAME_DAY"
         Record additional "&lt;string, string&gt;"
     }
     Paper {
         string id
         string name
         number weightGSM
-        string size "enum: A4, A3"
-        string colour "enum: WHITE, COLOURED"
+        string size "enum: A5, A4, A3"
+        string colour "enum: WHITE"
+        string finish "enum: MATT, GLOSSY, SILK"
         boolean recycled
     }
     VolumeGroup {
         string id
         string name
         string description
-        string status "enum: DRAFT, INT, PROD"
+        string status "enum: DRAFT, INT, PROD, DISABLED"
         string startDate
         string endDate
     }
@@ -82,21 +84,21 @@ erDiagram
         string name
         string channelType "enum: NHSAPP, SMS, EMAIL, LETTER"
         number dailyCapacity "min: -9007199254740991, max: 9007199254740991"
-        string status "enum: DRAFT, INT, PROD"
+        string status "enum: DRAFT, INT, PROD, DISABLED"
     }
     SupplierAllocation {
         string id
         string volumeGroup "ref: VolumeGroup"
         string supplier "ref: Supplier"
         number allocationPercentage "positive, max: 100"
-        string status "enum: DRAFT, INT, PROD"
+        string status "enum: DRAFT, INT, PROD, DISABLED"
     }
     SupplierPack {
         string id
         string packSpecificationId "ref: PackSpecification"
         string supplierId "ref: Supplier"
         string approval "enum: DRAFT, SUBMITTED, PROOF_RECEIVED, APPROVED, REJECTED, DISABLED"
-        string status "enum: DRAFT, INT, PROD"
+        string status "enum: DRAFT, INT, PROD, DISABLED"
     }
     Envelope {
         string id
@@ -106,6 +108,7 @@ erDiagram
         string artwork "url"
     }
     LetterVariant }o--|| VolumeGroup : "volumeGroupId"
+    LetterVariant }o--o{ Supplier : "supplierId"
     LetterVariant }o--o{ PackSpecification : "packSpecificationIds"
     LetterVariant ||--o{ Constraints : "constraints"
     PackSpecification ||--o{ Constraints : "constraints"
@@ -130,20 +133,22 @@ erDiagram
         string name
         string description
         string type "enum: STANDARD, BRAILLE, AUDIO"
-        string status "enum: DRAFT, INT, PROD"
+        string status "enum: DRAFT, INT, PROD, DISABLED"
         string volumeGroupId "ref: VolumeGroup"
         string clientId
         string[] campaignIds
+        string supplierId "ref: Supplier"
         string[] packSpecificationIds "ref: PackSpecification"
         Constraints constraints
     }
     Constraints {
         number maxSheets
-        number deliverySLA
+        number deliveryDays
         number blackCoveragePercentage
         number colourCoveragePercentage
     }
     LetterVariant }o--|| VolumeGroup : "volumeGroupId"
+    LetterVariant }o--o{ Supplier : "supplierId"
     LetterVariant }o--o{ PackSpecification : "packSpecificationIds"
     LetterVariant ||--o{ Constraints : "constraints"
 ```
@@ -157,7 +162,7 @@ erDiagram
     PackSpecification {
         string id
         string name
-        string status "enum: DRAFT, INT, PROD"
+        string status "enum: DRAFT, INT, PROD, DISABLED"
         string createdAt
         string updatedAt
         number version "min: -9007199254740991, max: 9007199254740991"
@@ -168,31 +173,32 @@ erDiagram
     }
     Constraints {
         number maxSheets
-        number deliverySLA
+        number deliveryDays
         number blackCoveragePercentage
         number colourCoveragePercentage
     }
     Postage {
         string id
-        string size "enum: STANDARD, LARGE"
-        number deliverySLA
-        number maxWeight
-        number maxThickness
+        string size "enum: STANDARD, LARGE, PARCEL"
+        number deliveryDays
+        number maxWeightGrams
+        number maxThicknessMm
     }
     Assembly {
         string envelopeId "ref: Envelope"
         string printColour "enum: BLACK, COLOUR"
         Paper paper
         string[] insertIds "ref: Insert"
-        string[] features "enum: MAILMARK, BRAILLE, AUDIO, ADMAIL, SAME_DAY"
+        string[] features "enum: BRAILLE, AUDIO, ADMAIL, SAME_DAY"
         Record additional "&lt;string, string&gt;"
     }
     Paper {
         string id
         string name
         number weightGSM
-        string size "enum: A4, A3"
-        string colour "enum: WHITE, COLOURED"
+        string size "enum: A5, A4, A3"
+        string colour "enum: WHITE"
+        string finish "enum: MATT, GLOSSY, SILK"
         boolean recycled
     }
     Envelope {
@@ -219,7 +225,7 @@ erDiagram
         string id
         string name
         string description
-        string status "enum: DRAFT, INT, PROD"
+        string status "enum: DRAFT, INT, PROD, DISABLED"
         string startDate
         string endDate
     }
@@ -228,14 +234,14 @@ erDiagram
         string name
         string channelType "enum: NHSAPP, SMS, EMAIL, LETTER"
         number dailyCapacity "min: -9007199254740991, max: 9007199254740991"
-        string status "enum: DRAFT, INT, PROD"
+        string status "enum: DRAFT, INT, PROD, DISABLED"
     }
     SupplierAllocation {
         string id
         string volumeGroup "ref: VolumeGroup"
         string supplier "ref: Supplier"
         number allocationPercentage "positive, max: 100"
-        string status "enum: DRAFT, INT, PROD"
+        string status "enum: DRAFT, INT, PROD, DISABLED"
     }
     SupplierAllocation }o--|| VolumeGroup : "volumeGroup"
     SupplierAllocation }o--|| Supplier : "supplier"
@@ -252,7 +258,7 @@ erDiagram
         string packSpecificationId "ref: PackSpecification"
         string supplierId "ref: Supplier"
         string approval "enum: DRAFT, SUBMITTED, PROOF_RECEIVED, APPROVED, REJECTED, DISABLED"
-        string status "enum: DRAFT, INT, PROD"
+        string status "enum: DRAFT, INT, PROD, DISABLED"
     }
     SupplierPack }o--|| PackSpecification : "packSpecificationId"
     SupplierPack }o--|| Supplier : "supplierId"

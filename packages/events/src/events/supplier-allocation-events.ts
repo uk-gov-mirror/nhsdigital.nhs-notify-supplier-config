@@ -6,6 +6,7 @@ const allocationStatuses = [
   "DRAFT",
   "INT",
   "PROD",
+  "DISABLED",
 ] as const satisfies readonly SupplierAllocation["status"][];
 
 /**
@@ -52,4 +53,5 @@ export const supplierAllocationEvents = {
   "supplier-allocation.draft": specialiseSupplierAllocationEvent("DRAFT"),
   "supplier-allocation.int": specialiseSupplierAllocationEvent("INT"),
   "supplier-allocation.prod": specialiseSupplierAllocationEvent("PROD"),
+  "supplier-allocation.disabled": specialiseSupplierAllocationEvent("DISABLED"),
 } as const;

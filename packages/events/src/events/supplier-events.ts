@@ -6,6 +6,7 @@ const supplierStatuses = [
   "DRAFT",
   "INT",
   "PROD",
+  "DISABLED",
 ] as const satisfies readonly Supplier["status"][];
 
 /**
@@ -44,4 +45,5 @@ export const supplierEvents = {
   "supplier.draft": specialiseSupplierEvent("DRAFT"),
   "supplier.int": specialiseSupplierEvent("INT"),
   "supplier.prod": specialiseSupplierEvent("PROD"),
+  "supplier.disabled": specialiseSupplierEvent("DISABLED"),
 } as const;

@@ -9,6 +9,7 @@ import {
 } from "@nhsdigital/nhs-notify-event-schemas-supplier-config/src/domain/pack-specification";
 import { z } from "zod";
 import { $VolumeGroup } from "./volume-group";
+import {$Supplier} from "./supplier";
 
 export const $LetterType = z.enum(["STANDARD", "BRAILLE", "AUDIO"]);
 
@@ -38,8 +39,7 @@ export const $LetterVariant = ConfigBase("LetterVariant")
           "This is used to restrict a particular variant to specific campaigns " +
           "without the need for bespoke specifications, for example individual admail campaigns.",
       }),
-    supplierId: z
-      .string()
+    supplierId: idRef($Supplier)
       .optional()
       .meta({
         title: "Supplier ID",

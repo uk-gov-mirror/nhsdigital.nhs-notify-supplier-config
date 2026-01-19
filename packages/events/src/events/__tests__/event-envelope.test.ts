@@ -13,7 +13,9 @@ describe("EventEnvelope schema validation", () => {
     source: "/control-plane/supplier-config/ordering",
     subject: "order/769acdd4",
     type: "uk.nhs.notify.supplier-config.order.read.v1",
+    plane: "control",
     time: "2025-10-01T10:15:30.000Z",
+    dataschemaversion: "1.0.0",
     data: {
       "notify-payload": {
         "notify-data": { nhsNumber: "9434765919" },
@@ -28,6 +30,7 @@ describe("EventEnvelope schema validation", () => {
     recordedtime: "2025-10-01T10:15:30.250Z",
     severitynumber: 2,
     severitytext: "INFO",
+    datacontenttype: "application/json",
   };
 
   describe("basic validation", () => {

@@ -6,6 +6,7 @@ const statuses = [
   "DRAFT",
   "INT",
   "PROD",
+  "DISABLED",
 ] as const satisfies readonly VolumeGroup["status"][];
 
 /**
@@ -51,4 +52,5 @@ export const volumeGroupEvents = {
   "volume-group.draft": specialiseVolumeGroupEvent("DRAFT"),
   "volume-group.int": specialiseVolumeGroupEvent("INT"),
   "volume-group.prod": specialiseVolumeGroupEvent("PROD"),
+  "volume-group.disabled": specialiseVolumeGroupEvent("DISABLED"),
 } as const;

@@ -15,6 +15,7 @@ describe("LetterVariant Events", () => {
       source: "/control-plane/supplier-config",
       subject: "letter-variant/standard-letter-variant",
       type: "uk.nhs.notify.supplier-config.letter-variant.prod.v1",
+      plane: "control",
       time: "2025-10-01T10:15:30.000Z",
       recordedtime: "2025-10-01T10:15:30.250Z",
       severitynumber: 2,
@@ -22,6 +23,7 @@ describe("LetterVariant Events", () => {
       datacontenttype: "application/json",
       dataschema:
         "https://notify.nhs.uk/cloudevents/schemas/supplier-config/letter-variant.prod.1.0.0.schema.json",
+      dataschemaversion: "1.0.0",
       traceparent: "00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01",
       data: {
         id: LetterVariantId("standard-letter-variant"),
@@ -204,6 +206,7 @@ describe("LetterVariant Events", () => {
       source: "/control-plane/supplier-config",
       subject: "letter-variant/disabled-letter-variant",
       type: "uk.nhs.notify.supplier-config.letter-variant.int.v1",
+      plane: "control",
       time: "2025-10-01T11:20:45.000Z",
       recordedtime: "2025-10-01T11:20:45.500Z",
       severitynumber: 2,
@@ -211,6 +214,7 @@ describe("LetterVariant Events", () => {
       datacontenttype: "application/json",
       dataschema:
         "https://notify.nhs.uk/cloudevents/schemas/supplier-config/letter-variant.int.1.0.0.schema.json",
+      dataschemaversion: "1.0.0",
       traceparent: "00-1bf8762027de54ee9559fc322d91430d-c8be7c2270314442-01",
       data: {
         id: LetterVariantId("disabled-letter-variant"),
@@ -254,11 +258,72 @@ describe("LetterVariant Events", () => {
     });
   });
 
+  describe("letter-variant.disabled event", () => {
+    const validDisabledEvent: LetterVariantEvent = {
+      specversion: "1.0",
+      id: "8f3e4c75-5f76-5c2c-9d2d-cf4f6e333bcd",
+      source: "/control-plane/supplier-config",
+      subject: "letter-variant/disabled-letter-variant",
+      type: "uk.nhs.notify.supplier-config.letter-variant.disabled.v1",
+      plane: "control",
+      time: "2025-10-01T12:25:00.000Z",
+      recordedtime: "2025-10-01T12:25:00.750Z",
+      severitynumber: 2,
+      severitytext: "INFO",
+      datacontenttype: "application/json",
+      dataschema:
+        "https://notify.nhs.uk/cloudevents/schemas/supplier-config/letter-variant.disabled.1.0.0.schema.json",
+      dataschemaversion: "1.0.0",
+      traceparent: "00-2cf9873138ef65ff0670fd433e02541e-d9cf8d3381425553-01",
+      data: {
+        id: LetterVariantId("disabled-letter-variant"),
+        name: "Disabled Letter Variant",
+        description: "A letter variant that has been disabled",
+        volumeGroupId: VolumeGroupId("supplier-framework-123"),
+        type: "STANDARD",
+        status: "DISABLED",
+        packSpecificationIds: [PackSpecificationId("bau-standard-c5")],
+      },
+    };
+
+    it("should validate a valid letter-variant.disabled event", () => {
+      const result = $LetterVariantEvent.safeParse(validDisabledEvent);
+      expect(result.error).toBeUndefined();
+      expect(result.success).toBe(true);
+    });
+
+    it("should validate using the specialised disabled schema", () => {
+      const disabledSchema = letterVariantEvents["letter-variant.disabled"];
+      const result = disabledSchema.safeParse(validDisabledEvent);
+      expect(result.success).toBe(true);
+    });
+
+    it("should validate specialised schema enforces DISABLED status", () => {
+      const disabledSchema = letterVariantEvents["letter-variant.disabled"];
+
+      // Valid with DISABLED status
+      const validResult = disabledSchema.safeParse(validDisabledEvent);
+      expect(validResult.success).toBe(true);
+
+      // Invalid with PROD status
+      const invalidEvent = {
+        ...validDisabledEvent,
+        data: {
+          ...validDisabledEvent.data,
+          status: "PROD",
+        },
+      };
+      const invalidResult = disabledSchema.safeParse(invalidEvent);
+      expect(invalidResult.success).toBe(false);
+    });
+  });
+
   describe("letterVariantEvents object", () => {
-    it("should contain draft, int and prod event schemas", () => {
+    it("should contain draft, int, prod and disabled event schemas", () => {
       expect(letterVariantEvents["letter-variant.draft"]).toBeDefined();
       expect(letterVariantEvents["letter-variant.int"]).toBeDefined();
       expect(letterVariantEvents["letter-variant.prod"]).toBeDefined();
+      expect(letterVariantEvents["letter-variant.disabled"]).toBeDefined();
     });
 
     it("should not contain published event schema", () => {

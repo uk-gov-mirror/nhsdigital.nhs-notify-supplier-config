@@ -12,6 +12,7 @@ describe("Supplier Events", () => {
       source: "/control-plane/supplier-config",
       subject: "supplier/test-supplier",
       type: "uk.nhs.notify.supplier-config.supplier.prod.v1",
+      plane: "control",
       time: "2025-10-01T10:15:30.000Z",
       recordedtime: "2025-10-01T10:15:30.250Z",
       severitynumber: 2,
@@ -19,6 +20,7 @@ describe("Supplier Events", () => {
       datacontenttype: "application/json",
       dataschema:
         "https://notify.nhs.uk/cloudevents/schemas/supplier-config/supplier.prod.1.0.0.schema.json",
+      dataschemaversion: "1.0.0",
       traceparent: "00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01",
       data: {
         id: SupplierId("test-supplier"),
@@ -31,9 +33,6 @@ describe("Supplier Events", () => {
 
     it("validates a supplier.prod event with generic schema", () => {
       const result = $SupplierEvent.safeParse(validProdEvent);
-      if (!result.success) {
-        console.log("Validation errors:", JSON.stringify(result.error.issues, null, 2));
-      }
       expect(result.success).toBe(true);
     });
 
@@ -71,6 +70,7 @@ describe("Supplier Events", () => {
       source: "/control-plane/supplier-config",
       subject: "supplier/int-supplier",
       type: "uk.nhs.notify.supplier-config.supplier.int.v1",
+      plane: "control",
       time: "2025-10-01T11:20:45.000Z",
       recordedtime: "2025-10-01T11:20:45.500Z",
       severitynumber: 2,
@@ -78,12 +78,13 @@ describe("Supplier Events", () => {
       datacontenttype: "application/json",
       dataschema:
         "https://notify.nhs.uk/cloudevents/schemas/supplier-config/supplier.int.1.0.0.schema.json",
+      dataschemaversion: "1.0.0",
       traceparent: "00-1bf8762027de54ee9559fc322d91430d-c8be7c2270314442-01",
       data: {
         id: SupplierId("int-supplier"),
         name: "Integration Supplier",
         channelType: "LETTER",
-        dailyCapacity: 5_000,
+        dailyCapacity: 5000,
         status: "INT",
       },
     };
@@ -110,11 +111,60 @@ describe("Supplier Events", () => {
     });
   });
 
+  describe("supplier.disabled event", () => {
+    const validDisabledEvent = {
+      specversion: "1.0",
+      id: "8f3e4c75-5f76-5c2c-9d2d-cf4f6e333bcd",
+      source: "/control-plane/supplier-config",
+      subject: "supplier/disabled-supplier",
+      type: "uk.nhs.notify.supplier-config.supplier.disabled.v1",
+      plane: "control",
+      time: "2025-10-01T12:25:00.000Z",
+      recordedtime: "2025-10-01T12:25:00.750Z",
+      severitynumber: 2,
+      severitytext: "INFO",
+      datacontenttype: "application/json",
+      dataschema:
+        "https://notify.nhs.uk/cloudevents/schemas/supplier-config/supplier.disabled.1.0.0.schema.json",
+      dataschemaversion: "1.0.0",
+      traceparent: "00-2cf9873138ef65ff0670fd433e02541e-d9cf8d3381425553-01",
+      data: {
+        id: SupplierId("disabled-supplier"),
+        name: "Disabled Supplier",
+        channelType: "LETTER",
+        dailyCapacity: 3000,
+        status: "DISABLED",
+      },
+    };
+
+    it("validates a supplier.disabled event with generic schema", () => {
+      const result = $SupplierEvent.safeParse(validDisabledEvent);
+      expect(result.success).toBe(true);
+    });
+
+    it("validates with specialised disabled schema", () => {
+      const disabledSchema = supplierEvents["supplier.disabled"];
+      const result = disabledSchema.safeParse(validDisabledEvent);
+      expect(result.success).toBe(true);
+    });
+
+    it("rejects event with PROD status using disabled schema", () => {
+      const disabledSchema = supplierEvents["supplier.disabled"];
+      const invalidEvent = {
+        ...validDisabledEvent,
+        data: { ...validDisabledEvent.data, status: "PROD" },
+      };
+      const result = disabledSchema.safeParse(invalidEvent);
+      expect(result.success).toBe(false);
+    });
+  });
+
   describe("supplierEvents object", () => {
-    it("contains draft, int and prod event schemas", () => {
+    it("contains draft, int, prod and disabled event schemas", () => {
       expect(supplierEvents["supplier.draft"]).toBeDefined();
       expect(supplierEvents["supplier.int"]).toBeDefined();
       expect(supplierEvents["supplier.prod"]).toBeDefined();
+      expect(supplierEvents["supplier.disabled"]).toBeDefined();
     });
     it("does not contain published event schema", () => {
       expect((supplierEvents as any)["supplier.published"]).toBeUndefined();

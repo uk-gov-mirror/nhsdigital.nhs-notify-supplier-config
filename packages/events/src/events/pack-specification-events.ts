@@ -9,6 +9,7 @@ const packStatuses = [
   "DRAFT",
   "INT",
   "PROD",
+  "DISABLED",
 ] as const satisfies readonly PackSpecification["status"][];
 
 /**
@@ -51,4 +52,5 @@ export const packSpecificationEvents = {
   "pack-specification.draft": specialisePackSpecificationEvent("DRAFT"),
   "pack-specification.int": specialisePackSpecificationEvent("INT"),
   "pack-specification.prod": specialisePackSpecificationEvent("PROD"),
+  "pack-specification.disabled": specialisePackSpecificationEvent("DISABLED"),
 } as const;

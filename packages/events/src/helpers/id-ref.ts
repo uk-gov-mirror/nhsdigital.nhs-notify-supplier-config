@@ -2,6 +2,8 @@ import { z } from "zod";
 import { getEntityName } from "zod-mermaid";
 
 /**
+ * Vendored from zod-mermaid to avoid a production dependency on that package.
+ *
  * Creates a field that references another entity by ID, inferring the type from the referenced
  * schema's id field.
  * This allows you to indicate relationships without embedding the full entity.
