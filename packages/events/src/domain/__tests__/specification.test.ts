@@ -39,4 +39,25 @@ describe("Specification schema validation", () => {
       }),
     ).not.toThrow();
   });
+
+  it("should validate a specification with optional description", () => {
+    const specWithDescription: PackSpecification = {
+      ...standardLetterSpecification,
+      description: "A standard economy-class letter for bulk mailings",
+    };
+
+    expect(() =>
+      $PackSpecification.strict().parse(specWithDescription),
+    ).not.toThrow();
+  });
+
+  it("should validate a specification without description", () => {
+    const specWithoutDescription: PackSpecification = {
+      ...standardLetterSpecification,
+    };
+
+    expect(() =>
+      $PackSpecification.strict().parse(specWithoutDescription),
+    ).not.toThrow();
+  });
 });

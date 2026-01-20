@@ -92,6 +92,7 @@ export const PaperId = $Paper.shape.id.parse;
 export const $PackSpecification = ConfigBase("PackSpecification")
   .extend({
     name: z.string(),
+    description: z.string().optional(),
     status: $EnvironmentStatus,
     createdAt: z.iso.datetime(),
     updatedAt: z.iso.datetime(),
