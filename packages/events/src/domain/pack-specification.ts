@@ -108,6 +108,7 @@ export const $PackSpecification = ConfigBase("PackSpecification")
       .object({
         envelopeId: idRef($Envelope),
         printColour: z.enum(["BLACK", "COLOUR"]),
+        duplex: z.boolean(),
         paper: $Paper,
         insertIds: z.array(idRef($Insert)).optional(),
         features: z.array($PackFeature).optional(),

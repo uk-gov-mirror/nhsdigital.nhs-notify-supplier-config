@@ -60,4 +60,42 @@ describe("Specification schema validation", () => {
       $PackSpecification.strict().parse(specWithoutDescription),
     ).not.toThrow();
   });
+
+  it("should validate a specification with duplex set to true", () => {
+    const specWithDuplex: PackSpecification = {
+      ...standardLetterSpecification,
+      assembly: {
+        ...standardLetterSpecification.assembly,
+        duplex: true,
+      },
+    };
+
+    expect(() =>
+      $PackSpecification.strict().parse(specWithDuplex),
+    ).not.toThrow();
+  });
+
+  it("should validate a specification with duplex set to false", () => {
+    const specWithoutDuplex: PackSpecification = {
+      ...standardLetterSpecification,
+      assembly: {
+        ...standardLetterSpecification.assembly,
+        duplex: false,
+      },
+    };
+
+    expect(() =>
+      $PackSpecification.strict().parse(specWithoutDuplex),
+    ).not.toThrow();
+  });
+
+  it("should validate a specification without duplex field", () => {
+    const specWithoutDuplexField: PackSpecification = {
+      ...standardLetterSpecification,
+    };
+
+    expect(() =>
+      $PackSpecification.strict().parse(specWithoutDuplexField),
+    ).not.toThrow();
+  });
 });
