@@ -26,7 +26,7 @@ export const EnvelopeId = $Envelope.shape.id.parse;
 export const $Insert = ConfigBase("Insert")
   .extend({
     name: z.string(),
-    type: z.enum(["FLYER", "BOOKLET"]),
+    type: z.enum(["FLYER", "BOOKLET", "ATTACHMENT"]),
     source: z.enum(["IN_HOUSE", "EXTERNAL"]),
     artwork: z.url().optional(),
   })

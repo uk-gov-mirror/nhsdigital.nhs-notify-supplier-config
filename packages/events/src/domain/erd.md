@@ -32,6 +32,7 @@ erDiagram
     PackSpecification {
         string id
         string name
+        string description
         string status "enum: DRAFT, INT, PROD, DISABLED"
         string createdAt
         string updatedAt
@@ -57,6 +58,7 @@ erDiagram
     Assembly {
         string envelopeId "ref: Envelope"
         string printColour "enum: BLACK, COLOUR"
+        boolean duplex
         Paper paper
         string[] insertIds "ref: Insert"
         string[] features "enum: BRAILLE, AUDIO, ADMAIL, SAME_DAY"
@@ -162,6 +164,7 @@ erDiagram
     PackSpecification {
         string id
         string name
+        string description
         string status "enum: DRAFT, INT, PROD, DISABLED"
         string createdAt
         string updatedAt
@@ -187,6 +190,7 @@ erDiagram
     Assembly {
         string envelopeId "ref: Envelope"
         string printColour "enum: BLACK, COLOUR"
+        boolean duplex
         Paper paper
         string[] insertIds "ref: Insert"
         string[] features "enum: BRAILLE, AUDIO, ADMAIL, SAME_DAY"
