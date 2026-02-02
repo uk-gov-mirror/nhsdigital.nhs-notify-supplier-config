@@ -7,38 +7,24 @@ import {
   EventBridgeClient,
   PutEventsCommand,
 } from "@aws-sdk/client-eventbridge";
-import { parseExcelFile } from "event-builder/src/lib/parse-excel";
-import { buildLetterVariantEvents } from "event-builder/src/letter-variant-event-builder";
-import { buildPackSpecificationEvents } from "event-builder/src/pack-specification-event-builder";
-import { buildVolumeGroupEvents } from "event-builder/src/volume-group-event-builder";
-import { buildSupplierEvents } from "event-builder/src/supplier-event-builder";
-import { buildSupplierAllocationEvents } from "event-builder/src/supplier-allocation-event-builder";
-import { buildSupplierPackEvents } from "event-builder/src/supplier-pack-event-builder";
-import { nextSequence } from "event-builder/src/lib/envelope-helpers";
-import generateTemplateExcel from "../lib/template";
-import { generateSupplierReports } from "../lib/supplier-report";
-import { populateDynamoDB } from "../lib/dynamodb-populate";
+import { parseExcelFile } from "@supplier-config/excel-parser";
+import { buildLetterVariantEvents } from "@supplier-config/event-builder/letter-variant-event-builder";
+import { buildPackSpecificationEvents } from "@supplier-config/event-builder/pack-specification-event-builder";
+import { buildVolumeGroupEvents } from "@supplier-config/event-builder/volume-group-event-builder";
+import { buildSupplierEvents } from "@supplier-config/event-builder/supplier-event-builder";
+import { buildSupplierAllocationEvents } from "@supplier-config/event-builder/supplier-allocation-event-builder";
+import { buildSupplierPackEvents } from "@supplier-config/event-builder/supplier-pack-event-builder";
+import { nextSequence } from "@supplier-config/event-builder/lib/envelope-helpers";
 
-interface CommonArgs {
+interface PublishArgs {
   file: string;
-}
-interface PublishArgs extends CommonArgs {
   bus: string;
   region?: string;
   dryRun?: boolean;
 }
-interface TemplateArgs {
-  out: string;
-  force?: boolean;
-}
-interface ReportArgs extends CommonArgs {
-  out: string;
-  excludeDrafts?: boolean;
-}
-interface DynamoDBArgs extends CommonArgs {
-  table: string;
-  region?: string;
-  dryRun?: boolean;
+
+interface ParseArgs {
+  file: string;
 }
 
 function ensureFile(file: string): string {
@@ -58,7 +44,13 @@ function ensureFile(file: string): string {
   return resolved;
 }
 
-async function handleParse(args: CommonArgs): Promise<void> {
+function chunk<T>(arr: T[], size: number): T[][] {
+  const out: T[][] = [];
+  for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));
+  return out;
+}
+
+async function handleParse(args: ParseArgs): Promise<void> {
   const inputFile = ensureFile(args.file);
   console.log(`Parsing Excel file: ${inputFile}`);
   const result = parseExcelFile(inputFile);
@@ -75,12 +67,6 @@ async function handleParse(args: CommonArgs): Promise<void> {
   console.log(
     `Parsed ${Object.keys(result.supplierPacks).length} supplier packs`,
   );
-}
-
-function chunk<T>(arr: T[], size: number): T[][] {
-  const out: T[][] = [];
-  for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));
-  return out;
 }
 
 async function handlePublish(args: PublishArgs): Promise<void> {
@@ -179,62 +165,15 @@ async function handlePublish(args: PublishArgs): Promise<void> {
   );
 }
 
-async function handleTemplate(args: TemplateArgs): Promise<void> {
-  const output = generateTemplateExcel(args.out, args.force);
-  console.log(`Template Excel written: ${output}`);
-}
-
-async function handleReport(args: ReportArgs): Promise<void> {
-  const inputFile = ensureFile(args.file);
-  console.log(`Reading Excel file: ${inputFile}`);
-  const data = parseExcelFile(inputFile);
-
-  const result = generateSupplierReports(data, args.out, {
-    excludeDrafts: args.excludeDrafts,
-  });
-
-  console.log(
-    `\nGenerated ${result.reports.length} supplier reports in: ${result.outputDir}\n`,
-  );
-  for (const report of result.reports) {
-    console.log(
-      `  - ${report.supplierName}: ${report.packCount} pack(s) -> ${report.filePath}`,
-    );
-  }
-}
-
-async function handleDynamoDB(args: DynamoDBArgs): Promise<void> {
-  const inputFile = ensureFile(args.file);
-  console.log(`Reading Excel file: ${inputFile}`);
-  const data = parseExcelFile(inputFile);
-
-  console.log(`Populating DynamoDB table: ${args.table}`);
-  const result = await populateDynamoDB(data, {
-    tableName: args.table,
-    region: args.region,
-    dryRun: args.dryRun,
-  });
-
-  console.log(`\nPopulation summary:`);
-  console.log(`  Table: ${result.tableName}`);
-  console.log(`  Total items: ${result.itemCount}`);
-  console.log(`  By type:`);
-  for (const [type, count] of Object.entries(result.summary)) {
-    if (count > 0) {
-      console.log(`    - ${type}: ${count}`);
-    }
-  }
-}
-
 async function main(): Promise<void> {
   const parser = yargs(hideBin(process.argv))
-    .scriptName("events")
+    .scriptName("eventbus-publish")
     .demandCommand(1, "Specify a command")
     .strict()
     .recommendCommands()
     .version(false)
     .help()
-    .command<CommonArgs>(
+    .command<ParseArgs>(
       "parse",
       "Parse excel and output JSON to stdout",
       (cmd) =>
@@ -242,7 +181,7 @@ async function main(): Promise<void> {
           alias: "f",
           describe: "Excel file path",
           type: "string",
-          default: "example_specifications.xlsx",
+          default: "specifications.xlsx",
         }),
       async (argv) => {
         await handleParse({ file: argv.file });
@@ -250,14 +189,14 @@ async function main(): Promise<void> {
     )
     .command<PublishArgs>(
       "publish",
-      "Publish all supplier config events (Contract, Supplier, PackSpecification, LetterVariant, SupplierAllocation) to EventBridge",
+      "Publish all supplier config events to EventBridge",
       (cmd) =>
         cmd
           .option("file", {
             alias: "f",
             describe: "Excel file path",
             type: "string",
-            default: "example_specifications.xlsx",
+            default: "specifications.xlsx",
           })
           .option("bus", {
             alias: "b",
@@ -279,100 +218,10 @@ async function main(): Promise<void> {
         await handlePublish(argv);
       },
     )
-    .command<TemplateArgs>(
-      "template",
-      "Generate a blank Excel template with all required sheets and columns",
-      (cmd) =>
-        cmd
-          .option("out", {
-            alias: "o",
-            type: "string",
-            describe: "Output .xlsx file path",
-            default: "specifications.template.xlsx",
-          })
-          .option("force", {
-            alias: "F",
-            type: "boolean",
-            describe: "Overwrite existing file if present",
-            default: false,
-          }),
-      async (argv) => {
-        await handleTemplate(argv);
-      },
-    )
-    .command<ReportArgs>(
-      "report",
-      "Generate HTML reports per supplier showing assigned pack specifications",
-      (cmd) =>
-        cmd
-          .option("file", {
-            alias: "f",
-            describe: "Excel file path",
-            type: "string",
-            default: "example_specifications.xlsx",
-          })
-          .option("out", {
-            alias: "o",
-            type: "string",
-            describe: "Output directory for HTML reports",
-            default: "./supplier-reports",
-          })
-          .option("exclude-drafts", {
-            type: "boolean",
-            describe: "Exclude supplier packs with DRAFT approval status from the reports",
-            default: false,
-          }),
-      async (argv) => {
-        await handleReport(argv);
-      },
-    )
-    .command<DynamoDBArgs>(
-      "dynamodb",
-      "Populate a DynamoDB table with config data from the spreadsheet",
-      (cmd) =>
-        cmd
-          .option("file", {
-            alias: "f",
-            describe: "Excel file path",
-            type: "string",
-            default: "example_specifications.xlsx",
-          })
-          .option("table", {
-            alias: "t",
-            type: "string",
-            describe: "DynamoDB table name",
-            demandOption: true,
-          })
-          .option("region", {
-            alias: "r",
-            type: "string",
-            describe: "AWS region (fallback AWS_REGION env)",
-          })
-          .option("dry-run", {
-            type: "boolean",
-            describe: "Build items but do not write to DynamoDB",
-            default: false,
-          }),
-      async (argv) => {
-        await handleDynamoDB(argv);
-      },
-    )
     .example("$0 parse -f specs.xlsx", "Parse a spreadsheet and print JSON")
     .example(
       "$0 publish -f specs.xlsx -b my-bus -r eu-west-2",
       "Publish events to EventBridge",
-    )
-    .example(
-      "$0 template -o specs.xlsx",
-      "Generate template workbook (fails if specs.xlsx exists unless --force)",
-    )
-    .example(
-      "$0 report -f specs.xlsx -o ./reports",
-      "Generate HTML supplier reports",
-    )
-    .example(
-      "$0 dynamodb -f specs.xlsx -t my-config-table -r eu-west-2",
-      "Populate DynamoDB table with config data",
     );
 
   try {
@@ -389,3 +238,5 @@ if (require.main === module) {
     process.exitCode = 1;
   });
 }
+
+export { handleParse, handlePublish };
