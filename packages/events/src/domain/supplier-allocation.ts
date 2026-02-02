@@ -1,11 +1,12 @@
 import { z } from "zod";
-import { $EnvironmentStatus, ConfigBase } from "./common";
+import { $EnvironmentStatus } from "./common";
 import { idRef } from "../helpers/id-ref";
 import { $VolumeGroup } from "./volume-group";
 import { $Supplier } from "./supplier";
 
-export const $SupplierAllocation = ConfigBase("SupplierAllocation")
-  .extend({
+export const $SupplierAllocation = z
+  .object({
+    id: z.string(),
     volumeGroup: idRef($VolumeGroup),
     supplier: idRef($Supplier),
     allocationPercentage: z.number().min(0).max(100),

@@ -3,9 +3,6 @@ import {
   LetterVariantEvent,
   letterVariantEvents,
 } from "@nhsdigital/nhs-notify-event-schemas-supplier-config/src/events/letter-variant-events";
-import { LetterVariantId } from "@nhsdigital/nhs-notify-event-schemas-supplier-config/src/domain/letter-variant";
-import { PackSpecificationId } from "@nhsdigital/nhs-notify-event-schemas-supplier-config/src/domain/pack-specification";
-import { VolumeGroupId } from "../../domain";
 
 describe("LetterVariant Events", () => {
   describe("letter-variant.prod event", () => {
@@ -26,16 +23,13 @@ describe("LetterVariant Events", () => {
       dataschemaversion: "1.0.0",
       traceparent: "00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01",
       data: {
-        id: LetterVariantId("standard-letter-variant"),
+        id: "standard-letter-variant",
         name: "Standard Letter Variant",
         description: "A standard letter variant for general correspondence",
-        volumeGroupId: VolumeGroupId("supplier-framework-123"),
+        volumeGroupId: "supplier-framework-123",
         type: "STANDARD",
         status: "PROD",
-        packSpecificationIds: [
-          PackSpecificationId("bau-standard-c5"),
-          PackSpecificationId("bau-standard-c4"),
-        ],
+        packSpecificationIds: ["bau-standard-c5", "bau-standard-c4"],
       },
     };
 
@@ -70,12 +64,12 @@ describe("LetterVariant Events", () => {
       const brailleEvent: LetterVariantEvent = {
         ...validProdEvent,
         data: {
-          id: LetterVariantId("braille-variant"),
+          id: "braille-variant",
           name: "Braille Letter Variant",
-          volumeGroupId: VolumeGroupId("supplier-framework-123"),
+          volumeGroupId: "supplier-framework-123",
           type: "BRAILLE",
           status: "PROD",
-          packSpecificationIds: [PackSpecificationId("braille")],
+          packSpecificationIds: ["braille"],
         },
       };
 
@@ -87,12 +81,12 @@ describe("LetterVariant Events", () => {
       const audioEvent: LetterVariantEvent = {
         ...validProdEvent,
         data: {
-          id: LetterVariantId("audio-variant"),
+          id: "audio-variant",
           name: "Audio Letter Variant",
-          volumeGroupId: VolumeGroupId("supplier-framework-123"),
+          volumeGroupId: "supplier-framework-123",
           type: "AUDIO",
           status: "PROD",
-          packSpecificationIds: [PackSpecificationId("audio")],
+          packSpecificationIds: ["audio"],
         },
       };
 
@@ -197,6 +191,81 @@ describe("LetterVariant Events", () => {
       const invalidResult = prodSchema.safeParse(invalidEvent);
       expect(invalidResult.success).toBe(false);
     });
+
+    it("should validate letter variant with constraints", () => {
+      const eventWithConstraints = {
+        ...validProdEvent,
+        data: {
+          ...validProdEvent.data,
+          constraints: {
+            sheets: {
+              value: 10,
+              operator: "LESS_THAN",
+            },
+            deliveryDays: {
+              value: 3,
+              operator: "LESS_THAN",
+            },
+          },
+        },
+      };
+
+      const result = $LetterVariantEvent.safeParse(eventWithConstraints);
+      expect(result.success).toBe(true);
+    });
+
+    it("should validate letter variant with all constraint fields", () => {
+      const eventWithConstraints = {
+        ...validProdEvent,
+        data: {
+          ...validProdEvent.data,
+          constraints: {
+            deliveryDays: {
+              value: 5,
+              operator: "EQUALS",
+            },
+            sheets: {
+              value: 20,
+              operator: "LESS_THAN",
+            },
+            blackCoveragePercentage: {
+              value: 80,
+              operator: "LESS_THAN",
+            },
+            colourCoveragePercentage: {
+              value: 50,
+              operator: "LESS_THAN",
+            },
+          },
+        },
+      };
+
+      const result = $LetterVariantEvent.safeParse(eventWithConstraints);
+      expect(result.success).toBe(true);
+    });
+
+    it("should reject letter variant with invalid constraint field", () => {
+      const eventWithInvalidConstraints = {
+        ...validProdEvent,
+        data: {
+          ...validProdEvent.data,
+          constraints: {
+            sheets: {
+              value: "not a number",
+              operator: "LESS_THAN",
+            },
+          },
+        },
+      };
+
+      const result = $LetterVariantEvent.safeParse(eventWithInvalidConstraints);
+      expect(result.success).toBe(false);
+    });
+
+    it("should validate letter variant without constraints", () => {
+      const result = $LetterVariantEvent.safeParse(validProdEvent);
+      expect(result.success).toBe(true);
+    });
   });
 
   describe("letter-variant.int event", () => {
@@ -217,12 +286,12 @@ describe("LetterVariant Events", () => {
       dataschemaversion: "1.0.0",
       traceparent: "00-1bf8762027de54ee9559fc322d91430d-c8be7c2270314442-01",
       data: {
-        id: LetterVariantId("disabled-letter-variant"),
+        id: "disabled-letter-variant",
         name: "Disabled Letter Variant",
-        volumeGroupId: VolumeGroupId("supplier-framework-123"),
+        volumeGroupId: "supplier-framework-123",
         type: "STANDARD",
         status: "INT",
-        packSpecificationIds: [PackSpecificationId("bau-standard-c5")],
+        packSpecificationIds: ["bau-standard-c5"],
       },
     };
 
@@ -276,13 +345,13 @@ describe("LetterVariant Events", () => {
       dataschemaversion: "1.0.0",
       traceparent: "00-2cf9873138ef65ff0670fd433e02541e-d9cf8d3381425553-01",
       data: {
-        id: LetterVariantId("disabled-letter-variant"),
+        id: "disabled-letter-variant",
         name: "Disabled Letter Variant",
         description: "A letter variant that has been disabled",
-        volumeGroupId: VolumeGroupId("supplier-framework-123"),
+        volumeGroupId: "supplier-framework-123",
         type: "STANDARD",
         status: "DISABLED",
-        packSpecificationIds: [PackSpecificationId("bau-standard-c5")],
+        packSpecificationIds: ["bau-standard-c5"],
       },
     };
 

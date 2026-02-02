@@ -1,14 +1,12 @@
 import { z } from "zod";
 import { idRef } from "@nhsdigital/nhs-notify-event-schemas-supplier-config/src/helpers/id-ref";
 import { $PackSpecification } from "@nhsdigital/nhs-notify-event-schemas-supplier-config/src/domain/pack-specification";
-import {
-  $EnvironmentStatus,
-  ConfigBase,
-} from "@nhsdigital/nhs-notify-event-schemas-supplier-config/src/domain/common";
+import { $EnvironmentStatus } from "@nhsdigital/nhs-notify-event-schemas-supplier-config/src/domain/common";
 import { $Supplier } from "./supplier";
 
-export const $SupplierPack = ConfigBase("SupplierPack")
-  .extend({
+export const $SupplierPack = z
+  .object({
+    id: z.string(),
     packSpecificationId: idRef($PackSpecification),
     supplierId: idRef($Supplier),
     approval: z
@@ -32,5 +30,4 @@ export const $SupplierPack = ConfigBase("SupplierPack")
     description:
       "Indicates that a supplier is capable of producing a specific pack specification.",
   });
-
 export type SupplierPack = z.infer<typeof $SupplierPack>;

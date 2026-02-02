@@ -21,13 +21,7 @@ erDiagram
         string[] campaignIds
         string supplierId "ref: Supplier"
         string[] packSpecificationIds "ref: PackSpecification"
-        Constraints constraints
-    }
-    Constraints {
-        number maxSheets
-        number deliveryDays
-        number blackCoveragePercentage
-        number colourCoveragePercentage
+        Record constraints "&lt;string, Constraints&gt;"
     }
     PackSpecification {
         string id
@@ -38,15 +32,9 @@ erDiagram
         string updatedAt
         number version "min: -9007199254740991, max: 9007199254740991"
         string billingId
-        Constraints constraints
+        Record constraints "&lt;string, Constraints&gt;"
         Postage postage
         Assembly assembly
-    }
-    Constraints {
-        number maxSheets
-        number deliveryDays
-        number blackCoveragePercentage
-        number colourCoveragePercentage
     }
     Postage {
         string id
@@ -58,6 +46,8 @@ erDiagram
     Assembly {
         string envelopeId "ref: Envelope"
         string printColour "enum: BLACK, COLOUR"
+        number blackCoveragePercentage
+        number colourCoveragePercentage
         boolean duplex
         Paper paper
         string[] insertIds "ref: Insert"
@@ -108,12 +98,12 @@ erDiagram
         string size "enum: C5, C4, DL"
         string[] features "enum: WHITEMAIL, NHS_BRANDING, NHS_BARCODE"
         string artwork "url"
+        number maxThicknessMm
+        number maxSheets
     }
     LetterVariant }o--|| VolumeGroup : "volumeGroupId"
     LetterVariant }o--o{ Supplier : "supplierId"
     LetterVariant }o--o{ PackSpecification : "packSpecificationIds"
-    LetterVariant ||--o{ Constraints : "constraints"
-    PackSpecification ||--o{ Constraints : "constraints"
     PackSpecification ||--|| Postage : "postage"
     PackSpecification ||--o{ Assembly : "assembly"
     Assembly }o--o{ Envelope : "envelopeId"
@@ -141,18 +131,11 @@ erDiagram
         string[] campaignIds
         string supplierId "ref: Supplier"
         string[] packSpecificationIds "ref: PackSpecification"
-        Constraints constraints
-    }
-    Constraints {
-        number maxSheets
-        number deliveryDays
-        number blackCoveragePercentage
-        number colourCoveragePercentage
+        Record constraints "&lt;string, Constraints&gt;"
     }
     LetterVariant }o--|| VolumeGroup : "volumeGroupId"
     LetterVariant }o--o{ Supplier : "supplierId"
     LetterVariant }o--o{ PackSpecification : "packSpecificationIds"
-    LetterVariant ||--o{ Constraints : "constraints"
 ```
 
 ## PackSpecification schema
@@ -170,15 +153,9 @@ erDiagram
         string updatedAt
         number version "min: -9007199254740991, max: 9007199254740991"
         string billingId
-        Constraints constraints
+        Record constraints "&lt;string, Constraints&gt;"
         Postage postage
         Assembly assembly
-    }
-    Constraints {
-        number maxSheets
-        number deliveryDays
-        number blackCoveragePercentage
-        number colourCoveragePercentage
     }
     Postage {
         string id
@@ -190,6 +167,8 @@ erDiagram
     Assembly {
         string envelopeId "ref: Envelope"
         string printColour "enum: BLACK, COLOUR"
+        number blackCoveragePercentage
+        number colourCoveragePercentage
         boolean duplex
         Paper paper
         string[] insertIds "ref: Insert"
@@ -211,8 +190,9 @@ erDiagram
         string size "enum: C5, C4, DL"
         string[] features "enum: WHITEMAIL, NHS_BRANDING, NHS_BARCODE"
         string artwork "url"
+        number maxThicknessMm
+        number maxSheets
     }
-    PackSpecification ||--o{ Constraints : "constraints"
     PackSpecification ||--|| Postage : "postage"
     PackSpecification ||--o{ Assembly : "assembly"
     Assembly }o--o{ Envelope : "envelopeId"

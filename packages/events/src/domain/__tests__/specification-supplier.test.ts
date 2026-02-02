@@ -1,10 +1,5 @@
-import {
-  EnvelopeId,
-  PackSpecification,
-  PostageId,
-} from "@nhsdigital/nhs-notify-event-schemas-supplier-config/src/domain/pack-specification";
+import { PackSpecification } from "@nhsdigital/nhs-notify-event-schemas-supplier-config/src/domain/pack-specification";
 import { $SupplierPack, SupplierPack } from "../supplier-pack";
-import { SupplierId } from "../supplier";
 
 describe("SpecificationSupplier schema validation", () => {
   const standardLetterSpecification: PackSpecification = {
@@ -15,12 +10,12 @@ describe("SpecificationSupplier schema validation", () => {
     updatedAt: "2023-01-01T00:00:00Z",
     version: 1,
     postage: {
-      id: PostageId("economy"),
+      id: "economy",
       size: "STANDARD",
       deliveryDays: 4,
     },
     assembly: {
-      envelopeId: EnvelopeId("nhs-economy"),
+      envelopeId: "nhs-economy",
       printColour: "BLACK",
     },
   };
@@ -28,7 +23,7 @@ describe("SpecificationSupplier schema validation", () => {
   const testSupplierPack: SupplierPack = {
     id: "test-specification-supplier" as any,
     packSpecificationId: standardLetterSpecification.id,
-    supplierId: SupplierId("supplier-123"),
+    supplierId: "supplier-123",
     approval: "APPROVED",
     status: "PROD",
   };

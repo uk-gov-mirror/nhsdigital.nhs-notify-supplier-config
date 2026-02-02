@@ -1,8 +1,9 @@
 import { z } from "zod";
-import { $EnvironmentStatus, ConfigBase } from "./common";
+import { $EnvironmentStatus } from "./common";
 
-export const $VolumeGroup = ConfigBase("VolumeGroup")
-  .extend({
+export const $VolumeGroup = z
+  .object({
+    id: z.string(),
     name: z.string(),
     description: z.string().optional(),
     status: $EnvironmentStatus,
@@ -15,4 +16,3 @@ export const $VolumeGroup = ConfigBase("VolumeGroup")
       "A volume group representing several lots within a competition framework under which suppliers will be allocated capacity.",
   });
 export type VolumeGroup = z.infer<typeof $VolumeGroup>;
-export const VolumeGroupId = $VolumeGroup.shape.id.parse;

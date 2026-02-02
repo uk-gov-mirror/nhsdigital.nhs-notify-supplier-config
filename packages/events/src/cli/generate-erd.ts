@@ -8,7 +8,7 @@ import {
   $LetterVariant,
   $PackSpecification, $Supplier,
   $SupplierAllocation,
-  $SupplierPack,
+  $SupplierPack, $Constraint,
 } from "../domain";
 
 // eslint-disable-next-line security/detect-non-literal-fs-filename

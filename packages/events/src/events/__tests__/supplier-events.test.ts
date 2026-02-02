@@ -2,7 +2,6 @@ import {
   $SupplierEvent,
   supplierEvents,
 } from "@nhsdigital/nhs-notify-event-schemas-supplier-config/src/events/supplier-events";
-import { SupplierId } from "@nhsdigital/nhs-notify-event-schemas-supplier-config/src/domain/supplier";
 
 describe("Supplier Events", () => {
   describe("supplier.prod event", () => {
@@ -23,7 +22,7 @@ describe("Supplier Events", () => {
       dataschemaversion: "1.0.0",
       traceparent: "00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01",
       data: {
-        id: SupplierId("test-supplier"),
+        id: "test-supplier",
         name: "Test Supplier",
         channelType: "LETTER",
         dailyCapacity: 10_000,
@@ -81,7 +80,7 @@ describe("Supplier Events", () => {
       dataschemaversion: "1.0.0",
       traceparent: "00-1bf8762027de54ee9559fc322d91430d-c8be7c2270314442-01",
       data: {
-        id: SupplierId("int-supplier"),
+        id: "int-supplier",
         name: "Integration Supplier",
         channelType: "LETTER",
         dailyCapacity: 5000,
@@ -129,7 +128,7 @@ describe("Supplier Events", () => {
       dataschemaversion: "1.0.0",
       traceparent: "00-2cf9873138ef65ff0670fd433e02541e-d9cf8d3381425553-01",
       data: {
-        id: SupplierId("disabled-supplier"),
+        id: "disabled-supplier",
         name: "Disabled Supplier",
         channelType: "LETTER",
         dailyCapacity: 3000,

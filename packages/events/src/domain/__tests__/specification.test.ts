@@ -1,26 +1,23 @@
 import {
   $PackSpecification,
-  EnvelopeId,
   PackSpecification,
-  PackSpecificationId,
-  PostageId,
 } from "@nhsdigital/nhs-notify-event-schemas-supplier-config/src/domain/pack-specification";
 
 describe("Specification schema validation", () => {
   const standardLetterSpecification: PackSpecification = {
-    id: PackSpecificationId("standard-letter"),
+    id: "standard-letter",
     name: "Standard Economy-class Letter",
     status: "INT",
     createdAt: "2023-01-01T00:00:00Z",
     updatedAt: "2023-01-01T00:00:00Z",
     version: 1,
     postage: {
-      id: PostageId("economy"),
+      id: "economy",
       size: "STANDARD",
       deliveryDays: 4,
     },
     assembly: {
-      envelopeId: EnvelopeId("nhs-economy"),
+      envelopeId: "nhs-economy",
       printColour: "BLACK",
     },
   };
@@ -96,6 +93,80 @@ describe("Specification schema validation", () => {
 
     expect(() =>
       $PackSpecification.strict().parse(specWithoutDuplexField),
+    ).not.toThrow();
+  });
+
+  it("should validate a specification with constraints", () => {
+    const specWithConstraints: PackSpecification = {
+      ...standardLetterSpecification,
+      constraints: {
+        sheets: {
+          value: 10,
+          operator: "LESS_THAN",
+        },
+        deliveryDays: {
+          value: 4,
+          operator: "LESS_THAN",
+        },
+      },
+    };
+
+    expect(() =>
+      $PackSpecification.strict().parse(specWithConstraints),
+    ).not.toThrow();
+  });
+
+  it("should validate a specification with all constraint fields", () => {
+    const specWithConstraints: PackSpecification = {
+      ...standardLetterSpecification,
+      constraints: {
+        deliveryDays: {
+          value: 5,
+          operator: "EQUALS",
+        },
+        sheets: {
+          value: 20,
+          operator: "LESS_THAN",
+        },
+        sides: {
+          value: 4,
+          operator: "LESS_THAN",
+        },
+        blackCoveragePercentage: {
+          value: 80,
+          operator: "LESS_THAN",
+        },
+        colourCoveragePercentage: {
+          value: 50,
+          operator: "LESS_THAN",
+        },
+      },
+    };
+
+    expect(() =>
+      $PackSpecification.strict().parse(specWithConstraints),
+    ).not.toThrow();
+  });
+
+  it("should reject a specification with invalid constraint value", () => {
+    const specWithInvalidConstraints = {
+      ...standardLetterSpecification,
+      constraints: {
+        sheets: {
+          value: "not a number",
+          operator: "LESS_THAN",
+        },
+      },
+    };
+
+    expect(() =>
+      $PackSpecification.strict().parse(specWithInvalidConstraints),
+    ).toThrow();
+  });
+
+  it("should validate a specification without constraints", () => {
+    expect(() =>
+      $PackSpecification.strict().parse(standardLetterSpecification),
     ).not.toThrow();
   });
 });

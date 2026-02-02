@@ -6,3 +6,8 @@ export * from "./letter-variant";
 export * from "./pack-specification";
 export * from "./supplier-allocation";
 export * from "./supplier-pack";
+export * from "./postage";
+export * from "./envelope";
+export * from "./constraint";
+export * from "./insert";
+export * from "./paper";

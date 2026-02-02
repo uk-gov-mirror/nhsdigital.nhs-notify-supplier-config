@@ -1,12 +1,10 @@
 import { z } from "zod";
 import { $ChannelType } from "@nhsdigital/nhs-notify-event-schemas-supplier-config/src/domain/channel";
-import {
-  $EnvironmentStatus,
-  ConfigBase,
-} from "@nhsdigital/nhs-notify-event-schemas-supplier-config/src/domain/common";
+import { $EnvironmentStatus } from "@nhsdigital/nhs-notify-event-schemas-supplier-config/src/domain/common";
 
-export const $Supplier = ConfigBase("Supplier")
-  .extend({
+export const $Supplier = z
+  .object({
+    id: z.string(),
     name: z.string(),
     channelType: $ChannelType,
     dailyCapacity: z.number().int(),
@@ -15,4 +13,3 @@ export const $Supplier = ConfigBase("Supplier")
   .describe("Supplier");
 
 export type Supplier = z.infer<typeof $Supplier>;
-export const SupplierId = $Supplier.shape.id.parse;

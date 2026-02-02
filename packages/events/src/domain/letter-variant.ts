@@ -1,20 +1,16 @@
-import {
-  $EnvironmentStatus,
-  ConfigBase,
-} from "@nhsdigital/nhs-notify-event-schemas-supplier-config/src/domain/common";
+import { $EnvironmentStatus } from "@nhsdigital/nhs-notify-event-schemas-supplier-config/src/domain/common";
 import { idRef } from "@nhsdigital/nhs-notify-event-schemas-supplier-config/src/helpers/id-ref";
-import {
-  $Constraints,
-  $PackSpecification,
-} from "@nhsdigital/nhs-notify-event-schemas-supplier-config/src/domain/pack-specification";
+import { $PackSpecification } from "@nhsdigital/nhs-notify-event-schemas-supplier-config/src/domain/pack-specification";
 import { z } from "zod";
 import { $VolumeGroup } from "./volume-group";
-import {$Supplier} from "./supplier";
+import { $Supplier } from "./supplier";
+import { $Constraint, $Constraints } from "./constraint";
 
 export const $LetterType = z.enum(["STANDARD", "BRAILLE", "AUDIO"]);
 
-export const $LetterVariant = ConfigBase("LetterVariant")
-  .extend({
+export const $LetterVariant = z
+  .object({
+    id: z.string(),
     name: z.string(),
     description: z.string().optional(),
     type: $LetterType,
@@ -67,4 +63,3 @@ export const $LetterVariant = ConfigBase("LetterVariant")
       "characteristics, and may be scoped to a single clientId and campaignId.",
   });
 export type LetterVariant = z.infer<typeof $LetterVariant>;
-export const LetterVariantId = $LetterVariant.shape.id.parse;
