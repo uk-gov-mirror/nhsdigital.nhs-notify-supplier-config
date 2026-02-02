@@ -2,7 +2,7 @@ import path from "node:path";
 import fs from "node:fs";
 import * as XLSX from "xlsx";
 
-function generateTemplateExcel(out: string, force = false): string {
+export function generateTemplateExcel(out: string, force = false): string {
   const resolved = path.isAbsolute(out) ? out : path.join(process.cwd(), out);
   if (!/\.xlsx$/i.test(resolved)) {
     throw new Error(`Output file must end with .xlsx: ${resolved}`);

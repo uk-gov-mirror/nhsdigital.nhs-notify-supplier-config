@@ -26,3 +26,5 @@ dist
 
 .env
 /.envrc
+/specifications.xlsx
+~*
