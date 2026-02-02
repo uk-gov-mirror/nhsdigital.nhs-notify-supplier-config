@@ -30,6 +30,7 @@ export function buildBaseEventEnvelope<TData>(
     source: buildEventSource(config),
     subject,
     type,
+    plane: "control" as const,
     time: now,
     datacontenttype: "application/json",
     dataschema,

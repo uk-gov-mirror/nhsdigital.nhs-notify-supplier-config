@@ -1,7 +1,4 @@
-import {
-  VolumeGroup,
-  VolumeGroupId,
-} from "@nhsdigital/nhs-notify-event-schemas-supplier-config";
+import { VolumeGroup } from "@nhsdigital/nhs-notify-event-schemas-supplier-config";
 import {
   buildVolumeGroupEvent,
   buildVolumeGroupEvents,
@@ -10,25 +7,25 @@ import { configFromEnv } from "../config";
 
 describe("volume-group-event-builder", () => {
   const baseVolumeGroup: VolumeGroup = {
-    id: VolumeGroupId("volume-group-1"),
+    id: "volume-group-1",
     name: "Volume Group 1",
     startDate: "2025-01-01", // date only per schema
     status: "PROD",
   };
   const secondVolumeGroup: VolumeGroup = {
-    id: VolumeGroupId("volume-group-2"),
+    id: "volume-group-2",
     name: "Volume Group 2",
     startDate: "2025-01-02", // date only
     status: "PROD",
   };
   const draftVolumeGroup: VolumeGroup = {
-    id: VolumeGroupId("volume-group-draft"),
+    id: "volume-group-draft",
     name: "Volume Group Draft",
     startDate: "2025-01-03", // date only
     status: "DRAFT",
   };
   const disabledVolumeGroup: VolumeGroup = {
-    id: VolumeGroupId("volume-group-disabled"),
+    id: "volume-group-disabled",
     name: "Volume Group Disabled",
     startDate: "2025-02-01",
     status: "INT",

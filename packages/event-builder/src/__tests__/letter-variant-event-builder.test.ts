@@ -1,7 +1,4 @@
-import {
-  LetterVariant,
-  VolumeGroupId,
-} from "@nhsdigital/nhs-notify-event-schemas-supplier-config/src";
+import { LetterVariant } from "@nhsdigital/nhs-notify-event-schemas-supplier-config/src";
 import {
   buildLetterVariantEvent,
   buildLetterVariantEvents,
@@ -12,7 +9,7 @@ describe("letter-variant-event-builder", () => {
   const base: Partial<LetterVariant> = {
     name: "Test Variant",
     description: "Test",
-    volumeGroupId: VolumeGroupId("volume-group-123"),
+    volumeGroupId: "volume-group-123" as any,
     type: "STANDARD",
     packSpecificationIds: ["00000000-0000-0000-0000-000000000001" as any],
     clientId: "client-1",
