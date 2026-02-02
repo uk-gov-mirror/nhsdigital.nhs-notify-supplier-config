@@ -1,0 +1,27 @@
+{
+  "assembly": {
+    "duplex": true,
+    "envelopeId": "envelope-dl-1",
+    "features": [],
+    "insertIds": [
+      "insert-nhs-info"
+    ],
+    "paperId": "paper-a4-80gsm",
+    "printColour": "BLACK"
+  },
+  "billingId": "",
+  "constraints": {
+    "blackCoveragePercentage": 15,
+    "colourCoveragePercentage": 0,
+    "deliveryDays": 3,
+    "maxSheets": 2
+  },
+  "createdAt": "2026-01-31T10:00:00.000Z",
+  "description": "Standard A4 letter pack with DL envelope",
+  "id": "pack-spec-sample-1",
+  "name": "Standard Letter Pack",
+  "postageId": "postage-standard",
+  "status": "INT",
+  "updatedAt": "2026-02-02T10:03:42.373Z",
+  "version": 2
+}

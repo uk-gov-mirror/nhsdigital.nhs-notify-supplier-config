@@ -1,0 +1,10 @@
+{
+  "createdAt": "2026-01-31T10:00:00.000Z",
+  "id": "insert-nhs-info",
+  "name": "NHS Information Leaflet",
+  "pageEquivalent": 1,
+  "source": "IN_HOUSE",
+  "type": "FLYER",
+  "updatedAt": "2026-01-31T10:00:00.000Z",
+  "weightGrams": 4
+}

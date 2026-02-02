@@ -1,0 +1,11 @@
+{
+  "colour": "WHITE",
+  "createdAt": "2026-01-31T10:00:00.000Z",
+  "finish": "GLOSSY",
+  "id": "paper-a4-120gsm",
+  "name": "A4 Premium 120GSM",
+  "recycled": true,
+  "size": "A4",
+  "updatedAt": "2026-01-31T10:00:00.000Z",
+  "weightGSM": 120
+}

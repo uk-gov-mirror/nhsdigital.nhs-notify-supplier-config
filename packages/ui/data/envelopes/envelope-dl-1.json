@@ -1,0 +1,13 @@
+{
+  "createdAt": "2026-01-31T10:00:00.000Z",
+  "features": [
+    "NHS_BRANDING"
+  ],
+  "id": "envelope-dl-1",
+  "maxInsertionSheets": 3,
+  "maxInsertionThicknessMm": 5,
+  "name": "Standard DL Envelope",
+  "size": "DL",
+  "updatedAt": "2026-01-31T10:00:00.000Z",
+  "weightGrams": 8
+}

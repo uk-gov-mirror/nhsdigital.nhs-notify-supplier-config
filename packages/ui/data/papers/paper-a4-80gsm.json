@@ -1,0 +1,11 @@
+{
+  "colour": "WHITE",
+  "createdAt": "2026-01-31T10:00:00.000Z",
+  "finish": "MATT",
+  "id": "paper-a4-80gsm",
+  "name": "A4 Standard 80GSM",
+  "recycled": true,
+  "size": "A4",
+  "updatedAt": "2026-01-31T10:00:00.000Z",
+  "weightGSM": 80
+}

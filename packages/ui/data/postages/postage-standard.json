@@ -1,0 +1,9 @@
+{
+  "createdAt": "2026-01-31T10:00:00.000Z",
+  "deliveryDays": 3,
+  "id": "postage-standard",
+  "maxWeightGrams": 100,
+  "name": "Standard Post",
+  "size": "STANDARD",
+  "updatedAt": "2026-01-31T10:00:00.000Z"
+}

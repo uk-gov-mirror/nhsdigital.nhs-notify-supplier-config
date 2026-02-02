@@ -1,0 +1,44 @@
+{
+  "author": "",
+  "dependencies": {
+    "@autoform/react": "^4.0.0",
+    "@autoform/shadcn": "^1.0.1",
+    "@autoform/zod": "^5.0.0",
+    "@hookform/resolvers": "^5.2.2",
+    "@nhsdigital/nhs-notify-event-schemas-supplier-config": "^1.0.0",
+    "@tanstack/react-query": "^5.90.20",
+    "@trpc/client": "^11.9.0",
+    "@trpc/next": "^11.9.0",
+    "@trpc/react-query": "^11.9.0",
+    "@trpc/server": "^11.9.0",
+    "next": "16.1.6",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "react-hook-form": "^7.71.1",
+    "superjson": "^2.2.6",
+    "zod": "^4.3.6"
+  },
+  "description": "NHS Notify Supplier Configuration UI",
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.1.6",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  },
+  "name": "@nhsdigital/nhs-notify-supplier-config-ui",
+  "private": true,
+  "repository": "git@github.com:NHSDigital/nhs-notify-supplier-config.git",
+  "scripts": {
+    "build": "next build",
+    "dev": "next dev",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "start": "next start",
+    "typecheck": "tsc --noEmit"
+  },
+  "version": "1.0.0"
+}

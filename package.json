@@ -44,6 +44,7 @@
   "scripts": {
     "deps:check": "npx syncpack list-mismatches",
     "deps:sync": "npx syncpack fix-mismatches",
+    "dev:ui": "npm run dev --workspace @nhsdigital/nhs-notify-supplier-config-ui",
     "generate-dependencies": "npm run generate-dependencies --workspaces --if-present",
     "lint": "npm run lint --workspaces",
     "lint:fix": "npm run lint:fix --workspaces",

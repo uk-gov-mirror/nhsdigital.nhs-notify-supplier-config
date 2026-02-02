@@ -1,0 +1,13 @@
+{
+  "createdAt": "2026-01-31T10:00:00.000Z",
+  "features": [
+    "WHITEMAIL"
+  ],
+  "id": "envelope-c5-1",
+  "maxInsertionSheets": 5,
+  "maxInsertionThicknessMm": 8,
+  "name": "C5 Whitemail Envelope",
+  "size": "C5",
+  "updatedAt": "2026-01-31T10:00:00.000Z",
+  "weightGrams": 12
+}

@@ -1,0 +1,10 @@
+{
+  "createdAt": "2026-01-31T10:00:00.000Z",
+  "deliveryDays": 3,
+  "id": "postage-large",
+  "maxThicknessMm": 25,
+  "maxWeightGrams": 750,
+  "name": "Large Letter Post",
+  "size": "LARGE",
+  "updatedAt": "2026-01-31T10:00:00.000Z"
+}
