@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "@nhsdigital/nhs-notify-event-schemas-supplier-config": "workspace:*",
+    "@nhsdigital/nhs-notify-event-schemas-supplier-config": "*",
     "zod": "^4.1.12"
   },
   "devDependencies": {
