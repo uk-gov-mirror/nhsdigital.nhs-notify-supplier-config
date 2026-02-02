@@ -10,7 +10,7 @@ import { Supplier } from "@nhsdigital/nhs-notify-event-schemas-supplier-config/s
 import { SupplierAllocation } from "@nhsdigital/nhs-notify-event-schemas-supplier-config/src/domain/supplier-allocation";
 import { SupplierPack } from "@nhsdigital/nhs-notify-event-schemas-supplier-config/src/domain/supplier-pack";
 import { VolumeGroup } from "@nhsdigital/nhs-notify-event-schemas-supplier-config/src/domain/volume-group";
-import { ParseResult } from "./parse-excel";
+import type { ParseResult } from "@supplier-config/excel-parser";
 
 interface SupplierPackWithSpec {
   packSpecification: PackSpecification;
