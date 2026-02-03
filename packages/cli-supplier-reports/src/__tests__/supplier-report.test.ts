@@ -37,8 +37,14 @@ const createMockData = (): ParseResult => ({
         printColour: "COLOUR",
       },
       constraints: {
-        deliveryDays: 2,
-        maxSheets: 10,
+        deliveryDays: {
+          value: 2,
+          operator: "LESS_THAN" as const,
+        },
+        sheets: {
+          value: 10,
+          operator: "LESS_THAN" as const,
+        },
       },
       createdAt: "2024-01-01T00:00:00Z",
       id: "pack-std-2day" as any,
@@ -198,8 +204,8 @@ describe("supplier-report", () => {
     expect(html).toContain("STANDARD");
 
     // Check constraints
-    expect(html).toContain("Max Sheets");
-    expect(html).toContain("10");
+    expect(html).toContain("Sheets");
+    expect(html).toContain("&lt; 10");
     expect(html).toContain("Delivery Days");
 
     // Check assembly details
@@ -489,10 +495,11 @@ describe("supplier-report", () => {
     // Should have 2 packs (APPROVED and SUBMITTED) but not the DRAFT
     expect(printcoReport!.packCount).toBe(2);
 
-    // Read and verify HTML content doesn't contain draft pack ID
+    // Read and verify HTML content doesn't contain draft approval status
     // eslint-disable-next-line security/detect-non-literal-fs-filename
     const html = fs.readFileSync(printcoReport!.filePath, "utf8");
-    expect(html).not.toContain("sp-printco-draft");
+    // Check that DRAFT approval status badge is not present
+    expect(html).not.toContain('approval-status status-draft');
   });
 
   it("includes draft supplier packs when excludeDrafts option is false or not provided", () => {
@@ -517,10 +524,12 @@ describe("supplier-report", () => {
     // Should have 3 packs (APPROVED, SUBMITTED, and DRAFT)
     expect(printcoReport!.packCount).toBe(3);
 
-    // Read and verify HTML content contains draft pack ID
+    // Read and verify HTML content contains draft approval status
     // eslint-disable-next-line security/detect-non-literal-fs-filename
     const html = fs.readFileSync(printcoReport!.filePath, "utf8");
-    expect(html).toContain("sp-printco-draft");
+    // Check for DRAFT approval status badge
+    expect(html).toContain('approval-status status-draft');
+    expect(html).toContain('>DRAFT</span>');
   });
 
   it("includes pack specification description in report when present", () => {
