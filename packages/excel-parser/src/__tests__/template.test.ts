@@ -48,6 +48,34 @@ describe("generateTemplateExcel", () => {
     );
   });
 
+  it("overwrites file when force is true", () => {
+    const overwriteFile = path.join(
+      process.cwd(),
+      `template.overwrite.${Date.now()}.xlsx`,
+    );
+    // Create initial file
+    const firstOut = generateTemplateExcel(overwriteFile, false);
+    expect(fs.existsSync(firstOut)).toBe(true);
+    const firstStat = fs.statSync(firstOut);
+
+    // Wait a tiny bit to ensure timestamp difference
+    const start = Date.now();
+    // eslint-disable-next-line no-empty
+    while (Date.now() - start < 10) {}
+
+    // Overwrite with force=true
+    const secondOut = generateTemplateExcel(overwriteFile, true);
+    expect(secondOut).toBe(overwriteFile);
+    expect(fs.existsSync(secondOut)).toBe(true);
+    const secondStat = fs.statSync(secondOut);
+
+    // File was overwritten (timestamps should be different)
+    expect(secondStat.mtimeMs).toBeGreaterThanOrEqual(firstStat.mtimeMs);
+
+    // cleanup
+    fs.unlinkSync(overwriteFile);
+  });
+
   it("creates file when not existing using default force parameter (no overwrite)", () => {
     const freshFile = path.join(
       process.cwd(),

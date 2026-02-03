@@ -1,27 +1,19 @@
 import * as XLSX from "xlsx";
 import {
   $PackSpecification,
-  EnvelopeId,
-  InsertId,
   PackSpecification,
-  PackSpecificationId,
-  PaperId,
-  PostageId,
 } from "@nhsdigital/nhs-notify-event-schemas-supplier-config/src/domain/pack-specification";
 import {
   $LetterVariant,
   LetterVariant,
-  LetterVariantId,
 } from "@nhsdigital/nhs-notify-event-schemas-supplier-config/src/domain/letter-variant";
 import {
   $VolumeGroup,
   VolumeGroup,
-  VolumeGroupId,
 } from "@nhsdigital/nhs-notify-event-schemas-supplier-config/src/domain/volume-group";
 import {
   $Supplier,
   Supplier,
-  SupplierId,
 } from "@nhsdigital/nhs-notify-event-schemas-supplier-config/src/domain/supplier";
 import {
   $SupplierAllocation,
@@ -42,7 +34,8 @@ interface PackSpecificationRow {
   updatedAt: string | number;
   billingId?: string;
   // Constraints
-  "constraints.maxSheets"?: string;
+  "constraints.sheets"?: string;
+  "constraints.sides"?: string;
   "constraints.deliveryDays"?: string;
   "constraints.blackCoveragePercentage"?: string;
   "constraints.colourCoveragePercentage"?: string;
@@ -80,7 +73,8 @@ interface LetterVariantRow {
   campaignIds?: string;
   supplierId?: string;
   // Constraints
-  "constraints.maxSheets"?: string;
+  "constraints.sheets"?: string;
+  "constraints.sides"?: string;
   "constraints.deliveryDays"?: string;
   "constraints.blackCoveragePercentage"?: string;
   "constraints.colourCoveragePercentage"?: string;
@@ -160,7 +154,8 @@ function parseArray(value?: string): string[] | undefined {
 }
 
 function parseConstraints(row: {
-  "constraints.maxSheets"?: string;
+  "constraints.sheets"?: string;
+  "constraints.sides"?: string;
   "constraints.deliveryDays"?: string;
   "constraints.blackCoveragePercentage"?: string;
   "constraints.colourCoveragePercentage"?: string;
@@ -168,27 +163,39 @@ function parseConstraints(row: {
   const constraints: NonNullable<PackSpecification["constraints"]> = {};
   let hasConstraints = false;
 
-  if (row["constraints.maxSheets"]) {
-    constraints.maxSheets = Number.parseInt(row["constraints.maxSheets"], 10);
+  if (row["constraints.sheets"]) {
+    constraints.sheets = {
+      value: Number.parseInt(row["constraints.sheets"], 10),
+      operator: "LESS_THAN",
+    };
+    hasConstraints = true;
+  }
+  if (row["constraints.sides"]) {
+    constraints.sides = {
+      value: Number.parseInt(row["constraints.sides"], 10),
+      operator: "LESS_THAN",
+    };
     hasConstraints = true;
   }
   if (row["constraints.deliveryDays"]) {
-    constraints.deliveryDays = Number.parseInt(
-      row["constraints.deliveryDays"],
-      10,
-    );
+    constraints.deliveryDays = {
+      value: Number.parseInt(row["constraints.deliveryDays"], 10),
+      operator: "LESS_THAN",
+    };
     hasConstraints = true;
   }
   if (row["constraints.blackCoveragePercentage"]) {
-    constraints.blackCoveragePercentage = Number.parseFloat(
-      row["constraints.blackCoveragePercentage"],
-    );
+    constraints.blackCoveragePercentage = {
+      value: Number.parseFloat(row["constraints.blackCoveragePercentage"]),
+      operator: "LESS_THAN",
+    };
     hasConstraints = true;
   }
   if (row["constraints.colourCoveragePercentage"]) {
-    constraints.colourCoveragePercentage = Number.parseFloat(
-      row["constraints.colourCoveragePercentage"],
-    );
+    constraints.colourCoveragePercentage = {
+      value: Number.parseFloat(row["constraints.colourCoveragePercentage"]),
+      operator: "LESS_THAN",
+    };
     hasConstraints = true;
   }
 
@@ -203,7 +210,7 @@ function parsePostage(row: PackSpecificationRow): PackSpecification["postage"] {
   }
 
   const postage: PackSpecification["postage"] = {
-    id: PostageId(row["postage.id"]),
+    id: row["postage.id"],
     size: row["postage.size"] as PackSpecification["postage"]["size"],
   };
 
@@ -227,7 +234,7 @@ function parseAssembly(
   let hasAssembly = false;
 
   if (row["assembly.envelopeId"]) {
-    assembly.envelopeId = EnvelopeId(row["assembly.envelopeId"]);
+    assembly.envelopeId = row["assembly.envelopeId"];
     hasAssembly = true;
   }
 
@@ -245,7 +252,7 @@ function parseAssembly(
   // Parse paper if any paper fields are present
   if (row["assembly.paper.id"]) {
     assembly.paper = {
-      id: PaperId(row["assembly.paper.id"]),
+      id: row["assembly.paper.id"],
       name: row["assembly.paper.name"] || "",
       weightGSM: Number.parseFloat(row["assembly.paper.weightGSM"] || "80"),
       size: row["assembly.paper.size"] as "A5" | "A4" | "A3",
@@ -266,7 +273,7 @@ function parseAssembly(
   if (row["assembly.insertIds"]) {
     const insertIds = parseArray(row["assembly.insertIds"]);
     if (insertIds) {
-      assembly.insertIds = insertIds as InsertId[];
+      assembly.insertIds = insertIds;
       hasAssembly = true;
     }
   }
@@ -298,7 +305,7 @@ function parseAssembly(
 
 function parsePackSpecification(row: PackSpecificationRow): PackSpecification {
   const draft: Partial<PackSpecification> = {
-    id: PackSpecificationId(row.id),
+    id: row.id,
     name: row.name,
     status: row.status as PackSpecification["status"],
     version: Number.parseInt(row.version, 10),
@@ -330,18 +337,18 @@ function parsePackSpecification(row: PackSpecificationRow): PackSpecification {
 function parseLetterVariant(row: LetterVariantRow): LetterVariant {
   const baseIds = parseArray(row.packSpecificationIds) ?? [];
   const draft: Partial<LetterVariant> = {
-    id: LetterVariantId(row.id),
+    id: row.id,
     name: row.name,
     description: row.description || row.name,
-    volumeGroupId: row.volumeGroupId as LetterVariant["volumeGroupId"],
+    volumeGroupId: row.volumeGroupId,
     type: row.type as LetterVariant["type"],
     status: row.status as LetterVariant["status"],
-    packSpecificationIds: baseIds.map((id) => PackSpecificationId(id)),
+    packSpecificationIds: baseIds,
   };
 
   if (row.clientId) draft.clientId = row.clientId;
   if (row.campaignIds) draft.campaignIds = parseArray(row.campaignIds);
-  if (row.supplierId) draft.supplierId = SupplierId(row.supplierId);
+  if (row.supplierId) draft.supplierId = row.supplierId;
 
   const constraints = parseConstraints(row);
   if (constraints) draft.constraints = constraints;
@@ -359,10 +366,10 @@ function parseLetterVariant(row: LetterVariantRow): LetterVariant {
 
 function parseVolumeGroup(row: VolumeGroupRow): VolumeGroup {
   const draft: Partial<VolumeGroup> = {
-    id: VolumeGroupId(row.id),
+    id: row.id,
     name: row.name,
     startDate: parseDateOnly(row.startDate),
-    status: (row.status || "PUBLISHED") as VolumeGroup["status"],
+    status: (row.status || "DRAFT") as VolumeGroup["status"],
   };
 
   if (row.description) draft.description = row.description;
@@ -381,11 +388,11 @@ function parseVolumeGroup(row: VolumeGroupRow): VolumeGroup {
 
 function parseSupplier(row: SupplierRow): Supplier {
   const draft: Partial<Supplier> = {
-    id: SupplierId(row.id),
+    id: row.id,
     name: row.name,
     channelType: row.channelType as Supplier["channelType"],
     dailyCapacity: Number.parseInt(row.dailyCapacity, 10),
-    status: (row.status || "PUBLISHED") as Supplier["status"],
+    status: (row.status || "DRAFT") as Supplier["status"],
   };
 
   const parsed = $Supplier.safeParse(draft);
@@ -404,8 +411,8 @@ function parseSupplierAllocation(
 ): SupplierAllocation {
   const draft = {
     id: row.id,
-    volumeGroup: VolumeGroupId(row.volumeGroupId),
-    supplier: SupplierId(row.supplier),
+    volumeGroup: row.volumeGroupId,
+    supplier: row.supplier,
     allocationPercentage: Number.parseFloat(row.allocationPercentage),
     status: row.status as SupplierAllocation["status"],
   };
@@ -424,8 +431,8 @@ function parseSupplierAllocation(
 function parseSupplierPack(row: SupplierPackRow): SupplierPack {
   const draft = {
     id: row.id,
-    packSpecificationId: PackSpecificationId(row.packSpecificationId),
-    supplierId: SupplierId(row.supplierId),
+    packSpecificationId: row.packSpecificationId,
+    supplierId: row.supplierId,
     approval: row.approval as SupplierPack["approval"],
     status: row.status as SupplierPack["status"],
   };

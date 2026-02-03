@@ -1,8 +1,7 @@
 import * as XLSX from "xlsx";
-import { PackSpecificationId } from "@nhsdigital/nhs-notify-event-schemas-supplier-config/src/domain/pack-specification";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { parseExcelFile } from "../lib/parse-excel";
+import { parseExcelFile } from "../parse-excel";
 
 function buildWorkbook(data: {
   packs: any[];
@@ -136,8 +135,8 @@ describe("parse-excel", () => {
     expect(result.packs.pack2.postage.id).toBe("postage-large");
     expect(result.packs.pack2.postage.size).toBe("LARGE");
     expect(result.variants.variant1.packSpecificationIds).toEqual([
-      PackSpecificationId("pack-1"),
-      PackSpecificationId("pack-2"),
+      "pack-1",
+      "pack-2",
     ]);
   });
 
@@ -196,7 +195,7 @@ describe("parse-excel", () => {
           updatedAt: "2024-01-01",
           "postage.id": "postage-1",
           "postage.size": "STANDARD",
-          "constraints.maxSheets": "10",
+          "constraints.sheets": "10",
           "constraints.deliveryDays": "5",
           "constraints.blackCoveragePercentage": "80.5",
           "constraints.colourCoveragePercentage": "50.25",
@@ -207,10 +206,10 @@ describe("parse-excel", () => {
     const file = writeWorkbook(wb);
     const result = parseExcelFile(file);
     expect(result.packs.packwithconstraints.constraints).toEqual({
-      maxSheets: 10,
-      deliveryDays: 5,
-      blackCoveragePercentage: 80.5,
-      colourCoveragePercentage: 50.25,
+      sheets: { value: 10, operator: "LESS_THAN" },
+      deliveryDays: { value: 5, operator: "LESS_THAN" },
+      blackCoveragePercentage: { value: 80.5, operator: "LESS_THAN" },
+      colourCoveragePercentage: { value: 50.25, operator: "LESS_THAN" },
     });
   });
 
@@ -282,7 +281,7 @@ describe("parse-excel", () => {
           packSpecificationIds: "pack-1",
           type: "STANDARD",
           status: "PROD",
-          "constraints.maxSheets": "8",
+          "constraints.sheets": "8",
           "constraints.deliveryDays": "3",
         },
       ],
@@ -290,8 +289,8 @@ describe("parse-excel", () => {
     const file = writeWorkbook(wb);
     const result = parseExcelFile(file);
     expect(result.variants.variantwithconstraints.constraints).toEqual({
-      maxSheets: 8,
-      deliveryDays: 3,
+      sheets: { value: 8, operator: "LESS_THAN" },
+      deliveryDays: { value: 3, operator: "LESS_THAN" },
     });
   });
 
@@ -776,7 +775,9 @@ describe("parse-excel", () => {
     });
     const file = writeWorkbook(wb);
     const result = parseExcelFile(file);
-    expect(result.variants.variantwithsupplier.supplierId).toBe("supplier-printco");
+    expect(result.variants.variantwithsupplier.supplierId).toBe(
+      "supplier-printco",
+    );
   });
 
   it("uses name as description when description is missing", () => {
@@ -871,7 +872,7 @@ describe("parse-excel", () => {
     expect(result.variants.variantwithunderscores456).toBeDefined();
   });
 
-  it("handles partial constraints - only maxSheets", () => {
+  it("handles partial constraints - only sheets", () => {
     const wb = buildWorkbook({
       packs: [
         {
@@ -883,7 +884,7 @@ describe("parse-excel", () => {
           updatedAt: "2024-01-01",
           "postage.id": "postage-1",
           "postage.size": "STANDARD",
-          "constraints.maxSheets": "15",
+          "constraints.sheets": "15",
         },
       ],
       variants: [],
@@ -891,7 +892,7 @@ describe("parse-excel", () => {
     const file = writeWorkbook(wb);
     const result = parseExcelFile(file);
     expect(result.packs.packpartial1.constraints).toEqual({
-      maxSheets: 15,
+      sheets: { value: 15, operator: "LESS_THAN" },
     });
   });
 
@@ -915,7 +916,7 @@ describe("parse-excel", () => {
     const file = writeWorkbook(wb);
     const result = parseExcelFile(file);
     expect(result.packs.packpartial2.constraints).toEqual({
-      deliveryDays: 7,
+      deliveryDays: { value: 7, operator: "LESS_THAN" },
     });
   });
 
@@ -940,8 +941,8 @@ describe("parse-excel", () => {
     const file = writeWorkbook(wb);
     const result = parseExcelFile(file);
     expect(result.packs.packpartial3.constraints).toEqual({
-      blackCoveragePercentage: 90.5,
-      colourCoveragePercentage: 60.25,
+      blackCoveragePercentage: { value: 90.5, operator: "LESS_THAN" },
+      colourCoveragePercentage: { value: 60.25, operator: "LESS_THAN" },
     });
   });
 
@@ -1828,5 +1829,288 @@ describe("parse-excel", () => {
     expect(result.volumeGroups.volumegroupinvaliddate.startDate).toBe(
       "2023-01-01",
     );
+  });
+
+  it("parses Excel serial date numbers for timestamps", () => {
+    const wb = buildWorkbook({
+      packs: [
+        {
+          id: "pack-excel-dates",
+          name: "Pack with Excel Serial Dates",
+          status: "PROD",
+          version: "1",
+          createdAt: 44927, // Excel serial date for 2023-01-01
+          updatedAt: 44958, // Excel serial date for 2023-02-01
+          "postage.id": "postage-1",
+          "postage.size": "STANDARD",
+        },
+      ],
+      variants: [],
+    });
+    const file = writeWorkbook(wb);
+    const result = parseExcelFile(file);
+    expect(result.packs.packexceldates.createdAt).toMatch(/2023-01-01/);
+    expect(result.packs.packexceldates.updatedAt).toMatch(/2023-02-01/);
+  });
+
+  it("parses Excel serial date numbers for date-only fields", () => {
+    const wb = buildWorkbook({
+      packs: [
+        {
+          id: "pack-1",
+          name: "Pack 1",
+          status: "PROD",
+          version: "1",
+          createdAt: "2024-01-01",
+          updatedAt: "2024-01-01",
+          "postage.id": "postage-1",
+          "postage.size": "STANDARD",
+        },
+      ],
+      variants: [],
+      volumeGroups: [
+        {
+          id: "volume-group-excel-dates",
+          name: "VolumeGroup with Excel Dates",
+          startDate: 44927, // Excel serial date for 2023-01-01
+          endDate: 45292, // Excel serial date for 2024-01-01
+          status: "PROD",
+        },
+      ],
+    });
+    const file = writeWorkbook(wb);
+    const result = parseExcelFile(file);
+    expect(result.volumeGroups.volumegroupexceldates.startDate).toBe(
+      "2023-01-01",
+    );
+    expect(result.volumeGroups.volumegroupexceldates.endDate).toBe(
+      "2024-01-01",
+    );
+  });
+
+  it("parses constraints.sides on PackSpecification", () => {
+    const wb = buildWorkbook({
+      packs: [
+        {
+          id: "pack-with-sides",
+          name: "Pack with Sides Constraint",
+          status: "PROD",
+          version: "1",
+          createdAt: "2024-01-01",
+          updatedAt: "2024-01-01",
+          "postage.id": "postage-1",
+          "postage.size": "STANDARD",
+          "constraints.sheets": "10",
+          "constraints.sides": "20",
+          "constraints.deliveryDays": "5",
+        },
+      ],
+      variants: [],
+    });
+    const file = writeWorkbook(wb);
+    const result = parseExcelFile(file);
+    expect(result.packs.packwithsides.constraints).toEqual({
+      sheets: { value: 10, operator: "LESS_THAN" },
+      sides: { value: 20, operator: "LESS_THAN" },
+      deliveryDays: { value: 5, operator: "LESS_THAN" },
+    });
+  });
+
+  it("parses constraints.sides on LetterVariant", () => {
+    const wb = buildWorkbook({
+      packs: [
+        {
+          id: "pack-1",
+          name: "Pack 1",
+          status: "PROD",
+          version: "1",
+          createdAt: "2024-01-01",
+          updatedAt: "2024-01-01",
+          "postage.id": "postage-1",
+          "postage.size": "STANDARD",
+        },
+      ],
+      variants: [
+        {
+          id: "variant-with-sides",
+          name: "Variant with Sides Constraint",
+          volumeGroupId: "volume-group-1",
+          packSpecificationIds: "pack-1",
+          type: "STANDARD",
+          status: "PROD",
+          "constraints.sheets": "8",
+          "constraints.sides": "16",
+          "constraints.deliveryDays": "3",
+        },
+      ],
+    });
+    const file = writeWorkbook(wb);
+    const result = parseExcelFile(file);
+    expect(result.variants.variantwithsides.constraints).toEqual({
+      sheets: { value: 8, operator: "LESS_THAN" },
+      sides: { value: 16, operator: "LESS_THAN" },
+      deliveryDays: { value: 3, operator: "LESS_THAN" },
+    });
+  });
+
+  it("parses assembly.paper.finish", () => {
+    const wb = buildWorkbook({
+      packs: [
+        {
+          id: "pack-with-paper-finish",
+          name: "Pack with Paper Finish",
+          status: "PROD",
+          version: "1",
+          createdAt: "2024-01-01",
+          updatedAt: "2024-01-01",
+          "postage.id": "postage-1",
+          "postage.size": "STANDARD",
+          "assembly.paper.id": "paper-glossy",
+          "assembly.paper.name": "Glossy Paper",
+          "assembly.paper.weightGSM": "120",
+          "assembly.paper.size": "A4",
+          "assembly.paper.colour": "WHITE",
+          "assembly.paper.recycled": "true",
+          "assembly.paper.finish": "GLOSSY",
+        },
+      ],
+      variants: [],
+    });
+    const file = writeWorkbook(wb);
+    const result = parseExcelFile(file);
+    expect(result.packs.packwithpaperfinish.assembly?.paper).toEqual({
+      id: "paper-glossy",
+      name: "Glossy Paper",
+      weightGSM: 120,
+      size: "A4",
+      colour: "WHITE",
+      recycled: true,
+      finish: "GLOSSY",
+    });
+  });
+
+  it("parses assembly.paper without finish", () => {
+    const wb = buildWorkbook({
+      packs: [
+        {
+          id: "pack-without-paper-finish",
+          name: "Pack without Paper Finish",
+          status: "PROD",
+          version: "1",
+          createdAt: "2024-01-01",
+          updatedAt: "2024-01-01",
+          "postage.id": "postage-1",
+          "postage.size": "STANDARD",
+          "assembly.paper.id": "paper-plain",
+          "assembly.paper.name": "Plain Paper",
+          "assembly.paper.weightGSM": "80",
+          "assembly.paper.size": "A4",
+          "assembly.paper.colour": "WHITE",
+          "assembly.paper.recycled": "false",
+        },
+      ],
+      variants: [],
+    });
+    const file = writeWorkbook(wb);
+    const result = parseExcelFile(file);
+    expect(result.packs.packwithoutpaperfinish.assembly?.paper).toEqual({
+      id: "paper-plain",
+      name: "Plain Paper",
+      weightGSM: 80,
+      size: "A4",
+      colour: "WHITE",
+      recycled: false,
+    });
+    expect(
+      result.packs.packwithoutpaperfinish.assembly?.paper?.finish,
+    ).toBeUndefined();
+  });
+
+  it("defaults paper.colour to WHITE when missing", () => {
+    const wb = buildWorkbook({
+      packs: [
+        {
+          id: "pack-without-paper-colour",
+          name: "Pack without Paper Colour",
+          status: "PROD",
+          version: "1",
+          createdAt: "2024-01-01",
+          updatedAt: "2024-01-01",
+          "postage.id": "postage-1",
+          "postage.size": "STANDARD",
+          "assembly.paper.id": "paper-default-colour",
+          "assembly.paper.name": "Paper Default Colour",
+          "assembly.paper.weightGSM": "80",
+          "assembly.paper.size": "A4",
+          // no colour field provided
+          "assembly.paper.recycled": "false",
+        },
+      ],
+      variants: [],
+    });
+    const file = writeWorkbook(wb);
+    const result = parseExcelFile(file);
+    expect(result.packs.packwithoutpapercolour.assembly?.paper?.colour).toBe(
+      "WHITE",
+    );
+  });
+
+  it("defaults VolumeGroup status to DRAFT when missing", () => {
+    const wb = buildWorkbook({
+      packs: [
+        {
+          id: "pack-1",
+          name: "Pack 1",
+          status: "PROD",
+          version: "1",
+          createdAt: "2024-01-01",
+          updatedAt: "2024-01-01",
+          "postage.id": "postage-1",
+          "postage.size": "STANDARD",
+        },
+      ],
+      variants: [],
+      volumeGroups: [
+        {
+          id: "volume-group-no-status",
+          name: "VolumeGroup without Status",
+          startDate: "2024-01-01",
+          // no status field
+        },
+      ],
+    });
+    const file = writeWorkbook(wb);
+    const result = parseExcelFile(file);
+    expect(result.volumeGroups.volumegroupnostatus.status).toBe("DRAFT");
+  });
+
+  it("defaults Supplier status to DRAFT when missing", () => {
+    const wb = buildWorkbook({
+      packs: [
+        {
+          id: "pack-1",
+          name: "Pack 1",
+          status: "PROD",
+          version: "1",
+          createdAt: "2024-01-01",
+          updatedAt: "2024-01-01",
+          "postage.id": "postage-1",
+          "postage.size": "STANDARD",
+        },
+      ],
+      variants: [],
+      suppliers: [
+        {
+          id: "supplier-no-status",
+          name: "Supplier without Status",
+          channelType: "LETTER",
+          dailyCapacity: "5000",
+          // no status field
+        },
+      ],
+    });
+    const file = writeWorkbook(wb);
+    const result = parseExcelFile(file);
+    expect(result.suppliers.suppliernostatus.status).toBe("DRAFT");
   });
 });
