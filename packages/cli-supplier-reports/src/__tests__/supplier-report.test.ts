@@ -631,4 +631,331 @@ describe("supplier-report", () => {
     // Check that "Not specified" appears for duplex
     expect(html).toContain("<th>Duplex</th><td><em>Not specified</em></td>");
   });
+
+  describe("CSV variant mapping generation", () => {
+    it("generates variant-mapping.csv file", () => {
+      const data = createMockData();
+      // Add variants to the mock data
+      data.variants = {
+        variant1: {
+          id: "variant-standard" as any,
+          name: "Standard Variant",
+          type: "STANDARD" as any,
+          status: "PROD",
+          volumeGroupId: "vg-q1-2024" as any,
+          packSpecificationIds: ["pack-std-2day" as any],
+        },
+      };
+
+      const result = generateSupplierReports(data, tempDir);
+
+      expect(result.csvFilePath).toBeDefined();
+      expect(result.csvFilePath).toContain("variant-mapping.csv");
+      // eslint-disable-next-line security/detect-non-literal-fs-filename
+      expect(fs.existsSync(result.csvFilePath!)).toBe(true);
+    });
+
+    it("includes correct CSV headers", () => {
+      const data = createMockData();
+      data.variants = {
+        variant1: {
+          id: "variant-standard" as any,
+          name: "Standard Variant",
+          type: "STANDARD" as any,
+          status: "PROD",
+          volumeGroupId: "vg-q1-2024" as any,
+          packSpecificationIds: ["pack-std-2day" as any],
+        },
+      };
+
+      const result = generateSupplierReports(data, tempDir);
+      // eslint-disable-next-line security/detect-non-literal-fs-filename
+      const csvContent = fs.readFileSync(result.csvFilePath!, "utf8");
+      const lines = csvContent.split("\n");
+
+      expect(lines[0]).toBe(
+        "variant_id,variant_name,variant_status,pack_specification_id,pack_specification_name,pack_specification_status,pack_specification_version,supplier_pack_id,supplier_pack_approval,supplier_pack_status,supplier_id,supplier_name",
+      );
+    });
+
+    it("creates CSV rows for variant-pack-supplierpack-supplier mapping", () => {
+      const data = createMockData();
+      data.variants = {
+        variant1: {
+          id: "variant-standard" as any,
+          name: "Standard Variant",
+          type: "STANDARD" as any,
+          status: "PROD",
+          volumeGroupId: "vg-q1-2024" as any,
+          packSpecificationIds: ["pack-std-2day" as any],
+        },
+      };
+
+      const result = generateSupplierReports(data, tempDir);
+      // eslint-disable-next-line security/detect-non-literal-fs-filename
+      const csvContent = fs.readFileSync(result.csvFilePath!, "utf8");
+      const lines = csvContent.split("\n").filter((l) => l.trim());
+
+      // Should have header + 2 data rows (one for each supplier pack)
+      expect(lines.length).toBe(3);
+      expect(csvContent).toContain("variant-standard");
+      expect(csvContent).toContain("Standard Variant");
+      expect(csvContent).toContain("pack-std-2day");
+      expect(csvContent).toContain("PrintCo Ltd");
+      expect(csvContent).toContain("MailHouse Services");
+    });
+
+    it("only includes variants with INT or PROD status", () => {
+      const data = createMockData();
+      data.variants = {
+        variant1: {
+          id: "variant-prod" as any,
+          name: "Production Variant",
+          type: "STANDARD" as any,
+          status: "PROD",
+          volumeGroupId: "vg-q1-2024" as any,
+          packSpecificationIds: ["pack-std-2day" as any],
+        },
+        variant2: {
+          id: "variant-draft" as any,
+          name: "Draft Variant",
+          type: "STANDARD" as any,
+          status: "DRAFT",
+          volumeGroupId: "vg-q1-2024" as any,
+          packSpecificationIds: ["pack-std-2day" as any],
+        },
+      };
+
+      const result = generateSupplierReports(data, tempDir);
+      // eslint-disable-next-line security/detect-non-literal-fs-filename
+      const csvContent = fs.readFileSync(result.csvFilePath!, "utf8");
+
+      expect(csvContent).toContain("variant-prod");
+      expect(csvContent).not.toContain("variant-draft");
+    });
+
+    it("only includes pack specifications with INT or PROD status", () => {
+      const data = createMockData();
+      data.packs.pack3 = {
+        createdAt: "2024-01-01T00:00:00Z",
+        id: "pack-draft" as any,
+        name: "Draft Pack",
+        postage: {
+          id: "postage-standard" as any,
+          size: "STANDARD",
+        },
+        status: "DRAFT",
+        updatedAt: "2024-01-01T00:00:00Z",
+        version: 1,
+      };
+      data.supplierPacks.sp4 = {
+        approval: "DRAFT",
+        id: "sp-printco-pack3" as any,
+        packSpecificationId: "pack-draft" as any,
+        status: "DRAFT",
+        supplierId: "supplier-printco" as any,
+      };
+      data.variants = {
+        variant1: {
+          id: "variant-mixed" as any,
+          name: "Mixed Variant",
+          type: "STANDARD" as any,
+          status: "PROD",
+          volumeGroupId: "vg-q1-2024" as any,
+          packSpecificationIds: ["pack-std-2day" as any, "pack-draft" as any],
+        },
+      };
+
+      const result = generateSupplierReports(data, tempDir);
+      // eslint-disable-next-line security/detect-non-literal-fs-filename
+      const csvContent = fs.readFileSync(result.csvFilePath!, "utf8");
+
+      expect(csvContent).toContain("pack-std-2day");
+      expect(csvContent).not.toContain("pack-draft");
+    });
+
+    it("only includes supplier packs with INT or PROD status", () => {
+      const data = createMockData();
+      data.supplierPacks.sp4 = {
+        approval: "DRAFT",
+        id: "sp-draft-pack1" as any,
+        packSpecificationId: "pack-std-2day" as any,
+        status: "DRAFT",
+        supplierId: "supplier-printco" as any,
+      };
+      data.variants = {
+        variant1: {
+          id: "variant-standard" as any,
+          name: "Standard Variant",
+          type: "STANDARD" as any,
+          status: "PROD",
+          volumeGroupId: "vg-q1-2024" as any,
+          packSpecificationIds: ["pack-std-2day" as any],
+        },
+      };
+
+      const result = generateSupplierReports(data, tempDir);
+      // eslint-disable-next-line security/detect-non-literal-fs-filename
+      const csvContent = fs.readFileSync(result.csvFilePath!, "utf8");
+      const lines = csvContent.split("\n").filter((l) => l.trim());
+
+      // Should only have 2 supplier packs (sp1 and sp3), not sp4 which is DRAFT
+      expect(lines.length).toBe(3); // header + 2 rows
+      expect(csvContent).toContain("sp-printco-pack1");
+      expect(csvContent).toContain("sp-mailhouse-pack1");
+      expect(csvContent).not.toContain("sp-draft-pack1");
+    });
+
+    it("filters supplier packs by variant supplierId when specified", () => {
+      const data = createMockData();
+      data.variants = {
+        variant1: {
+          id: "variant-printco-only" as any,
+          name: "PrintCo Only Variant",
+          type: "STANDARD" as any,
+          status: "PROD",
+          volumeGroupId: "vg-q1-2024" as any,
+          packSpecificationIds: ["pack-std-2day" as any],
+          supplierId: "supplier-printco" as any,
+        },
+      };
+
+      const result = generateSupplierReports(data, tempDir);
+      // eslint-disable-next-line security/detect-non-literal-fs-filename
+      const csvContent = fs.readFileSync(result.csvFilePath!, "utf8");
+      const lines = csvContent.split("\n").filter((l) => l.trim());
+
+      // Should only have 1 data row (for PrintCo), not MailHouse
+      expect(lines.length).toBe(2); // header + 1 row
+      expect(csvContent).toContain("PrintCo Ltd");
+      expect(csvContent).not.toContain("MailHouse Services");
+    });
+
+    it("includes all suppliers when variant has no supplierId", () => {
+      const data = createMockData();
+      data.variants = {
+        variant1: {
+          id: "variant-any-supplier" as any,
+          name: "Any Supplier Variant",
+          type: "STANDARD" as any,
+          status: "PROD",
+          volumeGroupId: "vg-q1-2024" as any,
+          packSpecificationIds: ["pack-std-2day" as any],
+          // No supplierId specified
+        },
+      };
+
+      const result = generateSupplierReports(data, tempDir);
+      // eslint-disable-next-line security/detect-non-literal-fs-filename
+      const csvContent = fs.readFileSync(result.csvFilePath!, "utf8");
+      const lines = csvContent.split("\n").filter((l) => l.trim());
+
+      // Should have 2 data rows (one for each supplier)
+      expect(lines.length).toBe(3); // header + 2 rows
+      expect(csvContent).toContain("PrintCo Ltd");
+      expect(csvContent).toContain("MailHouse Services");
+    });
+
+    it("handles variants with multiple pack specifications", () => {
+      const data = createMockData();
+      data.variants = {
+        variant1: {
+          id: "variant-multi-pack" as any,
+          name: "Multi Pack Variant",
+          type: "STANDARD" as any,
+          status: "PROD",
+          volumeGroupId: "vg-q1-2024" as any,
+          packSpecificationIds: ["pack-std-2day" as any, "pack-express" as any],
+        },
+      };
+
+      const result = generateSupplierReports(data, tempDir);
+      // eslint-disable-next-line security/detect-non-literal-fs-filename
+      const csvContent = fs.readFileSync(result.csvFilePath!, "utf8");
+      const lines = csvContent.split("\n").filter((l) => l.trim());
+
+      // pack-std-2day has 2 supplier packs, pack-express has 1
+      expect(lines.length).toBe(4); // header + 3 rows
+      expect(csvContent).toContain("pack-std-2day");
+      expect(csvContent).toContain("pack-express");
+    });
+
+    it("escapes CSV values with commas correctly", () => {
+      const data = createMockData();
+      data.packs.pack1.name = "Standard, 2-Day Delivery";
+      data.variants = {
+        variant1: {
+          id: "variant-standard" as any,
+          name: "Standard Variant",
+          type: "STANDARD" as any,
+          status: "PROD",
+          volumeGroupId: "vg-q1-2024" as any,
+          packSpecificationIds: ["pack-std-2day" as any],
+        },
+      };
+
+      const result = generateSupplierReports(data, tempDir);
+      // eslint-disable-next-line security/detect-non-literal-fs-filename
+      const csvContent = fs.readFileSync(result.csvFilePath!, "utf8");
+
+      // Value with comma should be wrapped in quotes
+      expect(csvContent).toContain('"Standard, 2-Day Delivery"');
+    });
+
+    it("escapes CSV values with quotes correctly", () => {
+      const data = createMockData();
+      data.packs.pack1.name = 'Standard "Premium" Delivery';
+      data.variants = {
+        variant1: {
+          id: "variant-standard" as any,
+          name: "Standard Variant",
+          type: "STANDARD" as any,
+          status: "PROD",
+          volumeGroupId: "vg-q1-2024" as any,
+          packSpecificationIds: ["pack-std-2day" as any],
+        },
+      };
+
+      const result = generateSupplierReports(data, tempDir);
+      // eslint-disable-next-line security/detect-non-literal-fs-filename
+      const csvContent = fs.readFileSync(result.csvFilePath!, "utf8");
+
+      // Quotes should be escaped as double quotes
+      expect(csvContent).toContain('Standard ""Premium"" Delivery');
+    });
+
+    it("generates empty CSV with only headers when no variants exist", () => {
+      const data = createMockData();
+      data.variants = {};
+
+      const result = generateSupplierReports(data, tempDir);
+      // eslint-disable-next-line security/detect-non-literal-fs-filename
+      const csvContent = fs.readFileSync(result.csvFilePath!, "utf8");
+      const lines = csvContent.split("\n").filter((l) => l.trim());
+
+      // Should only have header row
+      expect(lines.length).toBe(1);
+    });
+
+    it("includes version number in CSV output", () => {
+      const data = createMockData();
+      data.packs.pack1.version = 5;
+      data.variants = {
+        variant1: {
+          id: "variant-standard" as any,
+          name: "Standard Variant",
+          type: "STANDARD" as any,
+          status: "PROD",
+          volumeGroupId: "vg-q1-2024" as any,
+          packSpecificationIds: ["pack-std-2day" as any],
+        },
+      };
+
+      const result = generateSupplierReports(data, tempDir);
+      // eslint-disable-next-line security/detect-non-literal-fs-filename
+      const csvContent = fs.readFileSync(result.csvFilePath!, "utf8");
+
+      expect(csvContent).toContain(",5,");
+    });
+  });
 });

@@ -62,6 +62,27 @@ Each supplier report includes:
   - Assembly specifications
   - Paper details
 
+Additionally, a **variant-mapping.csv** file is generated containing the complete mapping from letter variants through pack specifications, supplier packs, to suppliers. This CSV only includes records where the status is INT or PROD, providing a clean view of active production configurations.
+
+### Variant Mapping CSV
+
+The variant mapping CSV includes the following columns:
+
+- `variant_id` - Letter variant ID
+- `variant_name` - Letter variant name
+- `variant_status` - Letter variant environment status (INT/PROD)
+- `pack_specification_id` - Pack specification ID
+- `pack_specification_name` - Pack specification name
+- `pack_specification_status` - Pack specification environment status (INT/PROD)
+- `pack_specification_version` - Pack specification version number
+- `supplier_pack_id` - Supplier pack ID
+- `supplier_pack_approval` - Supplier pack approval status
+- `supplier_pack_status` - Supplier pack environment status (INT/PROD)
+- `supplier_id` - Supplier ID
+- `supplier_name` - Supplier name
+
+This CSV provides a flattened view of the relationships, making it easy to analyze and query the complete configuration in tools like Excel or databases.
+
 ## Dependencies
 
 - `@nhs-notify/excel-parser` - For parsing Excel files

@@ -1030,6 +1030,7 @@ export interface GenerateReportsOptions {
 }
 
 export interface GenerateReportsResult {
+  csvFilePath?: string;
   outputDir: string;
   reports: {
     filePath: string;
@@ -1037,6 +1038,122 @@ export interface GenerateReportsResult {
     supplierId: string;
     supplierName: string;
   }[];
+}
+
+function escapeCsvValue(value: string | number | boolean | undefined): string {
+  if (value === undefined || value === null) {
+    return "";
+  }
+  const str = String(value);
+  // Escape double quotes and wrap in quotes if contains comma, quote, or newline
+  if (str.includes(",") || str.includes('"') || str.includes("\n")) {
+    return `"${str.replaceAll('"', '""')}"`;
+  }
+  return str;
+}
+
+export function generateVariantMappingCsv(
+  data: ParseResult,
+  outputDir: string,
+): string {
+  const rows: string[][] = [];
+
+  // CSV Header
+  rows.push([
+    "variant_id",
+    "variant_name",
+    "variant_status",
+    "pack_specification_id",
+    "pack_specification_name",
+    "pack_specification_status",
+    "pack_specification_version",
+    "supplier_pack_id",
+    "supplier_pack_approval",
+    "supplier_pack_status",
+    "supplier_id",
+    "supplier_name",
+  ]);
+
+  // Process each variant
+  for (const variant of Object.values(data.variants)) {
+    // Only include variants with INT or PROD status
+    if (variant.status !== "INT" && variant.status !== "PROD") {
+      continue;
+    }
+
+    // For each pack specification in this variant
+    for (const packSpecId of variant.packSpecificationIds) {
+      const packSpec = Object.values(data.packs).find(
+        (p) => p.id === packSpecId,
+      );
+
+      if (!packSpec) {
+        continue; // Skip if pack spec not found
+      }
+
+      // Only include pack specifications with INT or PROD status
+      if (packSpec.status !== "INT" && packSpec.status !== "PROD") {
+        continue;
+      }
+
+      // Find all supplier packs for this pack specification
+      for (const supplierPack of Object.values(data.supplierPacks)) {
+        if (supplierPack.packSpecificationId !== packSpecId) {
+          continue;
+        }
+
+        // Only include supplier packs with INT or PROD status
+        if (supplierPack.status !== "INT" && supplierPack.status !== "PROD") {
+          continue;
+        }
+
+        // If variant has a supplierId, only include supplier packs for that supplier
+        if (
+          variant.supplierId &&
+          supplierPack.supplierId !== variant.supplierId
+        ) {
+          continue;
+        }
+
+        // Find the supplier
+        const supplier = Object.values(data.suppliers).find(
+          (s) => s.id === supplierPack.supplierId,
+        );
+
+        if (!supplier) {
+          continue; // Skip if supplier not found
+        }
+
+        // Add row for this complete mapping
+        rows.push([
+          variant.id,
+          variant.name,
+          variant.status,
+          packSpec.id,
+          packSpec.name,
+          packSpec.status,
+          String(packSpec.version),
+          supplierPack.id,
+          supplierPack.approval,
+          supplierPack.status,
+          supplier.id,
+          supplier.name,
+        ]);
+      }
+    }
+  }
+
+  // Convert to CSV string
+  const csvContent = rows
+    .map((row) => row.map((cell) => escapeCsvValue(cell)).join(","))
+    .join("\n");
+
+  // Write to file
+  const filePath = path.join(outputDir, "variant-mapping.csv");
+  // eslint-disable-next-line security/detect-non-literal-fs-filename
+  fs.writeFileSync(filePath, csvContent, "utf8");
+
+  return filePath;
 }
 
 export function generateSupplierReports(
@@ -1056,6 +1173,10 @@ export function generateSupplierReports(
     // eslint-disable-next-line security/detect-non-literal-fs-filename
     fs.mkdirSync(outputDir, { recursive: true });
   }
+
+  // Generate variant mapping CSV
+  const csvFilePath = generateVariantMappingCsv(data, outputDir);
+  result.csvFilePath = csvFilePath;
 
   for (const [supplierId, report] of reports) {
     const supplierNameSanitized = sanitizeFilename(report.supplier.name);

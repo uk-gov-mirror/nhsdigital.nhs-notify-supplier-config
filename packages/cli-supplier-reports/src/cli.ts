@@ -49,6 +49,11 @@ async function handleReport(args: ReportArgs): Promise<void> {
   console.log(
     `\nGenerated ${result.reports.length} supplier reports in: ${result.outputDir}\n`,
   );
+
+  if (result.csvFilePath) {
+    console.log(`  - Variant mapping CSV: ${result.csvFilePath}\n`);
+  }
+
   for (const report of result.reports) {
     console.log(
       `  - ${report.supplierName}: ${report.packCount} pack(s) -> ${report.filePath}`,
