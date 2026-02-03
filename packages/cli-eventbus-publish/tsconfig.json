@@ -2,6 +2,7 @@
   "compilerOptions": {
     "baseUrl": ".",
     "declaration": true,
+    "esModuleInterop": true,
     "isolatedModules": true,
     "module": "commonjs",
     "outDir": "dist",
@@ -20,22 +21,15 @@
       ]
     },
     "resolveJsonModule": true,
-    "rootDir": "src"
+    "skipLibCheck": true
   },
   "exclude": [
     "node_modules",
-    "dist"
+    "dist",
+    "src/__tests__"
   ],
   "extends": "../../tsconfig.base.json",
   "include": [
     "src/**/*"
-  ],
-  "references": [
-    {
-      "path": "../excel-parser"
-    },
-    {
-      "path": "../event-builder"
-    }
   ]
 }
