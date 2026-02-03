@@ -1,8 +1,8 @@
 import * as fs from "node:fs";
 import path from "node:path";
 import * as os from "node:os";
-import { generateSupplierReports } from "../supplier-report";
 import type { ParseResult } from "@supplier-config/excel-parser";
+import { generateSupplierReports } from "../supplier-report";
 
 const createMockData = (): ParseResult => ({
   allocations: {
@@ -499,7 +499,7 @@ describe("supplier-report", () => {
     // eslint-disable-next-line security/detect-non-literal-fs-filename
     const html = fs.readFileSync(printcoReport!.filePath, "utf8");
     // Check that DRAFT approval status badge is not present
-    expect(html).not.toContain('approval-status status-draft');
+    expect(html).not.toContain("approval-status status-draft");
   });
 
   it("includes draft supplier packs when excludeDrafts option is false or not provided", () => {
@@ -528,8 +528,8 @@ describe("supplier-report", () => {
     // eslint-disable-next-line security/detect-non-literal-fs-filename
     const html = fs.readFileSync(printcoReport!.filePath, "utf8");
     // Check for DRAFT approval status badge
-    expect(html).toContain('approval-status status-draft');
-    expect(html).toContain('>DRAFT</span>');
+    expect(html).toContain("approval-status status-draft");
+    expect(html).toContain(">DRAFT</span>");
   });
 
   it("includes pack specification description in report when present", () => {
