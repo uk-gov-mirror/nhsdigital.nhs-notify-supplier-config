@@ -2,10 +2,11 @@ import * as fs from "node:fs";
 import path from "node:path";
 import {
   $PackSpecification,
-  $Paper,
-  $Postage,
   PackSpecification,
 } from "@nhsdigital/nhs-notify-event-schemas-supplier-config/src/domain/pack-specification";
+import { $Postage } from "@nhsdigital/nhs-notify-event-schemas-supplier-config/src/domain/postage";
+import { $Paper } from "@nhsdigital/nhs-notify-event-schemas-supplier-config/src/domain/paper";
+import { Constraint } from "@nhsdigital/nhs-notify-event-schemas-supplier-config/src/domain/constraint";
 import { Supplier } from "@nhsdigital/nhs-notify-event-schemas-supplier-config/src/domain/supplier";
 import { SupplierAllocation } from "@nhsdigital/nhs-notify-event-schemas-supplier-config/src/domain/supplier-allocation";
 import { SupplierPack } from "@nhsdigital/nhs-notify-event-schemas-supplier-config/src/domain/supplier-pack";
@@ -45,6 +46,19 @@ function formatValue(value: unknown): string {
   if (Array.isArray(value)) return value.join(", ");
   if (typeof value === "object") return JSON.stringify(value, null, 2);
   return escapeHtml(String(value));
+}
+
+function formatConstraint(constraint: Constraint | undefined): string {
+  if (!constraint) return "<em>Not specified</em>";
+  const operatorSymbols: Record<string, string> = {
+    EQUALS: "=",
+    NOT_EQUALS: "≠",
+    GREATER_THAN: "&gt;",
+    LESS_THAN: "&lt;",
+  };
+  const symbol =
+    operatorSymbols[constraint.operator] || escapeHtml(constraint.operator);
+  return `${symbol} ${escapeHtml(constraint.value)}`;
 }
 
 function sanitizeAnchorId(text: string): string {
@@ -87,43 +101,49 @@ function getPackSpecificationStatusTooltip(status: string): string {
   return tooltips[status] || "";
 }
 
-function renderOptionalRow(
-  label: string,
-  value: unknown,
-  formatter: (v: unknown) => string = (v) => escapeHtml(String(v)),
-  tooltip?: string,
-): string {
-  if (value === undefined || value === null) return "";
-  const tooltipAttr = tooltip
-    ? ` data-tooltip="${escapeHtml(tooltip)}" class="has-tooltip"`
-    : "";
-  return `<tr><th${tooltipAttr}>${label}</th><td>${formatter(value)}</td></tr>`;
-}
-
 function renderConstraintsSection(
   constraints: PackSpecification["constraints"],
 ): string {
   // Get the Constraints schema from PackSpecification
   const constraintsSchema = $PackSpecification.shape.constraints;
-  const unwrapped = constraintsSchema.unwrap().shape;
+  const unwrapped = constraintsSchema.unwrap();
 
-  const maxSheetsTooltip = unwrapped.maxSheets.meta()?.description;
-  const deliveryDaysTooltip = unwrapped.deliveryDays.meta()?.description;
-  const blackCoverageTooltip = unwrapped.blackCoveragePercentage.meta()?.description;
-  const colourCoverageTooltip = unwrapped.colourCoveragePercentage.meta()?.description;
+  const sheetsTooltip = unwrapped.shape.sheets.unwrap().meta()?.description;
+  const sidesTooltip = unwrapped.shape.sides.unwrap().meta()?.description;
+  const deliveryDaysTooltip = unwrapped.shape.deliveryDays
+    .unwrap()
+    .meta()?.description;
+  const blackCoverageTooltip = unwrapped.shape.blackCoveragePercentage
+    .unwrap()
+    .meta()?.description;
+  const colourCoverageTooltip = unwrapped.shape.colourCoveragePercentage
+    .unwrap()
+    .meta()?.description;
 
-  const maxSheetsHeader = maxSheetsTooltip ? ` data-tooltip="${escapeHtml(maxSheetsTooltip)}" class="has-tooltip"` : "";
-  const deliveryDaysHeader = deliveryDaysTooltip ? ` data-tooltip="${escapeHtml(deliveryDaysTooltip)}" class="has-tooltip"` : "";
-  const blackCoverageHeader = blackCoverageTooltip ? ` data-tooltip="${escapeHtml(blackCoverageTooltip)}" class="has-tooltip"` : "";
-  const colourCoverageHeader = colourCoverageTooltip ? ` data-tooltip="${escapeHtml(colourCoverageTooltip)}" class="has-tooltip"` : "";
+  const sheetsHeader = sheetsTooltip
+    ? ` data-tooltip="${escapeHtml(sheetsTooltip)}" class="has-tooltip"`
+    : "";
+  const sidesHeader = sidesTooltip
+    ? ` data-tooltip="${escapeHtml(sidesTooltip)}" class="has-tooltip"`
+    : "";
+  const deliveryDaysHeader = deliveryDaysTooltip
+    ? ` data-tooltip="${escapeHtml(deliveryDaysTooltip)}" class="has-tooltip"`
+    : "";
+  const blackCoverageHeader = blackCoverageTooltip
+    ? ` data-tooltip="${escapeHtml(blackCoverageTooltip)}" class="has-tooltip"`
+    : "";
+  const colourCoverageHeader = colourCoverageTooltip
+    ? ` data-tooltip="${escapeHtml(colourCoverageTooltip)}" class="has-tooltip"`
+    : "";
 
   return `
     <h4>Constraints</h4>
     <table class="details-table">
-      <tr><th${maxSheetsHeader}>Max Sheets</th><td>${constraints?.maxSheets !== undefined ? escapeHtml(constraints.maxSheets) : "<em>Not specified</em>"}</td></tr>
-      <tr><th${deliveryDaysHeader}>Delivery Days</th><td>${constraints?.deliveryDays !== undefined ? escapeHtml(constraints.deliveryDays) : "<em>Not specified</em>"}</td></tr>
-      <tr><th${blackCoverageHeader}>Black Coverage (%)</th><td>${constraints?.blackCoveragePercentage !== undefined ? escapeHtml(constraints.blackCoveragePercentage) : "<em>Not specified</em>"}</td></tr>
-      <tr><th${colourCoverageHeader}>Colour Coverage (%)</th><td>${constraints?.colourCoveragePercentage !== undefined ? escapeHtml(constraints.colourCoveragePercentage) : "<em>Not specified</em>"}</td></tr>
+      <tr><th${sheetsHeader}>Sheets</th><td>${formatConstraint(constraints?.sheets)}</td></tr>
+      <tr><th${sidesHeader}>Sides</th><td>${formatConstraint(constraints?.sides)}</td></tr>
+      <tr><th${deliveryDaysHeader}>Delivery Days</th><td>${formatConstraint(constraints?.deliveryDays)}</td></tr>
+      <tr><th${blackCoverageHeader}>Black Coverage (%)</th><td>${formatConstraint(constraints?.blackCoveragePercentage)}</td></tr>
+      <tr><th${colourCoverageHeader}>Colour Coverage (%)</th><td>${formatConstraint(constraints?.colourCoveragePercentage)}</td></tr>
     </table>
   `;
 }
@@ -168,12 +188,29 @@ function renderPaperSection(
 function renderAssemblySection(
   assembly: PackSpecification["assembly"],
 ): string {
-  const envelopeId = assembly?.envelopeId ? escapeHtml(assembly.envelopeId) : "<em>Not specified</em>";
-  const printColour = assembly?.printColour ? escapeHtml(assembly.printColour) : "<em>Not specified</em>";
-  const duplex = assembly?.duplex !== undefined ? (assembly.duplex ? "Yes" : "No") : "<em>Not specified</em>";
-  const features = assembly?.features && assembly.features.length > 0 ? formatValue(assembly.features) : "<em>Not specified</em>";
-  const insertIds = assembly?.insertIds && assembly.insertIds.length > 0 ? formatValue(assembly.insertIds) : "<em>Not specified</em>";
-  const additional = assembly?.additional ? `<pre>${escapeHtml(JSON.stringify(assembly.additional, null, 2))}</pre>` : "<em>Not specified</em>";
+  const envelopeId = assembly?.envelopeId
+    ? escapeHtml(assembly.envelopeId)
+    : "<em>Not specified</em>";
+  const printColour = assembly?.printColour
+    ? escapeHtml(assembly.printColour)
+    : "<em>Not specified</em>";
+  const duplex =
+    assembly?.duplex === undefined
+      ? "<em>Not specified</em>"
+      : assembly.duplex
+        ? "Yes"
+        : "No";
+  const features =
+    assembly?.features && assembly.features.length > 0
+      ? formatValue(assembly.features)
+      : "<em>Not specified</em>";
+  const insertIds =
+    assembly?.insertIds && assembly.insertIds.length > 0
+      ? formatValue(assembly.insertIds)
+      : "<em>Not specified</em>";
+  const additional = assembly?.additional
+    ? `<pre>${escapeHtml(JSON.stringify(assembly.additional, null, 2))}</pre>`
+    : "<em>Not specified</em>";
 
   return `
     <h4>Assembly</h4>
@@ -194,9 +231,15 @@ function generatePackDetailsHtml(pack: PackSpecification): string {
   const maxWeightTooltip = $Postage.shape.maxWeightGrams.meta()?.description;
   const maxThicknessTooltip = $Postage.shape.maxThicknessMm.meta()?.description;
 
-  const deliveryDaysHeader = deliveryDaysTooltip ? ` data-tooltip="${escapeHtml(deliveryDaysTooltip)}" class="has-tooltip"` : "";
-  const maxWeightHeader = maxWeightTooltip ? ` data-tooltip="${escapeHtml(maxWeightTooltip)}" class="has-tooltip"` : "";
-  const maxThicknessHeader = maxThicknessTooltip ? ` data-tooltip="${escapeHtml(maxThicknessTooltip)}" class="has-tooltip"` : "";
+  const deliveryDaysHeader = deliveryDaysTooltip
+    ? ` data-tooltip="${escapeHtml(deliveryDaysTooltip)}" class="has-tooltip"`
+    : "";
+  const maxWeightHeader = maxWeightTooltip
+    ? ` data-tooltip="${escapeHtml(maxWeightTooltip)}" class="has-tooltip"`
+    : "";
+  const maxThicknessHeader = maxThicknessTooltip
+    ? ` data-tooltip="${escapeHtml(maxThicknessTooltip)}" class="has-tooltip"`
+    : "";
 
   const versionTooltip = $PackSpecification.shape.version.meta()?.description;
   const versionHeader = versionTooltip
@@ -222,9 +265,9 @@ function generatePackDetailsHtml(pack: PackSpecification): string {
       <table class="details-table">
         <tr><th>Postage ID</th><td>${escapeHtml(pack.postage.id)}</td></tr>
         <tr><th>Size</th><td>${escapeHtml(pack.postage.size)}</td></tr>
-        <tr><th${deliveryDaysHeader}>Delivery Days</th><td>${pack.postage.deliveryDays !== undefined ? escapeHtml(pack.postage.deliveryDays) : "<em>Not specified</em>"}</td></tr>
-        <tr><th${maxWeightHeader}>Max Weight (grams)</th><td>${pack.postage.maxWeightGrams !== undefined ? escapeHtml(pack.postage.maxWeightGrams) : "<em>Not specified</em>"}</td></tr>
-        <tr><th${maxThicknessHeader}>Max Thickness (mm)</th><td>${pack.postage.maxThicknessMm !== undefined ? escapeHtml(pack.postage.maxThicknessMm) : "<em>Not specified</em>"}</td></tr>
+        <tr><th${deliveryDaysHeader}>Delivery Days</th><td>${pack.postage.deliveryDays === undefined ? "<em>Not specified</em>" : escapeHtml(pack.postage.deliveryDays)}</td></tr>
+        <tr><th${maxWeightHeader}>Max Weight (grams)</th><td>${pack.postage.maxWeightGrams === undefined ? "<em>Not specified</em>" : escapeHtml(pack.postage.maxWeightGrams)}</td></tr>
+        <tr><th${maxThicknessHeader}>Max Thickness (mm)</th><td>${pack.postage.maxThicknessMm === undefined ? "<em>Not specified</em>" : escapeHtml(pack.postage.maxThicknessMm)}</td></tr>
       </table>
 
       ${renderConstraintsSection(pack.constraints)}
@@ -909,7 +952,10 @@ function generateSupplierHtml(report: SupplierReport): string {
 </html>`;
 }
 
-function buildSupplierReports(data: ParseResult, options: GenerateReportsOptions = {}): Map<string, SupplierReport> {
+function buildSupplierReports(
+  data: ParseResult,
+  options: GenerateReportsOptions = {},
+): Map<string, SupplierReport> {
   const reports = new Map<string, SupplierReport>();
 
   // Initialize reports for all suppliers
