@@ -4,10 +4,9 @@
     "WHITEMAIL"
   ],
   "id": "envelope-c5-1",
-  "maxInsertionSheets": 5,
-  "maxInsertionThicknessMm": 8,
+  "maxSheets": 5,
+  "maxThicknessMm": 8,
   "name": "C5 Whitemail Envelope",
   "size": "C5",
-  "updatedAt": "2026-01-31T10:00:00.000Z",
-  "weightGrams": 12
+  "updatedAt": "2026-01-31T10:00:00.000Z"
 }

@@ -39,3 +39,4 @@ export const $Constraints = z.object({
       "The percentage of colour coverage allowed on the paper under this configuration.",
   }),
 });
+export type Constraints = z.infer<typeof $Constraints>;

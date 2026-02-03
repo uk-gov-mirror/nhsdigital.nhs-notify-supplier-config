@@ -1,27 +1,37 @@
 {
   "assembly": {
     "duplex": true,
-    "envelopeId": "envelope-dl-1",
+    "envelopeId": "envelope-c5-1",
     "features": [],
-    "insertIds": [
-      "insert-nhs-info"
-    ],
+    "insertIds": [],
     "paperId": "paper-a4-80gsm",
     "printColour": "BLACK"
   },
   "billingId": "",
   "constraints": {
-    "blackCoveragePercentage": 15,
-    "colourCoveragePercentage": 0,
-    "deliveryDays": 3,
-    "maxSheets": 2
+    "blackCoveragePercentage": {
+      "operator": "LESS_THAN",
+      "value": 15
+    },
+    "colourCoveragePercentage": {
+      "operator": "LESS_THAN",
+      "value": 0
+    },
+    "deliveryDays": {
+      "operator": "LESS_THAN",
+      "value": 3
+    },
+    "sheets": {
+      "operator": "LESS_THAN",
+      "value": 5
+    }
   },
   "createdAt": "2026-01-31T10:00:00.000Z",
-  "description": "Standard A4 letter pack with DL envelope",
+  "description": "Standard A4 letter pack with C5 envelope",
   "id": "pack-spec-sample-1",
   "name": "Standard Letter Pack",
   "postageId": "postage-standard",
   "status": "INT",
-  "updatedAt": "2026-02-02T10:03:42.373Z",
-  "version": 2
+  "updatedAt": "2026-02-03T16:19:58.849Z",
+  "version": 4
 }

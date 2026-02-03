@@ -16,8 +16,8 @@ type EntityType = "envelopes" | "papers" | "postages" | "inserts";
 
 const entityConfig = {
   envelopes: { label: "Envelopes", schema: $EnvelopeForm },
-  papers: { label: "Papers", schema: $PaperForm },
-  postages: { label: "Postage tariffs", schema: $PostageForm },
+  papers: { label: "Paper", schema: $PaperForm },
+  postages: { label: "Postal tariffs", schema: $PostageForm },
   inserts: { label: "Inserts", schema: $InsertForm },
 };
 

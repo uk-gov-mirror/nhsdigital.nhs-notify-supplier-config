@@ -20,11 +20,14 @@ function computeConstraints(
 
   // Delivery days from postage
   if (postage?.deliveryDays) {
-    constraints.deliveryDays = postage.deliveryDays;
+    constraints.deliveryDays = {
+      value: postage.deliveryDays,
+      operator: "LESS_THAN" as const,
+    };
   }
 
   // Calculate max sheets based on:
-  // 1. Envelope's configured maxInsertionSheets (if set)
+  // 1. Envelope's configured maxSheets (if set)
   // 2. Fallback to default physical limits by envelope size
   // 3. Postage weight limits
   // 4. Account for inserts reducing available sheet capacity
@@ -38,20 +41,17 @@ function computeConstraints(
 
   // Use envelope's configured limit, or fall back to defaults
   let envelopeLimit: number;
-  if (envelope?.maxInsertionSheets) {
-    envelopeLimit = envelope.maxInsertionSheets;
+  if (envelope?.maxSheets) {
+    envelopeLimit = envelope.maxSheets;
   } else if (envelope?.size) {
     envelopeLimit = defaultLimitByEnvelope[envelope.size] ?? 10;
   } else {
     envelopeLimit = 10;
   }
 
-  // Reduce envelope limit by insert page equivalents
-  const insertPageEquivalents = inserts.reduce(
-    (sum, insert) => sum + (insert.pageEquivalent ?? 1),
-    0
-  );
-  const physicalLimit = Math.max(1, envelopeLimit - insertPageEquivalents);
+  // Reduce envelope limit by number of inserts (each counts as 1 sheet equivalent)
+  const insertCount = inserts.length;
+  const physicalLimit = Math.max(1, envelopeLimit - insertCount);
 
   // Weight-based limit
   let weightBasedLimit = physicalLimit;
@@ -63,9 +63,8 @@ function computeConstraints(
     // For 80gsm: 80 × 0.06237 ≈ 5g per A4 sheet
     const sheetWeightGrams = paper.weightGSM * 0.06237;
 
-    // Envelope weight - use configured value or estimate from size
-    const envelopeWeight = envelope?.weightGrams
-      ?? (envelope?.size === "C4" ? 20 : envelope?.size === "C5" ? 15 : 10);
+    // Envelope weight - estimate based on size since weightGrams is not in domain model
+    const envelopeWeight = envelope?.size === "C4" ? 20 : envelope?.size === "C5" ? 15 : 10;
 
     // Insert weight - use configured values or estimate 5g each
     const insertWeight = inserts.reduce(
@@ -82,15 +81,30 @@ function computeConstraints(
   }
 
   // Use the more restrictive limit
-  constraints.maxSheets = Math.min(physicalLimit, weightBasedLimit);
+  constraints.sheets = {
+    value: Math.min(physicalLimit, weightBasedLimit),
+    operator: "LESS_THAN" as const,
+  };
 
   // Set coverage percentages based on print colour
   if (printColour === "BLACK") {
-    constraints.blackCoveragePercentage = 15; // Typical black text coverage
-    constraints.colourCoveragePercentage = 0;
+    constraints.blackCoveragePercentage = {
+      value: 15, // Typical black text coverage
+      operator: "LESS_THAN" as const,
+    };
+    constraints.colourCoveragePercentage = {
+      value: 0,
+      operator: "LESS_THAN" as const,
+    };
   } else if (printColour === "COLOUR") {
-    constraints.blackCoveragePercentage = 10;
-    constraints.colourCoveragePercentage = 20; // Typical colour coverage
+    constraints.blackCoveragePercentage = {
+      value: 10,
+      operator: "LESS_THAN" as const,
+    };
+    constraints.colourCoveragePercentage = {
+      value: 20, // Typical colour coverage
+      operator: "LESS_THAN" as const,
+    };
   }
 
   return Object.keys(constraints).length > 0 ? constraints : undefined;
@@ -368,50 +382,94 @@ export function PackSpecificationForm({
         <div className="grid md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-900 mb-1">
-              Max Sheets
+              Sheets
             </label>
-            <input
-              type="number"
-              {...form.register("constraints.maxSheets", { valueAsNumber: true })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#005EB8]"
-            />
+            <div className="flex gap-2">
+              <select
+                {...form.register("constraints.sheets.operator")}
+                className="px-3 py-2 border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#005EB8] bg-white"
+              >
+                <option value="LESS_THAN">Less Than</option>
+                <option value="EQUALS">Equals</option>
+                <option value="GREATER_THAN">Greater Than</option>
+                <option value="NOT_EQUALS">Not Equals</option>
+              </select>
+              <input
+                type="number"
+                {...form.register("constraints.sheets.value", { valueAsNumber: true })}
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#005EB8]"
+              />
+            </div>
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-900 mb-1">
               Delivery Days
             </label>
-            <input
-              type="number"
-              {...form.register("constraints.deliveryDays", { valueAsNumber: true })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#005EB8]"
-            />
+            <div className="flex gap-2">
+              <select
+                {...form.register("constraints.deliveryDays.operator")}
+                className="px-3 py-2 border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#005EB8] bg-white"
+              >
+                <option value="LESS_THAN">Less Than</option>
+                <option value="EQUALS">Equals</option>
+                <option value="GREATER_THAN">Greater Than</option>
+                <option value="NOT_EQUALS">Not Equals</option>
+              </select>
+              <input
+                type="number"
+                {...form.register("constraints.deliveryDays.value", { valueAsNumber: true })}
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#005EB8]"
+              />
+            </div>
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-900 mb-1">
               Black Coverage %
             </label>
-            <input
-              type="number"
-              min="0"
-              max="100"
-              {...form.register("constraints.blackCoveragePercentage", { valueAsNumber: true })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#005EB8]"
-            />
+            <div className="flex gap-2">
+              <select
+                {...form.register("constraints.blackCoveragePercentage.operator")}
+                className="px-3 py-2 border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#005EB8] bg-white"
+              >
+                <option value="LESS_THAN">Less Than</option>
+                <option value="EQUALS">Equals</option>
+                <option value="GREATER_THAN">Greater Than</option>
+                <option value="NOT_EQUALS">Not Equals</option>
+              </select>
+              <input
+                type="number"
+                min="0"
+                max="100"
+                {...form.register("constraints.blackCoveragePercentage.value", { valueAsNumber: true })}
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#005EB8]"
+              />
+            </div>
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-900 mb-1">
               Colour Coverage %
             </label>
-            <input
-              type="number"
-              min="0"
-              max="100"
-              {...form.register("constraints.colourCoveragePercentage", { valueAsNumber: true })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#005EB8]"
-            />
+            <div className="flex gap-2">
+              <select
+                {...form.register("constraints.colourCoveragePercentage.operator")}
+                className="px-3 py-2 border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#005EB8] bg-white"
+              >
+                <option value="LESS_THAN">Less Than</option>
+                <option value="EQUALS">Equals</option>
+                <option value="GREATER_THAN">Greater Than</option>
+                <option value="NOT_EQUALS">Not Equals</option>
+              </select>
+              <input
+                type="number"
+                min="0"
+                max="100"
+                {...form.register("constraints.colourCoveragePercentage.value", { valueAsNumber: true })}
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#005EB8]"
+              />
+            </div>
           </div>
         </div>
       </fieldset>

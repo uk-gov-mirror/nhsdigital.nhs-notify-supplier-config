@@ -5,19 +5,27 @@ import {
   type Paper,
   type Envelope,
   type Insert,
+  type Constraint,
+  type Constraints,
   $PackFeature,
   $EnvelopeFeature,
+  $Constraint,
+  $Constraints,
 } from "@nhsdigital/nhs-notify-event-schemas-supplier-config";
 
 // Re-export types for use elsewhere
 export {
   $PackFeature,
   $EnvelopeFeature,
+  $Constraint,
+  $Constraints,
   type PackSpecification,
   type Postage,
   type Paper,
   type Envelope,
   type Insert,
+  type Constraint,
+  type Constraints,
 };
 
 // =============================================================================
@@ -29,9 +37,8 @@ export const $EnvelopeForm = z.object({
   features: z.array(z.enum(["WHITEMAIL", "NHS_BRANDING", "NHS_BARCODE"])).optional(),
   artwork: z.string().url().optional(),
   // Physical constraints for pack assembly
-  maxInsertionSheets: z.number().min(1).optional().describe("Maximum number of sheets that can be inserted"),
-  maxInsertionThicknessMm: z.number().min(0).optional().describe("Maximum thickness in mm for inserted contents"),
-  weightGrams: z.number().min(0).optional().describe("Weight of the envelope itself in grams"),
+  maxSheets: z.number().min(1).optional().describe("Maximum number of sheets that can be accommodated within this envelope"),
+  maxThicknessMm: z.number().min(0).optional().describe("Maximum thickness in mm for this envelope"),
 });
 
 export type EnvelopeFormData = z.infer<typeof $EnvelopeForm>;
@@ -54,7 +61,6 @@ export const $InsertForm = z.object({
   artwork: z.string().url().optional(),
   // Physical properties for constraint calculations
   weightGrams: z.number().min(0).optional().describe("Weight of the insert in grams"),
-  pageEquivalent: z.number().min(0).optional().describe("Number of sheet-equivalents this insert counts as for thickness"),
 });
 
 export type InsertFormData = z.infer<typeof $InsertForm>;
@@ -93,7 +99,7 @@ export type PaperStorage = z.infer<typeof $PaperStorage>;
 // Postage Schema - Configured separately, referenced by ID in PackSpecification
 // =============================================================================
 export const $PostageForm = z.object({
-  name: z.string().min(1, "Name is required"),
+  name: z.string().min(1, "Name is required"), // UI field for display purposes
   size: z.enum(["STANDARD", "LARGE", "PARCEL"]),
   deliveryDays: z.number().min(1).optional(),
   maxWeightGrams: z.number().min(0).optional(),
@@ -118,7 +124,7 @@ export const $PackSpecificationForm = z.object({
   description: z.string().optional(),
   status: z.enum(["DRAFT", "INT", "PROD", "DISABLED"]).default("DRAFT"),
   billingId: z.string().optional(),
-  // Reference to Postage by ID
+  // Postage configuration (full object in domain model, but we can start with ID for UI forms)
   postageId: z.string().min(1, "Postage is required"),
   // Assembly configuration with references by ID
   assembly: z
@@ -129,15 +135,42 @@ export const $PackSpecificationForm = z.object({
       duplex: z.boolean().optional(),
       insertIds: z.array(z.string()).optional(),
       features: z.array(z.enum(["BRAILLE", "AUDIO", "ADMAIL", "SAME_DAY"])).optional(),
+      additional: z.record(z.string(), z.string()).optional(),
     })
     .optional(),
-  // Constraints
+  // Constraints with operator and value structure
   constraints: z
     .object({
-      maxSheets: z.number().min(1).optional(),
-      deliveryDays: z.number().min(1).optional(),
-      blackCoveragePercentage: z.number().min(0).max(100).optional(),
-      colourCoveragePercentage: z.number().min(0).max(100).optional(),
+      sheets: z
+        .object({
+          value: z.number(),
+          operator: z.enum(["EQUALS", "NOT_EQUALS", "GREATER_THAN", "LESS_THAN"]).default("LESS_THAN"),
+        })
+        .optional(),
+      sides: z
+        .object({
+          value: z.number(),
+          operator: z.enum(["EQUALS", "NOT_EQUALS", "GREATER_THAN", "LESS_THAN"]).default("LESS_THAN"),
+        })
+        .optional(),
+      deliveryDays: z
+        .object({
+          value: z.number(),
+          operator: z.enum(["EQUALS", "NOT_EQUALS", "GREATER_THAN", "LESS_THAN"]).default("LESS_THAN"),
+        })
+        .optional(),
+      blackCoveragePercentage: z
+        .object({
+          value: z.number().min(0).max(100),
+          operator: z.enum(["EQUALS", "NOT_EQUALS", "GREATER_THAN", "LESS_THAN"]).default("LESS_THAN"),
+        })
+        .optional(),
+      colourCoveragePercentage: z
+        .object({
+          value: z.number().min(0).max(100),
+          operator: z.enum(["EQUALS", "NOT_EQUALS", "GREATER_THAN", "LESS_THAN"]).default("LESS_THAN"),
+        })
+        .optional(),
     })
     .optional(),
 });
