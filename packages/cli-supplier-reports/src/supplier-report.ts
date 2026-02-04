@@ -323,25 +323,49 @@ function generateSupplierHtml(report: SupplierReport): string {
     .join("\n");
 
   // Generate Table of Contents with two sections
-  const generateTocItems = (packList: SupplierPackWithSpec[]) =>
+  const formatDate = (isoDate: string): string => {
+    const date = new Date(isoDate);
+    return date.toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+  };
+
+  const generateTocTableRows = (packList: SupplierPackWithSpec[]) =>
     packList
       .map(({ packSpecification, supplierPack }) => {
         const anchorId = `pack-${sanitizeAnchorId(packSpecification.id)}`;
         const approvalTooltip = getApprovalStatusTooltip(supplierPack.approval);
         const envTooltip = getEnvironmentStatusTooltip(supplierPack.status);
+        const version = packSpecification.version ?? "-";
+        const lastUpdated = packSpecification.updatedAt
+          ? formatDate(packSpecification.updatedAt)
+          : "-";
         return `
-      <li>
-        <a href="#${anchorId}"><code>${escapeHtml(packSpecification.id)}</code> – ${escapeHtml(packSpecification.name)}</a>
-        <span class="toc-statuses">
-          <span class="toc-status approval-status status-${supplierPack.approval.toLowerCase()} has-tooltip" data-tooltip="${escapeHtml(approvalTooltip)}">${escapeHtml(supplierPack.approval)}</span>
-          <span class="toc-status env-status status-${supplierPack.status.toLowerCase()} has-tooltip" data-tooltip="${escapeHtml(envTooltip)}">${escapeHtml(supplierPack.status)}</span>
-        </span>
-      </li>`;
+        <tr>
+          <td><a href="#${anchorId}"><code>${escapeHtml(packSpecification.id)}</code> – ${escapeHtml(packSpecification.name)}</a></td>
+          <td>${escapeHtml(version)}</td>
+          <td>${escapeHtml(lastUpdated)}</td>
+          <td><span class="toc-status approval-status status-${supplierPack.approval.toLowerCase()} has-tooltip" data-tooltip="${escapeHtml(approvalTooltip)}">${escapeHtml(supplierPack.approval)}</span></td>
+          <td><span class="toc-status env-status status-${supplierPack.status.toLowerCase()} has-tooltip" data-tooltip="${escapeHtml(envTooltip)}">${escapeHtml(supplierPack.status)}</span></td>
+        </tr>`;
       })
       .join("\n");
 
-  const submittedTocItems = generateTocItems(sortedSubmittedPacks);
-  const draftTocItems = generateTocItems(sortedDraftPacks);
+  const submittedTocRows = generateTocTableRows(sortedSubmittedPacks);
+  const draftTocRows = generateTocTableRows(sortedDraftPacks);
+
+  const tocTableHeader = `
+        <thead>
+          <tr>
+            <th>Pack</th>
+            <th>Version</th>
+            <th>Last Updated</th>
+            <th>Approval</th>
+            <th>Environment</th>
+          </tr>
+        </thead>`;
 
   const tocSection =
     packs.length > 0
@@ -352,9 +376,12 @@ function generateSupplierHtml(report: SupplierReport): string {
         sortedSubmittedPacks.length > 0
           ? `
       <h4 class="toc-section-header">Submitted & Approved Packs (${sortedSubmittedPacks.length})</h4>
-      <ol>
-        ${submittedTocItems}
-      </ol>
+      <table class="toc-table">
+        ${tocTableHeader}
+        <tbody>
+          ${submittedTocRows}
+        </tbody>
+      </table>
       `
           : ""
       }
@@ -362,9 +389,12 @@ function generateSupplierHtml(report: SupplierReport): string {
         sortedDraftPacks.length > 0
           ? `
       <h4 class="toc-section-header">Draft Packs (${sortedDraftPacks.length})</h4>
-      <ol>
-        ${draftTocItems}
-      </ol>
+      <table class="toc-table">
+        ${tocTableHeader}
+        <tbody>
+          ${draftTocRows}
+        </tbody>
+      </table>
       `
           : ""
       }
@@ -769,16 +799,28 @@ function generateSupplierHtml(report: SupplierReport): string {
       margin-top: 0;
     }
 
-    .toc ol {
-      margin: 0;
-      padding-left: 20px;
+    .toc-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 15px;
     }
 
-    .toc li {
-      margin: 8px 0;
-      display: flex;
-      align-items: center;
-      gap: 10px;
+    .toc-table th,
+    .toc-table td {
+      padding: 10px;
+      text-align: left;
+      border-bottom: 1px solid var(--nhs-light-grey);
+    }
+
+    .toc-table th {
+      background-color: var(--nhs-pale-grey);
+      color: var(--nhs-dark-blue);
+      font-weight: 600;
+    }
+
+    .toc-table td:nth-child(2),
+    .toc-table td:nth-child(3) {
+      white-space: nowrap;
     }
 
     .toc a {
