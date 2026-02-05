@@ -1,0 +1,9 @@
+{
+  "approval": "DRAFT",
+  "createdAt": "2026-01-28T10:00:00.000Z",
+  "id": "supplier-pack-royal-colour",
+  "packSpecificationId": "pack-spec-colour",
+  "status": "DRAFT",
+  "supplierId": "supplier-royal-mail",
+  "updatedAt": "2026-01-28T10:00:00.000Z"
+}

@@ -1,7 +1,7 @@
 {
   "author": "",
   "dependencies": {
-    "zod": "^4.1.12"
+    "zod": "^4.3.6"
   },
   "description": "Schemas for NHS Notify configuration",
   "devDependencies": {

@@ -1,0 +1,10 @@
+{
+  "versionGroups": [
+    {
+      "dependencies": ["@supplier-config/**", "@nhsdigital/nhs-notify-event-schemas-supplier-config"],
+      "specifierTypes": ["*"],
+      "label": "Internal deps",
+      "isIgnored": true
+    }
+  ]
+}

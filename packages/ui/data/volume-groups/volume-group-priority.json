@@ -1,0 +1,9 @@
+{
+  "createdAt": "2025-01-01T00:00:00.000Z",
+  "description": "Volume group for priority/urgent letter mailings",
+  "id": "volume-group-priority",
+  "name": "Priority Letters Volume",
+  "startDate": "2025-01-01",
+  "status": "PROD",
+  "updatedAt": "2025-01-01T00:00:00.000Z"
+}

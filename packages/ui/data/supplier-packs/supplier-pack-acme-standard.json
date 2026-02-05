@@ -1,0 +1,9 @@
+{
+  "approval": "APPROVED",
+  "createdAt": "2025-02-01T10:00:00.000Z",
+  "id": "supplier-pack-acme-standard",
+  "packSpecificationId": "pack-spec-sample-1",
+  "status": "PROD",
+  "supplierId": "supplier-acme-print",
+  "updatedAt": "2025-02-10T14:30:00.000Z"
+}

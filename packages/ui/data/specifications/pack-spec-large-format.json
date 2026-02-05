@@ -1,0 +1,31 @@
+{
+  "assembly": {
+    "duplex": false,
+    "envelopeId": "envelope-c4-1",
+    "features": [
+      "BRAILLE"
+    ],
+    "insertIds": [],
+    "paperId": "paper-a4-100gsm",
+    "printColour": "BLACK"
+  },
+  "billingId": "LARGE-001",
+  "constraints": {
+    "blackCoveragePercentage": {
+      "operator": "LESS_THAN",
+      "value": 20
+    },
+    "sheets": {
+      "operator": "LESS_THAN",
+      "value": 10
+    }
+  },
+  "createdAt": "2025-12-01T09:00:00.000Z",
+  "description": "Large format pack for documents requiring more pages",
+  "id": "pack-spec-large-format",
+  "name": "Large Format Letter Pack",
+  "postageId": "postage-large",
+  "status": "PROD",
+  "updatedAt": "2026-01-15T11:30:00.000Z",
+  "version": 2
+}

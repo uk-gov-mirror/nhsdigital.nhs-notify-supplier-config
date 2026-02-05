@@ -17,7 +17,7 @@ export default function Home() {
           </p>
         </section>
 
-        <section className="grid md:grid-cols-3 gap-6">
+        <section className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           <div className="border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
             <h3 className="text-xl font-semibold text-gray-900 mb-3">
               Pack Specifications
@@ -27,6 +27,18 @@ export default function Home() {
             </p>
             <a href="/pack-specifications" className="text-[#005EB8] font-medium hover:underline">
               View specifications →
+            </a>
+          </div>
+
+          <div className="border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
+            <h3 className="text-xl font-semibold text-gray-900 mb-3">
+              Supplier Reports
+            </h3>
+            <p className="text-gray-600 mb-4">
+              View interactive pack specification reports per supplier with status tracking.
+            </p>
+            <a href="/supplier-reports" className="text-[#005EB8] font-medium hover:underline">
+              View reports →
             </a>
           </div>
 

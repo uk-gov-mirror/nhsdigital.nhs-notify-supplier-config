@@ -17,6 +17,18 @@ import {
   $PostageStorage,
   type PostageStorage,
   type PostageFormData,
+  $SupplierStorage,
+  type SupplierStorage,
+  type SupplierFormData,
+  $VolumeGroupStorage,
+  type VolumeGroupStorage,
+  type VolumeGroupFormData,
+  $SupplierPackStorage,
+  type SupplierPackStorage,
+  type SupplierPackFormData,
+  $SupplierAllocationStorage,
+  type SupplierAllocationStorage,
+  type SupplierAllocationFormData,
 } from "./schemas";
 
 // Re-export types for convenience
@@ -31,11 +43,19 @@ export type {
   PaperFormData,
   PostageStorage,
   PostageFormData,
+  SupplierStorage,
+  SupplierFormData,
+  VolumeGroupStorage,
+  VolumeGroupFormData,
+  SupplierPackStorage,
+  SupplierPackFormData,
+  SupplierAllocationStorage,
+  SupplierAllocationFormData,
 };
 
 const DATA_BASE_DIR = path.join(process.cwd(), "data");
 
-type EntityType = "specifications" | "envelopes" | "inserts" | "papers" | "postages";
+type EntityType = "specifications" | "envelopes" | "inserts" | "papers" | "postages" | "suppliers" | "volume-groups" | "supplier-packs" | "supplier-allocations";
 
 async function ensureDataDir(entityType: EntityType) {
   const dir = path.join(DATA_BASE_DIR, entityType);
@@ -298,5 +318,153 @@ export class ConfigRepo {
 
   async deletePostage(id: string): Promise<void> {
     return deleteEntity("postages", id);
+  }
+
+  // -------------------------------------------------------------------------
+  // Suppliers
+  // -------------------------------------------------------------------------
+  async listSuppliers(): Promise<SupplierStorage[]> {
+    return listEntities("suppliers", $SupplierStorage);
+  }
+
+  async getSupplier(id: string): Promise<SupplierStorage | null> {
+    return getEntity("suppliers", id, $SupplierStorage);
+  }
+
+  async createSupplier(input: SupplierFormData): Promise<SupplierStorage> {
+    const now = new Date().toISOString();
+    const id = `supplier-${Date.now()}`;
+    const supplier: SupplierStorage = { ...input, id, createdAt: now, updatedAt: now };
+    await saveEntity("suppliers", id, supplier);
+    return supplier;
+  }
+
+  async updateSupplier(id: string, input: Partial<SupplierFormData>): Promise<SupplierStorage> {
+    const existing = await this.getSupplier(id);
+    if (!existing) throw new Error(`Supplier ${id} not found`);
+    const updated: SupplierStorage = {
+      ...existing,
+      ...input,
+      id: existing.id,
+      createdAt: existing.createdAt,
+      updatedAt: new Date().toISOString(),
+    };
+    await saveEntity("suppliers", id, updated);
+    return updated;
+  }
+
+  async deleteSupplier(id: string): Promise<void> {
+    return deleteEntity("suppliers", id);
+  }
+
+  // -------------------------------------------------------------------------
+  // Volume Groups
+  // -------------------------------------------------------------------------
+  async listVolumeGroups(): Promise<VolumeGroupStorage[]> {
+    return listEntities("volume-groups", $VolumeGroupStorage);
+  }
+
+  async getVolumeGroup(id: string): Promise<VolumeGroupStorage | null> {
+    return getEntity("volume-groups", id, $VolumeGroupStorage);
+  }
+
+  async createVolumeGroup(input: VolumeGroupFormData): Promise<VolumeGroupStorage> {
+    const now = new Date().toISOString();
+    const id = `volume-group-${Date.now()}`;
+    const volumeGroup: VolumeGroupStorage = { ...input, id, createdAt: now, updatedAt: now };
+    await saveEntity("volume-groups", id, volumeGroup);
+    return volumeGroup;
+  }
+
+  async updateVolumeGroup(id: string, input: Partial<VolumeGroupFormData>): Promise<VolumeGroupStorage> {
+    const existing = await this.getVolumeGroup(id);
+    if (!existing) throw new Error(`Volume group ${id} not found`);
+    const updated: VolumeGroupStorage = {
+      ...existing,
+      ...input,
+      id: existing.id,
+      createdAt: existing.createdAt,
+      updatedAt: new Date().toISOString(),
+    };
+    await saveEntity("volume-groups", id, updated);
+    return updated;
+  }
+
+  async deleteVolumeGroup(id: string): Promise<void> {
+    return deleteEntity("volume-groups", id);
+  }
+
+  // -------------------------------------------------------------------------
+  // Supplier Packs
+  // -------------------------------------------------------------------------
+  async listSupplierPacks(): Promise<SupplierPackStorage[]> {
+    return listEntities("supplier-packs", $SupplierPackStorage);
+  }
+
+  async getSupplierPack(id: string): Promise<SupplierPackStorage | null> {
+    return getEntity("supplier-packs", id, $SupplierPackStorage);
+  }
+
+  async createSupplierPack(input: SupplierPackFormData): Promise<SupplierPackStorage> {
+    const now = new Date().toISOString();
+    const id = `supplier-pack-${Date.now()}`;
+    const supplierPack: SupplierPackStorage = { ...input, id, createdAt: now, updatedAt: now };
+    await saveEntity("supplier-packs", id, supplierPack);
+    return supplierPack;
+  }
+
+  async updateSupplierPack(id: string, input: Partial<SupplierPackFormData>): Promise<SupplierPackStorage> {
+    const existing = await this.getSupplierPack(id);
+    if (!existing) throw new Error(`Supplier pack ${id} not found`);
+    const updated: SupplierPackStorage = {
+      ...existing,
+      ...input,
+      id: existing.id,
+      createdAt: existing.createdAt,
+      updatedAt: new Date().toISOString(),
+    };
+    await saveEntity("supplier-packs", id, updated);
+    return updated;
+  }
+
+  async deleteSupplierPack(id: string): Promise<void> {
+    return deleteEntity("supplier-packs", id);
+  }
+
+  // -------------------------------------------------------------------------
+  // Supplier Allocations
+  // -------------------------------------------------------------------------
+  async listSupplierAllocations(): Promise<SupplierAllocationStorage[]> {
+    return listEntities("supplier-allocations", $SupplierAllocationStorage);
+  }
+
+  async getSupplierAllocation(id: string): Promise<SupplierAllocationStorage | null> {
+    return getEntity("supplier-allocations", id, $SupplierAllocationStorage);
+  }
+
+  async createSupplierAllocation(input: SupplierAllocationFormData): Promise<SupplierAllocationStorage> {
+    const now = new Date().toISOString();
+    const id = `supplier-allocation-${Date.now()}`;
+    const allocation: SupplierAllocationStorage = { ...input, id, createdAt: now, updatedAt: now };
+    await saveEntity("supplier-allocations", id, allocation);
+    return allocation;
+  }
+
+  async updateSupplierAllocation(id: string, input: Partial<SupplierAllocationFormData>): Promise<SupplierAllocationStorage> {
+    const existing = await this.getSupplierAllocation(id);
+    if (!existing) throw new Error(`Supplier allocation ${id} not found`);
+    const updated: SupplierAllocationStorage = {
+      ...existing,
+      ...input,
+      id: existing.id,
+      createdAt: existing.createdAt,
+      updatedAt: new Date().toISOString(),
+    };
+    await saveEntity("supplier-allocations", id, updated);
+    return updated;
+  }
+
+  async deleteSupplierAllocation(id: string): Promise<void> {
+    return deleteEntity("supplier-allocations", id);
   }
 }

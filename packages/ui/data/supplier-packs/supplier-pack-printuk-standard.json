@@ -1,0 +1,9 @@
+{
+  "approval": "SUBMITTED",
+  "createdAt": "2026-02-01T15:00:00.000Z",
+  "id": "supplier-pack-printuk-standard",
+  "packSpecificationId": "pack-spec-sample-1",
+  "status": "INT",
+  "supplierId": "supplier-print-uk",
+  "updatedAt": "2026-02-01T15:00:00.000Z"
+}

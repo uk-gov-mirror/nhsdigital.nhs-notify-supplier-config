@@ -1,0 +1,9 @@
+{
+  "channelType": "LETTER",
+  "createdAt": "2025-02-01T14:30:00.000Z",
+  "dailyCapacity": 25000,
+  "id": "supplier-print-uk",
+  "name": "PrintUK Ltd",
+  "status": "INT",
+  "updatedAt": "2025-02-01T14:30:00.000Z"
+}

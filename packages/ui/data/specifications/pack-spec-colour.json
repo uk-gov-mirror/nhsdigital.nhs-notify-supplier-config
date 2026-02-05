@@ -1,0 +1,33 @@
+{
+  "assembly": {
+    "duplex": true,
+    "envelopeId": "envelope-c5-1",
+    "features": [],
+    "insertIds": [],
+    "paperId": "paper-a4-80gsm",
+    "printColour": "COLOUR"
+  },
+  "billingId": "COL-001",
+  "constraints": {
+    "blackCoveragePercentage": {
+      "operator": "LESS_THAN",
+      "value": 10
+    },
+    "colourCoveragePercentage": {
+      "operator": "LESS_THAN",
+      "value": 25
+    },
+    "sheets": {
+      "operator": "LESS_THAN",
+      "value": 4
+    }
+  },
+  "createdAt": "2026-01-20T14:00:00.000Z",
+  "description": "Colour letter pack for promotional materials",
+  "id": "pack-spec-colour",
+  "name": "Colour Letter Pack",
+  "postageId": "postage-standard",
+  "status": "INT",
+  "updatedAt": "2026-01-25T10:00:00.000Z",
+  "version": 1
+}

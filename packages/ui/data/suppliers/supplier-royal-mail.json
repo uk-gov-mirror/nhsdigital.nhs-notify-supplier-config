@@ -1,0 +1,9 @@
+{
+  "channelType": "LETTER",
+  "createdAt": "2025-01-10T09:00:00.000Z",
+  "dailyCapacity": 100000,
+  "id": "supplier-royal-mail",
+  "name": "Royal Mail Direct",
+  "status": "PROD",
+  "updatedAt": "2025-01-10T09:00:00.000Z"
+}

@@ -1,0 +1,10 @@
+{
+  "createdAt": "2025-01-01T00:00:00.000Z",
+  "description": "Volume group for standard letter mailings",
+  "endDate": "2025-12-31",
+  "id": "volume-group-standard",
+  "name": "Standard Letters Volume",
+  "startDate": "2025-01-01",
+  "status": "PROD",
+  "updatedAt": "2025-01-01T00:00:00.000Z"
+}

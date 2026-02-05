@@ -1,7 +1,7 @@
 {
   "dependencies": {
     "@nhsdigital/nhs-notify-event-schemas-supplier-config": "*",
-    "zod": "^4.1.12"
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@swc/core": "^1.11.13",

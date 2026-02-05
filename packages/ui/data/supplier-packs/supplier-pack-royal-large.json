@@ -1,0 +1,9 @@
+{
+  "approval": "SUBMITTED",
+  "createdAt": "2025-02-01T14:00:00.000Z",
+  "id": "supplier-pack-royal-large",
+  "packSpecificationId": "pack-spec-large-format",
+  "status": "INT",
+  "supplierId": "supplier-royal-mail",
+  "updatedAt": "2025-02-01T14:00:00.000Z"
+}

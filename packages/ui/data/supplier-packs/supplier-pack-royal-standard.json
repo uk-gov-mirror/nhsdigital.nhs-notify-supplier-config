@@ -1,0 +1,9 @@
+{
+  "approval": "APPROVED",
+  "createdAt": "2025-01-15T11:00:00.000Z",
+  "id": "supplier-pack-royal-standard",
+  "packSpecificationId": "pack-spec-sample-1",
+  "status": "PROD",
+  "supplierId": "supplier-royal-mail",
+  "updatedAt": "2025-01-20T09:00:00.000Z"
+}

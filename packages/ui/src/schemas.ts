@@ -185,3 +185,84 @@ export const $PackSpecificationStorage = $PackSpecificationForm.extend({
 });
 
 export type PackSpecificationStorage = z.infer<typeof $PackSpecificationStorage>;
+
+// =============================================================================
+// Supplier Schema - Represents a print/mail supplier
+// =============================================================================
+export const $SupplierForm = z.object({
+  name: z.string().min(1, "Name is required"),
+  channelType: z.enum(["NHSAPP", "SMS", "EMAIL", "LETTER"]),
+  dailyCapacity: z.number().int().min(0, "Daily capacity must be positive"),
+  status: z.enum(["DRAFT", "INT", "PROD", "DISABLED"]).default("DRAFT"),
+});
+
+export type SupplierFormData = z.infer<typeof $SupplierForm>;
+
+export const $SupplierStorage = $SupplierForm.extend({
+  id: z.string(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+
+export type SupplierStorage = z.infer<typeof $SupplierStorage>;
+
+// =============================================================================
+// Volume Group Schema - Represents volume allocation groups
+// =============================================================================
+export const $VolumeGroupForm = z.object({
+  name: z.string().min(1, "Name is required"),
+  description: z.string().optional(),
+  status: z.enum(["DRAFT", "INT", "PROD", "DISABLED"]).default("DRAFT"),
+  startDate: z.string().min(1, "Start date is required"), // ISO date string
+  endDate: z.string().optional(), // ISO date string
+});
+
+export type VolumeGroupFormData = z.infer<typeof $VolumeGroupForm>;
+
+export const $VolumeGroupStorage = $VolumeGroupForm.extend({
+  id: z.string(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+
+export type VolumeGroupStorage = z.infer<typeof $VolumeGroupStorage>;
+
+// =============================================================================
+// Supplier Pack Schema - Links suppliers to pack specifications
+// =============================================================================
+export const $SupplierPackForm = z.object({
+  packSpecificationId: z.string().min(1, "Pack specification is required"),
+  supplierId: z.string().min(1, "Supplier is required"),
+  approval: z.enum(["DRAFT", "SUBMITTED", "PROOF_RECEIVED", "APPROVED", "REJECTED", "DISABLED"]).default("DRAFT"),
+  status: z.enum(["DRAFT", "INT", "PROD", "DISABLED"]).default("DRAFT"),
+});
+
+export type SupplierPackFormData = z.infer<typeof $SupplierPackForm>;
+
+export const $SupplierPackStorage = $SupplierPackForm.extend({
+  id: z.string(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+
+export type SupplierPackStorage = z.infer<typeof $SupplierPackStorage>;
+
+// =============================================================================
+// Supplier Allocation Schema - Allocates volume groups to suppliers
+// =============================================================================
+export const $SupplierAllocationForm = z.object({
+  volumeGroupId: z.string().min(1, "Volume group is required"),
+  supplierId: z.string().min(1, "Supplier is required"),
+  allocationPercentage: z.number().min(0).max(100),
+  status: z.enum(["DRAFT", "INT", "PROD", "DISABLED"]).default("DRAFT"),
+});
+
+export type SupplierAllocationFormData = z.infer<typeof $SupplierAllocationForm>;
+
+export const $SupplierAllocationStorage = $SupplierAllocationForm.extend({
+  id: z.string(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+
+export type SupplierAllocationStorage = z.infer<typeof $SupplierAllocationStorage>;
