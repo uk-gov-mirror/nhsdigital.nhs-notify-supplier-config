@@ -1,8 +1,8 @@
 {
   "dependencies": {
-    "@nhsdigital/nhs-notify-supplier-config-schemas": "1.0.0",
+    "@nhsdigital/nhs-notify-event-schemas-supplier-config": "1.0.0",
     "csv-parse": "^5.6.0",
-    "zod": "^4.0.17"
+    "zod": "^4.1.12"
   },
   "devDependencies": {
     "@swc/core": "^1.11.13",
@@ -12,7 +12,7 @@
     "esbuild": "^0.25.9",
     "jest": "^29.7.0",
     "jest-mock-extended": "^3.0.7",
-    "typescript": "^5.8.2"
+    "typescript": "^5.9.3"
   },
   "name": "nhs-notify-supplier-config-event-builder",
   "private": true,
