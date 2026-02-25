@@ -1,15 +1,18 @@
 {
   "compilerOptions": {
-    "baseUrl": "./src/",
+    "declaration": true,
     "isolatedModules": true,
-    "resolveJsonModule": true
+    "module": "commonjs",
+    "outDir": "dist",
+    "resolveJsonModule": true,
+    "rootDir": "src"
   },
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "dist"
   ],
-  "extends": "@tsconfig/node22/tsconfig.json",
+  "extends": "../../tsconfig.base.json",
   "include": [
-    "src/**/*",
-    "./jest.config.ts"
+    "src/**/*"
   ]
 }

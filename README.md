@@ -1,13 +1,11 @@
 # NHS Notify Supplier Config
 
-This repository contains code and schemas for NHS Notify supplier configuration management and event publishing.
+This repository contains code and schemas for NHS Notify supplier configuration management.
 
 ## Purpose
 
-- **Configuration Model:** Defines and manages supplier, quota, routing, and related configuration for NHS Notify
-  suppliers.
-- **Event Schemas:** Publishes configuration changes as events to an event bus for consumption by other system
-  components.
+- **Configuration Model:** Defines and manages supplier configuration for NHS Notify suppliers.
+- **Event Schemas:** Domain models and event builders for publishing configuration changes as CloudEvents.
 
 ## Design
 
@@ -21,95 +19,127 @@ A phased approach will be used to improve supplier configuration management:
 
 Configuration entities include:
 
-- `supplier_quota`, `channel_supplier`, `queue`, `suppression_filter`, `govuknotify_account`
+- Suppliers (print/letter suppliers with capacity and status)
+- Volume Groups (time-based allocation periods)
+- Pack Specifications (letter pack definitions with postage, assembly, and constraints)
+- Letter Variants (channel and campaign-specific letter configurations)
+- Supplier Allocations (percentage allocations per volume group)
+- Supplier Packs (supplier approval status for pack specifications)
 
 Configuration changes are validated, auditable, and published to environments via an event bus.
 
-### Event Publishing
+## Packages
 
-Configuration changes are published as events to a central event bus, enabling decoupled updates across bounded
-contexts (core, print supplier API, template/routing UI, user management, etc.).
+### Core Libraries
 
-Event publishing strategies include:
+- **`@supplier-config/event-builder`** - Builds CloudEvents from domain objects (LetterVariant, PackSpecification, Supplier, VolumeGroup, SupplierAllocation, SupplierPack)
 
-- CLI tools (tactical)
-- Admin/Web UI (strategic, single source of truth)
+- **`@nhsdigital/nhs-notify-event-schemas-supplier-config`** - Domain models and event schemas (Zod)
 
-## Event Builder CLI
+## Event Builder Usage
 
-The Excel parsing and event publishing functionality now lives in the `event-builder` package, exposed via a single CLI with subcommands.
+The event builder package provides functions to construct CloudEvents from domain objects.
 
-### Commands
+```typescript
+import {
+  buildLetterVariantEvents,
+  buildPackSpecificationEvents,
+  buildSupplierEvents,
+  buildVolumeGroupEvents,
+  buildSupplierAllocationEvents,
+  buildSupplierPackEvents,
+} from "@supplier-config/event-builder";
 
-- `parse` – Parse an Excel specification file and emit JSON to stdout (packs + variants).
-- `publish` – Build specialised (non-draft) LetterVariant events and publish them to an AWS EventBridge bus.
-
-### Quick Start
-
-```bash
-# Parse
-npm run cli:events --workspace=nhs-notify-supplier-config-event-builder -- parse -f ./specifications.xlsx
-
-# Dry-run publish (no AWS calls)
-npm run cli:events --workspace=nhs-notify-supplier-config-event-builder -- publish -f ./specifications.xlsx -b my-bus --dry-run
-
-# Publish (requires AWS credentials with events:PutEvents)
-npm run cli:events --workspace=nhs-notify-supplier-config-event-builder -- publish -f ./specifications.xlsx -b my-bus -r eu-west-2
+// Build events from domain objects
+const letterVariantEvents = buildLetterVariantEvents(variants, startingCounter);
+const packEvents = buildPackSpecificationEvents(packs, startingCounter);
+const supplierEvents = buildSupplierEvents(suppliers, startingCounter);
+const volumeGroupEvents = buildVolumeGroupEvents(volumeGroups, startingCounter);
+const allocationEvents = buildSupplierAllocationEvents(allocations, startingCounter);
+const supplierPackEvents = buildSupplierPackEvents(supplierPacks, startingCounter);
 ```
 
-### Envelope Defaults
+### Configuration
 
-Source: `/control-plane/supplier-config/<env>/<service>` built from `EVENT_ENV` (default `dev`) and `EVENT_SERVICE` (default `events`).
+Event source is configured via environment variables:
 
-Other generated fields:
+- `EVENT_ENV` - Environment identifier (default: `dev`)
+- `EVENT_SERVICE` - Service identifier (default: `events`)
+- `EVENT_DATASCHEMAVERSION` - Schema version (default: from schema package)
 
-- `severitytext` INFO / `severitynumber` 2
-- `partitionkey` LetterVariant id
-- `sequence` Incrementing zero-padded 20-digit counter per run
-- `traceparent` Random W3C trace context value
-- `dataschema` & `dataschemaversion` fixed to example `1.0.0`
+Source format: `/control-plane/supplier-config/<EVENT_ENV>/<EVENT_SERVICE>`
 
-Set environment overrides:
+## Development
+
+### Installation
 
 ```bash
-EVENT_ENV=staging EVENT_SERVICE=config npm run cli:events --workspace=nhs-notify-supplier-config-event-builder -- publish -f specs.xlsx -b staging-bus -r eu-west-2
+npm install
 ```
-
-## Usage
 
 ### Testing
 
-There are `make` tasks for you to configure to run your tests. Run
-`make test` to see how they work. You should be able to use the same
-entry points for local development as in your CI pipeline.
+```bash
+# Run all tests
+npm run test:unit
+
+# Test specific package
+npm run test:unit --workspace @supplier-config/event-builder
+```
+
+### Linting
+
+```bash
+# Lint all packages
+npm run lint
+
+# Fix linting issues
+npm run lint:fix
+```
+
+### Type Checking
+
+```bash
+npm run typecheck
+```
+
+## Event Structure
+
+All events follow the CloudEvents specification with the following envelope:
+
+- `specversion` - CloudEvents spec version (1.0)
+- `id` - Unique event ID (UUID)
+- `source` - Event source path (e.g., `/control-plane/supplier-config/dev/events`)
+- `subject` - Entity path (e.g., `letter-variant/<id>`)
+- `type` - Event type based on entity and status
+- `time` - Event timestamp
+- `datacontenttype` - application/json
+- `dataschema` - Schema URL
+- `dataschemaversion` - Schema version
+- `data` - Event payload (the domain object)
+- `traceparent` - W3C trace context
+- `recordedtime` - Recording timestamp
+- `severitytext` - Severity level (INFO)
+- `severitynumber` - Numeric severity (2)
+- `partitionkey` - Partition key for ordering
+- `sequence` - Sequence number for ordering
 
 ## Contributing
 
-Describe or link templates on how to raise an issue, feature request
-or make a contribution to the codebase. Reference the other
-documentation files, like
+Describe or link templates on how to raise an issue, feature request or make a contribution to the codebase. Reference the other documentation files, like
 
 - Environment setup for contribution, i.e. `CONTRIBUTING.md`
-- Coding standards, branching, linting, practices for development and
-  testing
+- Coding standards, branching, linting, practices for development and testing
 - Release process, versioning, changelog
 - Backlog, board, roadmap, ways of working
 - High-level requirements, guiding principles, decision records, etc.
 
 ## Contacts
 
-Provide a way to contact the owners of this project. It can be a team,
-an individual or information on the means of getting in touch via
-active communication channels, e.g. opening a GitHub discussion,
-raising an issue, etc.
+Provide a way to contact the owners of this project. It can be a team, an individual or information on the means of getting in touch via active communication channels, e.g. opening a GitHub discussion, raising an issue, etc.
 
 ## Licence
 
-Unless stated otherwise, the codebase is released under the MIT
-License. This covers both the codebase and any sample code in the
-documentation.
+Unless stated otherwise, the codebase is released under the MIT License. This covers both the codebase and any sample code in the documentation.
 
-Any HTML or Markdown documentation
-is [© Crown Copyright](https://www.nationalarchives.gov.uk/information-management/re-using-public-sector-information/uk-government-licensing-framework/crown-copyright/)
-and available under the terms of
-the [Open Government Licence v3.0](https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/).
+Any HTML or Markdown documentation is [© Crown Copyright](https://www.nationalarchives.gov.uk/information-management/re-using-public-sector-information/uk-government-licensing-framework/crown-copyright/) and available under the terms of the [Open Government Licence v3.0](https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/).

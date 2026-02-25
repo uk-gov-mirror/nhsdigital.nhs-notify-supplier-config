@@ -11,6 +11,7 @@ describe("Specification schema validation", () => {
     createdAt: "2023-01-01T00:00:00Z",
     updatedAt: "2023-01-01T00:00:00Z",
     version: 1,
+    billingId: "BILLING-STD-001",
     postage: {
       id: "economy",
       size: "STANDARD",

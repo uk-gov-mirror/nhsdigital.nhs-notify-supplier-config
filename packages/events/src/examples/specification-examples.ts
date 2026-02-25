@@ -1,69 +1,72 @@
-import {
-  LetterVariant,
-  LetterVariantId,
-} from "@nhsdigital/nhs-notify-event-schemas-supplier-config/src/domain/letter-variant";
-import {
-  EnvelopeId,
-  PackSpecification,
-  PackSpecificationId,
-  PostageId,
-} from "@nhsdigital/nhs-notify-event-schemas-supplier-config/src/domain/pack-specification";
-import { VolumeGroupId } from "../domain";
+import { LetterVariant } from "@nhsdigital/nhs-notify-event-schemas-supplier-config/src/domain/letter-variant";
+import { PackSpecification } from "@nhsdigital/nhs-notify-event-schemas-supplier-config/src/domain/pack-specification";
 
 const bauStandardC5: PackSpecification = {
-  id: PackSpecificationId("bau-standard-c5"),
+  id: "bau-standard-c5",
   name: "BAU Standard Letter C5",
   status: "PROD",
   version: 1,
   createdAt: "2023-01-01T00:00:00Z",
   updatedAt: "2023-01-01T00:00:00Z",
+  billingId: "BILLING-BAU-C5-001",
   constraints: {
-    maxSheets: 5,
+    sheets: {
+      value: 5,
+      operator: "LESS_THAN_OR_EQUAL",
+    },
   },
   postage: {
-    id: PostageId("ECONOMY"),
+    id: "ECONOMY",
     size: "STANDARD",
     deliveryDays: 3,
   },
   assembly: {
-    envelopeId: EnvelopeId("envelope-nhs-c5-economy"),
+    envelopeId: "envelope-nhs-c5-economy",
     printColour: "BLACK",
   },
 };
 
 const bauStandardC4: PackSpecification = {
-  id: PackSpecificationId("bau-standard-c4"),
+  id: "bau-standard-c4",
   name: "BAU Standard Letter C4",
   status: "PROD",
   version: 1,
   createdAt: "2023-01-01T00:00:00Z",
   updatedAt: "2023-01-01T00:00:00Z",
+  billingId: "BILLING-BAU-C4-001",
   constraints: {
-    maxSheets: 20,
+    sheets: {
+      value: 20,
+      operator: "LESS_THAN_OR_EQUAL",
+    },
   },
   postage: {
-    id: PostageId("ECONOMY"),
+    id: "ECONOMY",
     size: "LARGE",
     deliveryDays: 3,
   },
   assembly: {
-    envelopeId: EnvelopeId("envelope-nhs-c4-economy"),
+    envelopeId: "envelope-nhs-c4-economy",
     printColour: "BLACK",
   },
 };
 
 const braille: PackSpecification = {
-  id: PackSpecificationId("braille"),
+  id: "braille",
   name: "Braille Letter",
   status: "PROD",
   version: 1,
   createdAt: "2023-01-01T00:00:00Z",
   updatedAt: "2023-01-01T00:00:00Z",
+  billingId: "BILLING-BRAILLE-001",
   constraints: {
-    maxSheets: 5,
+    sheets: {
+      value: 5,
+      operator: "LESS_THAN_OR_EQUAL",
+    },
   },
   postage: {
-    id: PostageId("ARTICLES_BLIND"),
+    id: "ARTICLES_BLIND",
     size: "STANDARD",
   },
   assembly: {
@@ -73,17 +76,21 @@ const braille: PackSpecification = {
 };
 
 const audio: PackSpecification = {
-  id: PackSpecificationId("audio"),
+  id: "audio",
   name: "Audio Letter",
   status: "PROD",
   version: 1,
   createdAt: "2023-01-01T00:00:00Z",
   updatedAt: "2023-01-01T00:00:00Z",
+  billingId: "BILLING-AUDIO-001",
   constraints: {
-    maxSheets: 5,
+    sheets: {
+      value: 5,
+      operator: "LESS_THAN_OR_EQUAL",
+    },
   },
   postage: {
-    id: PostageId("ARTICLES_BLIND"),
+    id: "ARTICLES_BLIND",
     size: "STANDARD",
   },
   assembly: {
@@ -93,43 +100,51 @@ const audio: PackSpecification = {
 };
 
 const sameDay: PackSpecification = {
-  id: PackSpecificationId("same-day"),
+  id: "same-day",
   name: "Same Day Letter",
   status: "PROD",
   version: 1,
   createdAt: "2023-01-01T00:00:00Z",
   updatedAt: "2023-01-01T00:00:00Z",
+  billingId: "BILLING-SAME-DAY-001",
   constraints: {
-    maxSheets: 5,
+    sheets: {
+      value: 5,
+      operator: "LESS_THAN_OR_EQUAL",
+    },
   },
   postage: {
-    id: PostageId("FIRST"),
+    id: "FIRST",
     size: "LARGE",
     deliveryDays: 1,
   },
   assembly: {
-    envelopeId: EnvelopeId("envelope-nhs-c4-same-day"),
+    envelopeId: "envelope-nhs-c4-same-day",
     printColour: "COLOUR",
   },
 };
 
 const clientPack1: PackSpecification = {
-  id: PackSpecificationId("client1-campaign1"),
+  id: "client1-campaign1",
   name: "Client1 Letter Pack 1",
   status: "PROD",
   version: 1,
   createdAt: "2023-01-01T00:00:00Z",
   updatedAt: "2023-01-01T00:00:00Z",
+  billingId: "BILLING-CLIENT1-001",
   constraints: {
-    maxSheets: 4,
+    sheets: {
+      value: 4,
+      operator: "LESS_THAN_OR_EQUAL",
+    },
   },
   postage: {
-    id: PostageId("ADMAIL"),
+    id: "ADMAIL",
     size: "STANDARD",
     deliveryDays: 3,
   },
   assembly: {
-    envelopeId: EnvelopeId("client1-envelope1-c5"),
+    envelopeId: "client1-envelope1-c5",
     features: ["ADMAIL"],
     printColour: "COLOUR",
   },
@@ -146,70 +161,100 @@ const packs = {
 
 const variants: Record<string, LetterVariant> = {
   bauStandard: {
-    id: LetterVariantId("bau-standard"),
+    id: "bau-standard",
     name: "BAU Standard Letter",
     description: "BAU Standard Letter",
-    volumeGroupId: VolumeGroupId("volume-group-12345"),
+    volumeGroupId: "volume-group-12345",
     packSpecificationIds: [bauStandardC5.id, bauStandardC4.id],
     type: "STANDARD",
     status: "PROD",
     constraints: {
-      maxSheets: 20,
-      deliveryDays: 3,
+      sheets: {
+        value: 20,
+        operator: "LESS_THAN_OR_EQUAL",
+      },
+      deliveryDays: {
+        value: 3,
+        operator: "LESS_THAN_OR_EQUAL",
+      },
     },
   },
   braille: {
-    id: LetterVariantId("braille"),
+    id: "braille",
     name: "Braille Letter",
     description: "Braille Letter",
-    volumeGroupId: VolumeGroupId("volume-group-12345"),
+    volumeGroupId: "volume-group-12345",
     packSpecificationIds: [braille.id],
     type: "BRAILLE",
     status: "PROD",
     constraints: {
-      maxSheets: 5,
-      deliveryDays: 3,
+      sheets: {
+        value: 5,
+        operator: "LESS_THAN_OR_EQUAL",
+      },
+      deliveryDays: {
+        value: 3,
+        operator: "LESS_THAN_OR_EQUAL",
+      },
     },
   },
   audio: {
-    id: LetterVariantId("audio"),
+    id: "audio",
     name: "Audio Letter",
     description: "Audio Letter",
-    volumeGroupId: VolumeGroupId("volume-group-12345"),
+    volumeGroupId: "volume-group-12345",
     packSpecificationIds: [audio.id],
     type: "AUDIO",
     status: "PROD",
     constraints: {
-      maxSheets: 5,
-      deliveryDays: 3,
+      sheets: {
+        value: 5,
+        operator: "LESS_THAN_OR_EQUAL",
+      },
+      deliveryDays: {
+        value: 3,
+        operator: "LESS_THAN_OR_EQUAL",
+      },
     },
   },
   sameDay: {
-    id: LetterVariantId("same-day"),
+    id: "same-day",
     name: "Same Day Letter",
     description: "Same Day Letter",
-    volumeGroupId: VolumeGroupId("volume-group-12345"),
+    volumeGroupId: "volume-group-12345",
     packSpecificationIds: [sameDay.id],
     type: "STANDARD",
     status: "PROD",
     constraints: {
-      maxSheets: 5,
-      deliveryDays: 1,
+      sheets: {
+        value: 5,
+        operator: "LESS_THAN_OR_EQUAL",
+      },
+      deliveryDays: {
+        value: 1,
+        operator: "LESS_THAN_OR_EQUAL",
+      },
     },
   },
   campaign1: {
-    id: LetterVariantId("client1"),
+    id: "client1",
     name: "Client 1 Letter Variant 1",
     description: "Client 1 Letter Variant 1",
-    volumeGroupId: VolumeGroupId("volume-group-campaign1"),
+    volumeGroupId: "volume-group-campaign1",
     packSpecificationIds: [clientPack1.id],
     type: "STANDARD",
     status: "PROD",
     clientId: "client1",
     campaignIds: ["client1-campaign1"],
     constraints: {
-      maxSheets: 4,
-      deliveryDays: 3,
+      sheets: {
+        value: 4,
+        operator: "LESS_THAN_OR_EQUAL",
+      },
+      deliveryDays: {
+        value: 3,
+        operator: "LESS_THAN_OR_EQUAL",
+      },
     },
   },
 };

@@ -15,6 +15,7 @@ Git[Hh]ub
 Gitleaks
 Grype
 Jira
+monorepo
 npm
 Podman
 Python
