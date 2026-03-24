@@ -12,6 +12,7 @@ Makefile
 */examples/
 eslint.config.mjs
 lambdas/example-lambda/
+containers/example-app/
 package-lock.json
 package.json
 scripts/terraform/terraform.mk
