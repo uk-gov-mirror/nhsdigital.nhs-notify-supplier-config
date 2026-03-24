@@ -55,13 +55,10 @@ terraform-shellscript-lint: # Lint all Terraform module shell scripts @Quality
 		file=$${file} scripts/shellscript-linter.sh
 	done
 
-terraform-sec: # TFSEC check against Terraform files - optional: terraform_dir|dir=[path to a directory where the command will be executed, relative to the project's top-level directory, default is one of the module variables or the example directory, if not set], terraform_opts|opts=[options to pass to the Terraform fmt command, default is '-recursive'] @Quality
-	tfsec infrastructure/terraform \
-		--force-all-dirs \
-		--exclude-downloaded-modules \
-		--tfvars-file infrastructure/terraform/etc/global.tfvars \
-		--tfvars-file infrastructure/terraform/etc/env_eu-west-2_main.tfvars \
-		--config-file scripts/config/tfsec.yaml
+# TODO - Re-visit Trivy usage https://nhsd-jira.digital.nhs.uk/browse/CCM-15549
+# terraform-sec: # Run Trivy IaC security scanning on Terraform code @Quality
+#	# Example: make terraform-sec
+#	./scripts/terraform/trivy-scan.sh --mode iac infrastructure/terraform
 
 terraform-docs: # Terraform-docs check against Terraform files - optional: terraform_dir|dir=[path to a directory where the command will be executed, relative to the project's top-level directory, default is one of the module variables or the example directory, if not set], terraform_opts|opts=[options to pass to the Terraform fmt command, default is '-recursive'] @Quality
 	for dir in ./infrastructure/terraform/components/* ./infrastructure/terraform/modules/*; do \
