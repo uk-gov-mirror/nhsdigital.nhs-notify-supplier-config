@@ -16,3 +16,5 @@ author: Ross Buggins
 ## NHS Notify Supplier Config Documentation Home Page
 
 ### Version: {{ site.version }}
+
+- [Supplier config admin UI plan](./supplier-config-admin-ui-plan)
