@@ -1,0 +1,52 @@
+@use "nhsuk-frontend/dist/nhsuk";
+
+body {
+  min-height: auto !important;
+}
+
+.nhsuk-header__service-logo:has(svg):not(:focus):hover::before {
+  border: 0;
+  content: none;
+}
+
+.nhsuk-header__service-name {
+  max-width: none;
+}
+
+.nhsuk-header__account-item {
+  align-items: center;
+}
+
+.notify-auth-card {
+  max-width: 40rem;
+}
+
+.notify-button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.notify-card-grid {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+}
+
+.notify-card-link {
+  color: inherit;
+  display: block;
+  height: 100%;
+  text-decoration: none;
+}
+
+.notify-card-link:focus {
+  outline: 4px solid #ffeb3b;
+  outline-offset: 4px;
+}
+
+.notify-dashboard-card {
+  border-bottom-width: 4px;
+  height: 100%;
+  margin-bottom: 0;
+}

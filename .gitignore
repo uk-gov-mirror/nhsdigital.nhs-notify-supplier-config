@@ -23,6 +23,8 @@ dist
 .DS_Store
 .reports
 /.idea
+**/.next
 
 .env
 /.envrc
+frontend/amplify_outputs.json

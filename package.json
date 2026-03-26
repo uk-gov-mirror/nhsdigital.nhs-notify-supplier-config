@@ -43,16 +43,22 @@
     "react": "^19.0.0"
   },
   "scripts": {
+    "build": "npm run build --workspace frontend",
+    "create-amplify-outputs": "tsx ./scripts/create-amplify-outputs.ts",
     "deps:check": "npx syncpack list-mismatches",
     "deps:sync": "npx syncpack fix-mismatches",
+    "dev": "npm run dev --workspace frontend --if-present",
     "generate-dependencies": "npm run generate-dependencies --workspaces --if-present",
+    "generate-outputs": "npm run create-amplify-outputs file",
     "lint": "npm run lint --workspaces",
     "lint:fix": "npm run lint:fix --workspaces",
+    "start": "npm run start --workspace frontend",
     "test:unit": "npm run test:unit --workspaces",
     "typecheck": "npm run typecheck --workspaces"
   },
   "version": "1.0.0",
   "workspaces": [
+    "frontend",
     "packages/*"
   ]
 }
