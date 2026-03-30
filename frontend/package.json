@@ -22,7 +22,6 @@
     "eslint-config-next": "^15.4.6",
     "prettier": "^3.5.3",
     "sass": "^1.86.0",
-    "ts-jest": "^29.4.6",
     "typescript": "^5.9.3"
   },
   "name": "@supplier-config/frontend",
