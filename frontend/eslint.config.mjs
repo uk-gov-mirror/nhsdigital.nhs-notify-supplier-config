@@ -11,7 +11,7 @@ export default defineConfig([
     },
   },
   {
-    ignores: ["jest.config.mjs"],
+    ignores: [".next/**", "jest.config.mjs", "next-env.d.ts"],
   },
   {
     files: ["next.config.js"],

@@ -28,14 +28,15 @@
   "name": "@supplier-config/frontend",
   "private": true,
   "scripts": {
-    "build": "next build",
-    "dev": "next dev",
-    "lint": "npm run mock-amplify-outputs && eslint .",
+    "build": "npm run sync-amplify-outputs && next build",
+    "dev": "npm run sync-amplify-outputs && next dev",
+    "lint": "npm run sync-amplify-outputs && eslint .",
     "lint:fix": "npm run lint -- --fix",
     "mock-amplify-outputs": "if [ ! -f ./amplify_outputs.json ]; then echo \"{}\" > ./amplify_outputs.json ; fi",
-    "start": "next start",
-    "test:unit": "npm run mock-amplify-outputs && jest --runInBand",
-    "typecheck": "npm run mock-amplify-outputs && tsc --noEmit"
+    "start": "npm run sync-amplify-outputs && next start",
+    "sync-amplify-outputs": "if [ -f ./.env ] || [ -f ./.env.local ]; then npm --prefix .. run create-amplify-outputs env; else npm run mock-amplify-outputs; fi",
+    "test:unit": "npm run sync-amplify-outputs && jest --runInBand",
+    "typecheck": "npm run sync-amplify-outputs && tsc --noEmit"
   },
   "version": "0.1.0"
 }

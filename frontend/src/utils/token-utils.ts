@@ -1,9 +1,22 @@
 import { jwtDecode } from "jwt-decode";
 
 export type JwtClaims = Record<string, unknown>;
+export const adminGroupName = "Admins";
 
 export function decodeJwt(token: string) {
   return jwtDecode<JwtClaims>(token);
+}
+
+export function getClaimsFromToken(token?: string): JwtClaims | undefined {
+  if (!token) {
+    return undefined;
+  }
+
+  try {
+    return decodeJwt(token);
+  } catch {
+    return undefined;
+  }
 }
 
 export function getClaim(claims: JwtClaims, key: string) {
@@ -26,8 +39,12 @@ export function getGroupsFromClaims(claims: JwtClaims) {
   return [];
 }
 
+export function hasAdminGroupFromClaims(claims: JwtClaims) {
+  return getGroupsFromClaims(claims).includes(adminGroupName);
+}
+
 export function hasAdminGroup(token: string) {
-  return getGroupsFromClaims(decodeJwt(token)).includes("admin");
+  return hasAdminGroupFromClaims(decodeJwt(token));
 }
 
 export function getDisplayName(token?: string): string | undefined {

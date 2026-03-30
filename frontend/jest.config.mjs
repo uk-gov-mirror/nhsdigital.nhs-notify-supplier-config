@@ -9,7 +9,7 @@ const config = {
   testEnvironment: "node",
   testPathIgnorePatterns: ["/node_modules/", ".next/"],
   transform: {
-    "^.+\\.(ts|tsx)$": ["ts-jest", { tsconfig: "<rootDir>/tsconfig.json" }],
+    "^.+\\.(ts|tsx)$": ["ts-jest", { tsconfig: "<rootDir>/tsconfig.jest.json" }],
   },
 };
 

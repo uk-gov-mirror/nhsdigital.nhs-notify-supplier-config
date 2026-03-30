@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { navigationLinks } from "@/components/navigation-links";
+import { navigationSections } from "@/components/navigation-links";
 
 export default function HomePage() {
   return (
@@ -32,16 +32,33 @@ export default function HomePage() {
           </div>
         </div>
 
-        <div className="notify-card-grid">
-          {navigationLinks.map((link) => (
-            <Link className="notify-card-link" href={link.href} key={link.href}>
-              <article className="nhsuk-card notify-dashboard-card">
-                <div className="nhsuk-card__content">
-                  <h2 className="nhsuk-card__heading">{link.label}</h2>
-                  <p>{link.description}</p>
-                </div>
-              </article>
-            </Link>
+        <div className="notify-section-stack">
+          {navigationSections.map((section) => (
+            <section className="notify-navigation-section" key={section.label}>
+              <div className="nhsuk-u-margin-bottom-4">
+                <span className="nhsuk-caption-m">{section.label}</span>
+                <h2 className="nhsuk-heading-m nhsuk-u-margin-bottom-2">
+                  {section.label}
+                </h2>
+                <p className="nhsuk-body">{section.description}</p>
+              </div>
+              <div className="notify-card-grid">
+                {section.links.map((link) => (
+                  <Link
+                    className="notify-card-link"
+                    href={link.href}
+                    key={link.href}
+                  >
+                    <article className="nhsuk-card notify-dashboard-card">
+                      <div className="nhsuk-card__content">
+                        <h3 className="nhsuk-card__heading">{link.label}</h3>
+                        <p>{link.description}</p>
+                      </div>
+                    </article>
+                  </Link>
+                ))}
+              </div>
+            </section>
           ))}
         </div>
       </div>

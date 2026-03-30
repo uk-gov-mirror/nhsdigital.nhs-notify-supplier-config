@@ -3,11 +3,17 @@ import { createServerRunner } from "@aws-amplify/adapter-nextjs";
 import type { FetchAuthSessionOptions } from "aws-amplify/auth";
 import { fetchAuthSession } from "aws-amplify/auth/server";
 import { cookies } from "next/headers";
-import { getDisplayName, getGroupsFromClaims } from "@/utils/token-utils";
+import {
+  getDisplayName,
+  getGroupsFromClaims,
+  hasAdminGroupFromClaims,
+} from "@/utils/token-utils";
 
 const config = require("@/amplify_outputs.json");
 
-export const { runWithAmplifyServerContext } = createServerRunner({ config });
+export const { runWithAmplifyServerContext } = createServerRunner({
+  config,
+});
 
 export type Session = {
   accessToken?: string;
@@ -39,6 +45,10 @@ export async function getSessionServer(
     displayName: getDisplayName(idToken),
     groups,
     idToken,
-    isAdmin: groups.includes("admin"),
+    isAdmin: authSession?.tokens?.idToken
+      ? hasAdminGroupFromClaims(
+          authSession.tokens.idToken.payload as Record<string, unknown>,
+        )
+      : false,
   };
 }

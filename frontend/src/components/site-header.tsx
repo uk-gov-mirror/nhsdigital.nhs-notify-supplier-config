@@ -1,10 +1,24 @@
 import Link from "next/link";
 import { getSessionServer } from "@/utils/amplify-utils";
-import { navigationLinks } from "@/components/navigation-links";
+import { HeaderNavigation } from "@/components/header-navigation";
+import { UserClaimsPopover } from "@/components/user-claims-popover";
+import { getClaimsFromToken } from "@/utils/token-utils";
 
 export async function SiteHeader() {
   const session = await getSessionServer();
   const isAuthenticated = Boolean(session.accessToken);
+  const tokenClaims = getClaimsFromToken(session.idToken);
+  const accountNameLabel = session.displayName ?? "Signed in";
+  const accountLabel = isAuthenticated ? accountNameLabel : "Not signed in";
+  const accountName =
+    session.displayName && tokenClaims ? (
+      <UserClaimsPopover
+        claims={tokenClaims}
+        displayName={session.displayName}
+      />
+    ) : (
+      accountLabel
+    );
   let accessStatusLabel = "Guest";
 
   if (isAuthenticated) {
@@ -42,10 +56,7 @@ export async function SiteHeader() {
         </div>
         <nav className="nhsuk-header__account" aria-label="Account">
           <ul className="nhsuk-header__account-list">
-            <li className="nhsuk-header__account-item">
-              {session.displayName ??
-                (isAuthenticated ? "Signed in" : "Not signed in")}
-            </li>
+            <li className="nhsuk-header__account-item">{accountName}</li>
             <li className="nhsuk-header__account-item">{accessStatusLabel}</li>
             <li className="nhsuk-header__account-item">
               <Link
@@ -58,32 +69,7 @@ export async function SiteHeader() {
           </ul>
         </nav>
       </div>
-      {isAuthenticated ? (
-        <nav
-          className="nhsuk-header__navigation"
-          aria-label="Primary navigation"
-        >
-          <div className="nhsuk-header__navigation-container nhsuk-width-container">
-            <ul className="nhsuk-header__navigation-list">
-              <li className="nhsuk-header__navigation-item">
-                <Link className="nhsuk-header__navigation-link" href="/">
-                  Overview
-                </Link>
-              </li>
-              {navigationLinks.map((link) => (
-                <li className="nhsuk-header__navigation-item" key={link.href}>
-                  <Link
-                    className="nhsuk-header__navigation-link"
-                    href={link.href}
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </nav>
-      ) : null}
+      {isAuthenticated ? <HeaderNavigation /> : null}
     </header>
   );
 }

@@ -1,5 +1,7 @@
-import fs from "node:fs/promises";
-import path from "node:path";
+import * as fs from "node:fs/promises";
+import * as path from "node:path";
+import { fileURLToPath } from "node:url";
+import { parseEnv } from "node:util";
 
 type TerraformOutputs = {
   api_base_url?: { value?: string };
@@ -32,9 +34,33 @@ type AmplifyOutputs = {
 };
 
 const inputType = process.argv[2];
-const rootDir = path.resolve(import.meta.dirname, "..");
+const scriptDir = path.dirname(fileURLToPath(import.meta.url));
+const rootDir = path.resolve(scriptDir, "..");
 const outputPath = path.resolve(rootDir, "frontend", "amplify_outputs.json");
 const terraformOutputsPath = path.resolve(rootDir, "sandbox_tf_outputs.json");
+
+async function readEnvFile(filePath: string) {
+  const fileContents = await fs.readFile(filePath, "utf8").catch(() => null);
+
+  return fileContents ? parseEnv(fileContents) : {};
+}
+
+async function getEnvValues() {
+  const rootEnv = await readEnvFile(path.resolve(rootDir, ".env"));
+  const rootEnvLocal = await readEnvFile(path.resolve(rootDir, ".env.local"));
+  const frontendEnv = await readEnvFile(path.resolve(rootDir, "frontend", ".env"));
+  const frontendEnvLocal = await readEnvFile(
+    path.resolve(rootDir, "frontend", ".env.local"),
+  );
+
+  return {
+    ...rootEnv,
+    ...rootEnvLocal,
+    ...frontendEnv,
+    ...frontendEnvLocal,
+    ...process.env,
+  };
+}
 
 async function readTerraformOutputs(): Promise<TerraformOutputs> {
   const fileContents = await fs.readFile(terraformOutputsPath, "utf8");
@@ -83,14 +109,16 @@ async function main() {
       userPoolId: terraformOutputs.cognito_user_pool_id?.value,
     });
   } else if (inputType === "env") {
+    const envValues = await getEnvValues();
+
     outputs = buildOutputs({
-      apiBaseUrl: process.env.API_BASE_URL,
-      awsRegion: process.env.AWS_REGION ?? process.env.NEXT_PUBLIC_AWS_REGION,
+      apiBaseUrl: envValues.API_BASE_URL,
+      awsRegion: envValues.AWS_REGION ?? envValues.NEXT_PUBLIC_AWS_REGION,
       userPoolClientId:
-        process.env.USER_POOL_CLIENT_ID ??
-        process.env.NEXT_PUBLIC_USER_POOL_CLIENT_ID,
+        envValues.USER_POOL_CLIENT_ID ??
+        envValues.NEXT_PUBLIC_USER_POOL_CLIENT_ID,
       userPoolId:
-        process.env.USER_POOL_ID ?? process.env.NEXT_PUBLIC_USER_POOL_ID,
+        envValues.USER_POOL_ID ?? envValues.NEXT_PUBLIC_USER_POOL_ID,
     });
   } else {
     throw new Error('Expected input type to be either "file" or "env".');
