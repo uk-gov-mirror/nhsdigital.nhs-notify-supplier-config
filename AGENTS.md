@@ -1,181 +1,108 @@
-# AI Agent Guide for NHS Notify Supplier Config
+# AGENTS.md
+<!-- vale off -->
 
-This document provides helpful context and commands for AI agents working on this project.
+## Scope
 
-## Project Structure
+This file is for **AI agents** working within NHS Notify repositories.
+Humans should read `README.md` and the docs for how we actually work day to day.
+Keep anything language or tool-specific in nested `AGENTS.md` files (for example under `infrastructure/terraform` or `packages`).
 
-This is a monorepo containing:
+## Repository Layout (high level)
 
-- **packages/events** - Event schemas and domain models using Zod
-- **packages/event-builder** - CloudEvent builders for domain objects
-- **lambdas/** - Lambda function implementations
-- **infrastructure/** - Terraform infrastructure as code
-- **docs/** - Documentation site
+At a glance, the main areas are:
 
-## Event Builder Package
+- `infrastructure/terraform/` – Terraform components, and shared modules for AWS accounts and environments.
+- `packages/` – Supplier-config libraries, tools, and prototype/support modules.
+- `src/` – Repository-level helper code (for example the Jekyll devcontainer support).
+- `docs/` – Documentation site, ADRs, RFCS, and other long‑form docs.
+- `.github/workflows/` and `.github/actions/` – GitHub Actions workflows and composite actions.
+- `scripts/` – Helper scripts and tooling used by humans and workflows.
+- `tests/` – Cross‑cutting tests and harnesses for the repo.
 
-### Quick Start Commands
+Agents should look for a nested `AGENTS.md` in or near these areas before making non‑trivial changes.
 
-```bash
-# Navigate to event-builder
-cd packages/event-builder
+## Root package.json – role and usage
 
-# Run tests
-npm test
+The root `package.json` is the orchestration manifest for this repo. It does not ship application code; it wires up shared dev tooling and delegates to workspace-level projects.
 
-# Run tests in watch mode
-npm test -- --watch
+- Workspaces: The root workspace list currently uses the glob `packages/*`. New npm projects under that directory will be discovered automatically once they have a valid `package.json`; projects elsewhere still need an explicit workspace entry.
+- Scripts: Provides top-level commands that fan out across workspaces using `--workspaces` (lint, typecheck, unit tests) plus shared helpers such as `generate-dependencies`.
+- Dev tool dependencies: Centralises Jest, TypeScript, ESLint configurations and plugins to keep versions consistent across workspaces. Workspace projects should rely on these unless a local override is strictly needed.
+- Overrides/resolutions: Pins transitive dependencies (e.g. Jest/react-is) to avoid ecosystem conflicts. Agents must not remove overrides without verifying tests across all workspaces.
 
-# Build package
-npm run build
+Agent guidance:
 
-# Type check
-npm run typecheck
-```
+- Before adding or removing a workspace, update the root `workspaces` array and ensure CI scripts still succeed with `npm run lint`, `npm run typecheck`, and `npm run test:unit` at the repo root.
+- When adding repo-wide scripts, keep names consistent with existing patterns (e.g. `lint`, `lint:fix`, `typecheck`, `test:unit`, `generate-dependencies`) and prefer `--workspaces` fan-out.
+- Do not publish from the root. If adding a new workspace intended for publication, mark that workspace package as `private: false` and keep the root as private.
+- Validate changes by running the repo pre-commit hooks: `make githooks-run`.
 
-### Event Builder Functions
+Success criteria for changes affecting the root `package.json`:
 
-The event-builder package provides functions to build CloudEvents from domain objects:
+- `npm run lint`, `npm run typecheck`, and `npm run test:unit` pass at the repo root.
+- Workspace discovery is correct (new projects appear under `npm run typecheck --workspaces`).
+- Workspace discovery is still correct for the existing wildcard entries and any newly added explicit workspace entries.
 
-- `buildLetterVariantEvents()` - Build events for letter variants
-- `buildPackSpecificationEvents()` - Build events for pack specifications
-- `buildSupplierEvents()` - Build events for suppliers
-- `buildVolumeGroupEvents()` - Build events for volume groups
-- `buildSupplierAllocationEvents()` - Build events for supplier allocations
-- `buildSupplierPackEvents()` - Build events for supplier packs
+## What Agents Can / Can’t Do
 
-All functions accept domain objects and a starting counter, returning an array of CloudEvents.
+Agents **can**:
 
-### Testing
+- Propose changes to code, tests, GitHub workflows, Terraform, and docs.
+- Suggest new scripts, Make targets, or composite actions by copying existing patterns.
+- Run tests to validate proposed solutions.
 
-```bash
-# Run all tests
-npm test
+Agents **must not**:
 
-# Run tests in watch mode
-npm test -- --watch
+- Create, push, or merge branches or PRs.
+- Introduce new technologies, providers, or big architectural patterns without clearly calling out that an ADR is needed.
+- Invent secrets or hard‑code real credentials anywhere.
 
-# Run specific test file
-npm test -- letter-variant-event-builder.test.ts
-```
+## Working With This Repo
 
-## Schema Metadata System
+- Use `make config` for common repo setup (notably git hooks and docs dependencies). For JavaScript package work you will usually also need a root `npm ci` or a package-local install.
+- **Don’t guess commands.** Derive them from what’s already here or ask for guidance from the human user:
+  - Prefer `Makefile` targets, `scripts/`, `.github/workflows/`, and `.github/actions/`.
+- For Terraform, follow `infrastructure/terraform/{components,modules}` and respect `versions.tf`.
+- Keep diffs small and focused. Avoid mixing refactors with behaviour changes unless you explain why.
 
-### Using Metadata in Schemas
+## Quality Expectations
 
-Domain schemas can include metadata using `.meta()`:
+When proposing a change, agents should:
 
-```typescript
-deliveryDays: z.number().optional().meta({
-  title: "Delivery Days",
-  description: "The expected number of days for delivery under this postage option."
-})
-```
+- Keep code formatted and idiomatic (Terraform, TypeScript, Bash, YAML).
+- Stick to existing patterns where available (for example established package conventions under `packages/`, plus composite actions under `.github/actions`).
+- Use available information on best practices within the specific area of the codebase.
+- **Always** run local pre-commit hooks from the repo root with:
 
-The `.meta()` method registers metadata in Zod's global registry, which can be retrieved later:
+  ```sh
+    pre-commit run \
+    --config scripts/config/pre-commit.yaml
+  ```
 
-```typescript
-const description = $Postage.shape.deliveryDays.meta()?.description;
-```
+  to catch formatting and basic lint issues. Domain specific checks will be defined in appropriate nested AGENTS.md files.
 
-### Key Schema Files
+- Suggest at least one extra validation step (for example `npm test` in a lambda, or triggering a specific workflow).
+- Any required follow up activites which fall outside of the current task's scope should be clearly marked with a 'TODO: CCM-12345' comment. The human user should be prompted to create and provide a JIRA ticket ID to be added to the comment.
 
-- `packages/events/src/domain/pack-specification.ts` - Main pack spec schema
-- `packages/events/src/domain/letter-variant.ts` - Letter variant schema
-- `packages/events/src/domain/supplier.ts` - Supplier schema
-- `packages/events/src/domain/volume-group.ts` - Volume group schema
-- `packages/events/src/domain/supplier-allocation.ts` - Supplier allocation schema
-- `packages/events/src/domain/supplier-pack.ts` - Supplier pack schema
-- `packages/events/src/domain/common.ts` - Common types (EnvironmentStatus, etc.)
+## Security & Safety
 
-## Common Tasks
+- All agent-generated changes **must** be reviewed and merged by a human.
+- Provide a concise, clear summary of the proposed changes to make human review easier (what changed, why (refer directly to the guidance in relevant Agents.MD files when applicable), and how it was validated). It should be directly pastable into the PR description and make it clear that AI assistance was used.
+- Never output real secrets or tokens. Use placeholders and rely on the GitHub/AWS secrets already wired into workflows.
 
-### Updating Domain Schemas
+## Escalation / Blockers
 
-1. Update domain schema in `packages/events/src/domain/`
-2. Update event builder if needed in `packages/event-builder/src/`
-3. Update test files in `__tests__/` directories
-4. Run tests: `npm test`
+If you are blocked by an unavailable secret, unclear architectural constraint, missing upstream module, or failing tooling you cannot safely fix, stop and ask a single clear clarifying question rather than guessing.
 
-### Adding Metadata to Schema Fields
+## `nhs-notify-supplier-config` repo-specific notes
 
-1. Add `.meta()` to schema field:
-
-   ```typescript
-   fieldName: z.string().meta({
-     title: "Display Title",
-     description: "Helpful description for this field"
-   })
-   ```
-
-2. Access metadata programmatically:
-
-   ```typescript
-   $Schema.shape.fieldName.meta()?.description
-   ```
-
-### Editing Markdown Files
-
-When editing markdown files (`.md`), always run the markdown linter to ensure formatting compliance:
-
-```bash
-# Check a specific markdown file
-./scripts/githooks/check-markdown-format.sh AGENTS.md
-
-# Check with all rules enabled
-check=all ./scripts/githooks/check-markdown-format.sh README.md
-```
-
-Common markdown rules to follow:
-
-- Add blank lines before and after lists
-- Add blank lines before and after fenced code blocks
-- Use angle brackets for bare URLs: `<https://example.com>`
-- Keep consistent list markers and indentation
-
-## Workspace Commands
-
-```bash
-# Install all dependencies
-npm install
-
-# Run tests for specific workspace
-npm test --workspace=packages/events
-npm test --workspace=packages/event-builder
-
-# Build all packages
-npm run build --workspaces
-
-# Lint all code
-npm run lint
-
-# Check markdown formatting
-./scripts/githooks/check-markdown-format.sh <file>
-
-# Check markdown formatting for all files
-check=all ./scripts/githooks/check-markdown-format.sh <file>
-```
-
-## Helpful Links
-
-- Zod documentation: <https://zod.dev>
-- Zod 4 metadata: Use `.meta()` with/without arguments
-- CloudEvents spec: <https://cloudevents.io>
-
-## Troubleshooting
-
-### Validation Errors
-
-Check the error output for specific Zod validation failures. Common issues:
-
-- Invalid enum values (e.g., using "PUBLISHED" instead of "PROD")
-- Missing required fields
-- Wrong data types (string vs number)
-- Invalid date formats
-
-## Agent Notes
-
-- The project uses Zod 4.x for schema validation
-- Metadata is stored in Zod's global registry via `.meta()`
-- Test files should be updated whenever domain models change
-- Always run markdown linter when editing `.md` files to catch formatting issues
+- `nhs-notify-repository-template/` is a checked-in reference copy of the template repo. Do not make normal feature changes there; only edit it when intentionally comparing with or syncing the template.
+- The main application and domain work in this repo is concentrated under `packages/`. Use local `README` files, manifests, and tests there to understand package-specific behaviour before making non-trivial changes.
+- Important repo data inputs live at the top level and under `packages/ui/data/`, especially `specifications.json`, `specifications.xlsx`, and `letterVariants.csv`. Treat these as source material for supplier configuration work and preserve their formats unless the task explicitly changes them.
+- `make build` currently builds the Jekyll docs site (`docs/`); it is not a full monorepo build for the supplier-config packages.
+- CI currently still includes some template-era scaffolding. In particular, root workspace scripts and some `make test-*` paths do not yet cover every directory under `packages/`, so validate the specific package or area you changed directly as well as running the standard repo hooks.
+- Suggested extra validation by area:
+  - `packages/`: run the changed package's local scripts (for example tests, typecheck, or generators) in addition to repo-level hooks.
+  - `docs/`: run `(cd docs && make build)` when changing Jekyll content or templates.
+  - root config/docs guidance: run `pre-commit run --config scripts/config/pre-commit.yaml` from the repo root.
+- If you touch the root `package.json`, verify that the workspace globs and script fan-out still match the repo layout. Avoid incidental “tidying” unless the task requires it and you can validate the downstream impact.

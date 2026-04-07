@@ -226,7 +226,7 @@ export default defineConfig([
       'no-relative-import-paths': noRelativeImportPaths,
     },
     rules: {
-      'no-relative-import-paths/no-relative-import-paths': 0,
+      'no-relative-import-paths/no-relative-import-paths': 2,
     },
   },
   {
