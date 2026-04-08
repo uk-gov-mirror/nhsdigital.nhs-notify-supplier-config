@@ -2,10 +2,7 @@ import { SupplierAllocation } from "@nhsdigital/nhs-notify-event-schemas-supplie
 import { supplierAllocationEvents } from "@nhsdigital/nhs-notify-event-schemas-supplier-config/src/events/supplier-allocation-events";
 import { z } from "zod";
 import { configFromEnv } from "./config";
-import {
-  SeverityText,
-  newSequenceGenerator,
-} from "./lib/envelope-helpers";
+import { SeverityText, newSequenceGenerator } from "./lib/envelope-helpers";
 import { buildBaseEventEnvelope } from "./lib/base-event-envelope";
 
 export interface BuildSupplierAllocationEventOptions {

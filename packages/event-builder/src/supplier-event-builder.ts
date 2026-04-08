@@ -1,9 +1,6 @@
 import { Supplier } from "@nhsdigital/nhs-notify-event-schemas-supplier-config/src/domain/supplier";
 import { configFromEnv } from "./config";
-import {
-  SeverityText,
-  newSequenceGenerator,
-} from "./lib/envelope-helpers";
+import { SeverityText, newSequenceGenerator } from "./lib/envelope-helpers";
 import { buildBaseEventEnvelope } from "./lib/base-event-envelope";
 
 export interface BuildSupplierEventOptions {

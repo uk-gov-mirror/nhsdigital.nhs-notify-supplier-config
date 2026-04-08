@@ -2,10 +2,7 @@ import { PackSpecification } from "@nhsdigital/nhs-notify-event-schemas-supplier
 import { packSpecificationEvents } from "@nhsdigital/nhs-notify-event-schemas-supplier-config/src/events/pack-specification-events";
 import { z } from "zod";
 import { configFromEnv } from "./config";
-import {
-  SeverityText,
-  newSequenceGenerator,
-} from "./lib/envelope-helpers";
+import { SeverityText, newSequenceGenerator } from "./lib/envelope-helpers";
 import { buildBaseEventEnvelope } from "./lib/base-event-envelope";
 
 export interface BuildPackSpecificationEventOptions {

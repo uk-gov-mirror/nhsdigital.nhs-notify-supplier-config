@@ -40,16 +40,29 @@
     "pretty-format": {
       "react-is": "19.0.0"
     },
-    "react": "^19.0.0"
+    "react": "^19.0.0",
+
+    "minimatch": "10.2.4",
+    "@eslint/eslintrc": {
+      "minimatch": "3.1.4"
+    },
+    "test-exclude": {
+      "minimatch": "^3.1.2"
+    },
+
+    "@aws-sdk/xml-builder": {
+      "fast-xml-parser": "^5.3.8"
+    }
   },
   "scripts": {
     "deps:check": "npx syncpack list-mismatches",
     "deps:sync": "npx syncpack fix-mismatches",
     "generate-dependencies": "npm run generate-dependencies --workspaces --if-present",
-    "lint": "npm run lint --workspaces",
-    "lint:fix": "npm run lint:fix --workspaces",
+    "lint": "npm run lint --workspaces --if-present",
+    "lint:fix": "npm run lint:fix --workspaces --if-present",
+    "test:integration": "npm run test:integration --workspaces --if-present",
     "test:unit": "npm run test:unit --workspaces",
-    "typecheck": "npm run typecheck --workspaces"
+    "typecheck": "npm run typecheck --workspaces --if-present"
   },
   "version": "1.0.0",
   "workspaces": [

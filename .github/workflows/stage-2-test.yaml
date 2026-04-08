@@ -152,3 +152,19 @@ jobs:
           sonar_organisation_key: "${{ vars.SONAR_ORGANISATION_KEY }}"
           sonar_project_key: "${{ vars.SONAR_PROJECT_KEY }}"
           sonar_token: "${{ secrets.SONAR_TOKEN }}"
+  test-integration:
+    name: "Integration tests"
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: "Checkout code"
+        uses: actions/checkout@v4
+      - name: "Repo setup"
+        run: |
+          npm ci
+      - name: "Generate dependencies"
+        run: |
+          npm run generate-dependencies --workspaces --if-present
+      - name: "Run integration tests"
+        run: |
+          npm run test:integration

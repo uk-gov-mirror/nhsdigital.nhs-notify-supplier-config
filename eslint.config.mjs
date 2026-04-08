@@ -20,16 +20,6 @@ import {
 } from 'eslint-config-airbnb-extended';
 import { rules as prettierConfigRules } from 'eslint-config-prettier';
 
-import { dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { FlatCompat } from '@eslint/eslintrc';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-});
 
 export default defineConfig([
   globalIgnores([
@@ -37,6 +27,7 @@ export default defineConfig([
     '**/.build',
     '**/node_modules',
     '**/dist',
+    '**/artifacts/**',
     '**/test-results',
     '**/playwright-report*',
     'eslint.config.mjs',
@@ -61,7 +52,17 @@ export default defineConfig([
     ignores: ['**/*.json'],
     languageOptions: {
       parserOptions: {
-        projectService: true,
+        projectService: {
+          allowDefaultProject: [
+            '*.js',
+            '*.mjs',
+            '*.ts',
+            'packages/*/jest*.config.ts',
+            'packages/*/scripts/*.{js,mjs,ts}',
+            'scripts/*.{js,mjs,ts}',
+            'scripts/*/*.{js,mjs,ts}',
+          ],
+        },
         tsconfigRootDir: import.meta.dirname,
       },
     },
@@ -69,6 +70,11 @@ export default defineConfig([
 
   {
     files: ['**/*.json'],
+    extends: [tseslint.configs.disableTypeChecked],
+  },
+
+  {
+    files: ['**/*.config.ts', '**/jest*.config.ts'],
     extends: [tseslint.configs.disableTypeChecked],
   },
 
@@ -196,6 +202,7 @@ export default defineConfig([
         },
       ],
       'import-x/extensions': 0,
+      'unicorn/no-array-callback-reference': 0,
     },
   },
   {
@@ -205,7 +212,12 @@ export default defineConfig([
     },
   },
   {
-    files: ['**/__tests__/**'],
+    files: [
+      '**/__tests__/**',
+      '**/__integration__/**',
+      'tests/**',
+      '**/*.{test,spec}.{js,jsx,ts,tsx,mjs,cjs}',
+    ],
     rules: {
       'import-x/no-extraneous-dependencies': [
         2,
@@ -213,6 +225,8 @@ export default defineConfig([
           devDependencies: true,
         },
       ],
+      'security/detect-non-literal-fs-filename': 0,
+      'sonarjs/publicly-writable-directories': 0,
     },
   },
   {
@@ -230,23 +244,39 @@ export default defineConfig([
     },
   },
   {
-    files: ['scripts/**'],
+    files: ['packages/*/src/**/*.{js,jsx,ts,tsx,mjs,cjs}'],
+    rules: {
+      'no-relative-import-paths/no-relative-import-paths': 0,
+    },
+  },
+  {
+    files: [
+      'scripts/**',
+      'packages/*/scripts/*.{js,mjs,ts}',
+    ],
+    extends: [tseslint.configs.disableTypeChecked],
     rules: {
       'import-x/no-extraneous-dependencies': [
         'error',
         { devDependencies: true },
       ],
+      'no-console': 0,
+      'security/detect-non-literal-fs-filename': 0,
     },
   },
   // Add CLI directory override to allow console usage
   {
-    files: ['**/cli/**/*.{js,jsx,ts,tsx,mjs,cjs}'],
+    files: [
+      '**/cli.{js,jsx,ts,tsx,mjs,cjs}',
+      '**/cli/**/*.{js,jsx,ts,tsx,mjs,cjs}',
+    ],
     rules: {
       'no-console': 0,
       'import-x/no-extraneous-dependencies': [
         'error',
         { devDependencies: true },
       ],
+      'security/detect-non-literal-fs-filename': 0,
     },
   },
   // misc rule overrides
@@ -256,6 +286,7 @@ export default defineConfig([
       'no-underscore-dangle': 0,
       'no-await-in-loop': 0,
       'no-plusplus': [2, { allowForLoopAfterthoughts: true }],
+      'import-x/prefer-default-export': 0,
       'unicorn/prefer-top-level-await': 0, // top level await is not available in commonjs
     },
   },

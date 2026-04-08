@@ -44,6 +44,28 @@ jobs:
         uses: ./.github/actions/build-docs
         with:
           version: "${{ inputs.version }}"
+
+  ddb-publish-bundle:
+    name: "Bundle ddb-publish CLI"
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: "Checkout code"
+        uses: actions/checkout@v4
+
+      - name: "Bundle ddb-publish"
+        id: bundle
+        uses: ./.github/actions/bundle-ddb-publish
+        with:
+          node-version: "${{ inputs.nodejs_version }}"
+          run-typecheck: "false"
+
+      - name: "Upload bundle as workflow artifact"
+        uses: actions/upload-artifact@v4
+        with:
+          name: ddb-publish-bundle
+          path: "${{ steps.bundle.outputs.tarball-path }}"
+
   artefact-1:
     name: "Artefact 1"
     runs-on: ubuntu-latest

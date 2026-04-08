@@ -2,10 +2,7 @@ import { SupplierPack } from "@nhsdigital/nhs-notify-event-schemas-supplier-conf
 import { supplierPackEvents } from "@nhsdigital/nhs-notify-event-schemas-supplier-config/src/events/supplier-pack-events";
 import { z } from "zod";
 import { configFromEnv } from "./config";
-import {
-  SeverityText,
-  newSequenceGenerator,
-} from "./lib/envelope-helpers";
+import { SeverityText, newSequenceGenerator } from "./lib/envelope-helpers";
 import { buildBaseEventEnvelope } from "./lib/base-event-envelope";
 
 export interface BuildSupplierPackEventOptions {
