@@ -1,0 +1,11 @@
+{
+  "id": "lv-1",
+  "name": "Standard Letter Variant",
+  "packSpecificationIds": [
+    "pack-spec-1"
+  ],
+  "status": "DRAFT",
+  "supplierId": "sup-1",
+  "type": "STANDARD",
+  "volumeGroupId": "vg-1"
+}

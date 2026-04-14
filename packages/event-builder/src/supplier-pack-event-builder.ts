@@ -1,12 +1,12 @@
 import { SupplierPack } from "@nhsdigital/nhs-notify-event-schemas-supplier-config/src/domain/supplier-pack";
 import { supplierPackEvents } from "@nhsdigital/nhs-notify-event-schemas-supplier-config/src/events/supplier-pack-events";
 import { z } from "zod";
-import { configFromEnv } from "./config";
+import { configFromEnv } from "packages/event-builder/src/config";
 import {
   SeverityText,
   newSequenceGenerator,
-} from "./lib/envelope-helpers";
-import { buildBaseEventEnvelope } from "./lib/base-event-envelope";
+} from "packages/event-builder/src/lib/envelope-helpers";
+import { buildBaseEventEnvelope } from "packages/event-builder/src/lib/base-event-envelope";
 
 export interface BuildSupplierPackEventOptions {
   severity?: SeverityText;

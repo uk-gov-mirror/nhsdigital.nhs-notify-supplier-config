@@ -7,28 +7,31 @@ import {
   $SupplierAllocation,
   $SupplierPack,
   $VolumeGroup,
-} from "../domain";
+} from "packages/events/src/domain";
 import {
   $LetterVariantEvent,
   letterVariantEvents,
-} from "../events/letter-variant-events";
+} from "packages/events/src/events/letter-variant-events";
 import {
   $PackSpecificationEvent,
   packSpecificationEvents,
-} from "../events/pack-specification-events";
+} from "packages/events/src/events/pack-specification-events";
 import {
   $SupplierAllocationEvent,
   supplierAllocationEvents,
-} from "../events/supplier-allocation-events";
+} from "packages/events/src/events/supplier-allocation-events";
 import {
   $SupplierPackEvent,
   supplierPackEvents,
-} from "../events/supplier-pack-events";
-import { $SupplierEvent, supplierEvents } from "../events/supplier-events";
+} from "packages/events/src/events/supplier-pack-events";
+import {
+  $SupplierEvent,
+  supplierEvents,
+} from "packages/events/src/events/supplier-events";
 import {
   $VolumeGroupEvent,
   volumeGroupEvents,
-} from "../events/volume-group-events";
+} from "packages/events/src/events/volume-group-events";
 
 /**
  * Generate JSON schema for a single Zod schema and write to file
@@ -43,7 +46,6 @@ function generateJsonSchema(
     target: "openapi-3.0",
     reused: "ref",
   });
-  // eslint-disable-next-line security/detect-non-literal-fs-filename
   fs.writeFileSync(outputPath, JSON.stringify(jsonSchema, null, 2));
   console.info(`Wrote JSON schema for ${schemaName} to ${outputPath}`);
 }

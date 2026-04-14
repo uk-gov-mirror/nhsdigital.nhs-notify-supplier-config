@@ -32,6 +32,7 @@ onboarding
 Podman
 Python
 rawContent
+repo
 sed
 stdout
 Syft

@@ -1,0 +1,7 @@
+{
+  "allocationPercentage": 100,
+  "id": "alloc-1",
+  "status": "DRAFT",
+  "supplier": "sup-1",
+  "volumeGroup": "vg-1"
+}

@@ -1,12 +1,12 @@
 import { LetterVariant } from "@nhsdigital/nhs-notify-event-schemas-supplier-config/src/domain/letter-variant";
 import { letterVariantEvents } from "@nhsdigital/nhs-notify-event-schemas-supplier-config/src/events/letter-variant-events";
 import { z } from "zod";
-import { configFromEnv } from "./config";
+import { configFromEnv } from "packages/event-builder/src/config";
 import {
   SeverityText,
   newSequenceGenerator,
-} from "./lib/envelope-helpers";
-import { buildBaseEventEnvelope } from "./lib/base-event-envelope";
+} from "packages/event-builder/src/lib/envelope-helpers";
+import { buildBaseEventEnvelope } from "packages/event-builder/src/lib/base-event-envelope";
 
 export interface BuildLetterVariantEventOptions {
   severity?: SeverityText;

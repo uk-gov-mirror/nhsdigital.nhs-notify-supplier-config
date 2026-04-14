@@ -81,6 +81,7 @@ When proposing a change, agents should:
 
   to catch formatting and basic lint issues. Domain specific checks will be defined in appropriate nested AGENTS.md files.
 
+- When editing Markdown files, also run `./scripts/githooks/check-markdown-format.sh <file>` (or `check=all ./scripts/githooks/check-markdown-format.sh <file>` when needed) to catch markdownlint issues before review.
 - Suggest at least one extra validation step (for example `npm test` in a lambda, or triggering a specific workflow).
 - Any required follow up activites which fall outside of the current task's scope should be clearly marked with a 'TODO: CCM-12345' comment. The human user should be prompted to create and provide a JIRA ticket ID to be added to the comment.
 
@@ -96,12 +97,16 @@ If you are blocked by an unavailable secret, unclear architectural constraint, m
 
 ## `nhs-notify-supplier-config` repo-specific notes
 
-- `nhs-notify-repository-template/` is a checked-in reference copy of the template repo. Do not make normal feature changes there; only edit it when intentionally comparing with or syncing the template.
+- Template sync workflows and helper scripts may use `nhs-notify-repository-template/` as a temporary upstream checkout path. Treat it as sync/reference material rather than normal product code if it appears during maintenance work.
 - The main application and domain work in this repo is concentrated under `packages/`. Use local `README` files, manifests, and tests there to understand package-specific behaviour before making non-trivial changes.
+- Schema and event payload work is concentrated in `packages/events/`, with CloudEvent construction in `packages/event-builder/`. When changing schemas under `packages/events/src/domain/` or `packages/events/src/events/`, update any affected builders and Jest tests in both workspaces.
+- Supplier-config schemas use Zod 4 `.meta()` metadata for field titles/descriptions and generated artefacts. Preserve or update that metadata when changing schema fields, and rerun the relevant `packages/events/` generators when outputs change.
 - Important repo data inputs live at the top level and under `packages/ui/data/`, especially `specifications.json`, `specifications.xlsx`, and `letterVariants.csv`. Treat these as source material for supplier configuration work and preserve their formats unless the task explicitly changes them.
 - `make build` currently builds the Jekyll docs site (`docs/`); it is not a full monorepo build for the supplier-config packages.
 - CI currently still includes some template-era scaffolding. In particular, root workspace scripts and some `make test-*` paths do not yet cover every directory under `packages/`, so validate the specific package or area you changed directly as well as running the standard repo hooks.
 - Suggested extra validation by area:
+  - `packages/events/`: run focused scripts such as `npm run test:unit --workspace=@nhsdigital/nhs-notify-event-schemas-supplier-config`, plus generators when schema outputs or derived artefacts are affected.
+  - `packages/event-builder/`: run `npm run test:unit --workspace=@supplier-config/event-builder` and `npm run typecheck --workspace=@supplier-config/event-builder` when changing event builder logic.
   - `packages/`: run the changed package's local scripts (for example tests, typecheck, or generators) in addition to repo-level hooks.
   - `docs/`: run `(cd docs && make build)` when changing Jekyll content or templates.
   - root config/docs guidance: run `pre-commit run --config scripts/config/pre-commit.yaml` from the repo root.
