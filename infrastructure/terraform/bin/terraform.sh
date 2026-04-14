@@ -391,8 +391,8 @@ rm -rf ${component_path}/.terraform;
 
 # Run global pre.sh
 if [ -f "pre.sh" ]; then
-  source pre.sh "${region}" "${environment}" "${action}" \
-    || error_and_die "Global pre script execution failed with exit code ${?}";
+  PROJECT="${project}" REGION="${region}" COMPONENT="${component}" AWS_ACCOUNT_ID="${aws_account_id}" ENVIRONMENT="${environment}" ACTION="${action}" \
+    source pre.sh || error_and_die "Global pre script execution failed with exit code ${?}";
 fi;
 
 # Make sure we're running in the component directory
@@ -403,7 +403,7 @@ readonly component_name=$(basename ${component_path});
 # verify terraform version matches .tool-versions
 echo ${PWD}
 tool_version=$(grep "terraform " .tool-versions | cut -d ' ' -f 2)
-asdf plugin-add terraform && asdf install terraform "${tool_version}"
+asdf plugin add terraform && asdf install terraform "${tool_version}"
 current_version=$(terraform --version | head -n 1 | cut -d 'v' -f 2)
 
 if [ -z "${current_version}" ] || [ "${current_version}" != "${tool_version}" ]; then
@@ -427,8 +427,8 @@ fi;
 
 # Run pre.sh
 if [ -f "pre.sh" ]; then
-  source pre.sh "${region}" "${environment}" "${action}" \
-    || error_and_die "Component pre script execution failed with exit code ${?}";
+  PROJECT="${project}" REGION="${region}" COMPONENT="${component}" AWS_ACCOUNT_ID="${aws_account_id}" ENVIRONMENT="${environment}" ACTION="${action}" \
+  source pre.sh || error_and_die "Component pre script execution failed with exit code ${?}";
 fi;
 
 # Pull down secret TFVAR file from S3
@@ -599,7 +599,7 @@ readonly backend_config="terraform {
     region         = \"${region}\"
     bucket         = \"${bucket}\"
     key            = \"${backend_key}\"
-    dynamodb_table = \"${bucket}\"
+    use_lockfile   = true
   }
 }";
 

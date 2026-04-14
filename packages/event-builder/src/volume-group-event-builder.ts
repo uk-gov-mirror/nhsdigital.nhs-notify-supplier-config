@@ -1,15 +1,12 @@
 import { VolumeGroup } from "@nhsdigital/nhs-notify-event-schemas-supplier-config/src/domain/volume-group";
-import { configFromEnv } from "./config";
-import {
-  SeverityText,
-  newSequenceGenerator,
-} from "./lib/envelope-helpers";
-import { buildBaseEventEnvelope } from "./lib/base-event-envelope";
 import { z } from "zod";
 import {
   $VolumeGroupEvent,
   volumeGroupEvents,
 } from "@nhsdigital/nhs-notify-event-schemas-supplier-config";
+import { configFromEnv } from "./config";
+import { SeverityText, newSequenceGenerator } from "./lib/envelope-helpers";
+import { buildBaseEventEnvelope } from "./lib/base-event-envelope";
 
 export interface BuildVolumeGroupEventOptions {
   severity?: SeverityText;

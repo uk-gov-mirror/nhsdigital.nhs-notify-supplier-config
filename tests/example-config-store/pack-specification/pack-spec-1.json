@@ -1,0 +1,15 @@
+{
+  "billingId": "BILL-001",
+  "createdAt": "2026-01-01T00:00:00Z",
+  "description": "Basic pack specification for local testing",
+  "id": "pack-spec-1",
+  "name": "Standard Letter Pack",
+  "postage": {
+    "deliveryDays": 2,
+    "id": "postage-standard",
+    "size": "STANDARD"
+  },
+  "status": "DRAFT",
+  "updatedAt": "2026-01-01T00:00:00Z",
+  "version": 1
+}

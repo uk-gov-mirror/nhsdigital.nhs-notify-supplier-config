@@ -5,7 +5,7 @@ import { $Postage } from "./postage";
 import { $Envelope } from "./envelope";
 import { $Paper } from "./paper";
 import { $Insert } from "./insert";
-import {$Constraint, $Constraints} from "./constraint";
+import { $Constraints } from "./constraint";
 
 export const $PackFeature = z.enum(["BRAILLE", "AUDIO", "ADMAIL", "SAME_DAY"]);
 
@@ -22,7 +22,11 @@ export const $PackSpecification = z
       description:
         "The version number of this Pack Specification, incremented with each update.",
     }),
-    billingId: z.string().optional(),
+    billingId: z.string().meta({
+      title: "Billing Id",
+      description:
+        "The billing identifier associated with this Pack Specification.",
+    }),
     constraints: $Constraints.optional(),
     postage: $Postage,
     assembly: z

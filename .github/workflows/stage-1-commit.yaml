@@ -23,6 +23,11 @@ on:
         description: "Python version, set by the CI/CD pipeline workflow"
         required: true
         type: string
+      #TODO - Re-visit Trivy usage https://nhsd-jira.digital.nhs.uk/browse/CCM-15549
+      # skip_trivy_package:
+      #   description: "Skip Trivy package scan when true"
+      #   type: boolean
+      #   default: false
       terraform_version:
         description: "Terraform version, set by the CI/CD pipeline workflow"
         required: true
@@ -39,7 +44,7 @@ jobs:
     timeout-minutes: 5
     steps:
       - name: "Checkout code"
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 0 # Full history is needed to scan all commits
       - name: "Scan secrets"
@@ -50,7 +55,7 @@ jobs:
     timeout-minutes: 5
     steps:
       - name: "Checkout code"
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 0 # Full history is needed to compare branches
       - name: "Check file format"
@@ -61,7 +66,7 @@ jobs:
     timeout-minutes: 5
     steps:
       - name: "Checkout code"
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 0 # Full history is needed to compare branches
       - name: "Check Markdown format"
@@ -75,7 +80,7 @@ jobs:
         contents: write
     steps:
       - name: "Checkout code"
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 0 # Full history is needed to compare branches
       - name: "Check to see if Terraform Docs are up-to-date"
@@ -96,11 +101,22 @@ jobs:
     timeout-minutes: 5
     steps:
       - name: "Checkout code"
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 0 # Full history is needed to compare branches
       - name: "Check English usage"
         uses: ./.github/actions/check-english-usage
+  check-todo-usage:
+    name: "Check TODO usage"
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: "Checkout code"
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0 # Full history is needed to compare branches
+      - name: "Check TODO usage"
+        uses: ./.github/actions/check-todo-usage
   detect-terraform-changes:
     name: "Detect Terraform Changes"
     runs-on: ubuntu-latest
@@ -108,7 +124,7 @@ jobs:
       terraform_changed: ${{ steps.check.outputs.terraform_changed }}
     steps:
       - name: "Checkout code"
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: "Check for Terraform changes"
         id: check
@@ -132,24 +148,41 @@ jobs:
     if: needs.detect-terraform-changes.outputs.terraform_changed == 'true'
     steps:
       - name: "Checkout code"
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: "Setup ASDF"
+        uses: asdf-vm/actions/setup@1902764435ca0dd2f3388eea723a4f92a4eb8302
       - name: "Lint Terraform"
         uses: ./.github/actions/lint-terraform
-  trivy:
-    name: "Trivy Scan"
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    needs: detect-terraform-changes
-    if: needs.detect-terraform-changes.outputs.terraform_changed == 'true'
-    steps:
-      - name: "Checkout code"
-        uses: actions/checkout@v4
-      - name: "Setup ASDF"
-        uses: asdf-vm/actions/setup@v4
-      - name: "Perform Setup"
-        uses: ./.github/actions/setup
-      - name: "Trivy Scan"
-        uses: ./.github/actions/trivy
+  #TODO - Re-visit Trivy usage https://nhsd-jira.digital.nhs.uk/browse/CCM-15549
+  # trivy-iac:
+  #   name: "Trivy IaC Scan"
+  #   permissions:
+  #     contents: read
+  #   runs-on: ubuntu-latest
+  #   timeout-minutes: 10
+  #   needs: detect-terraform-changes
+  #   if: needs.detect-terraform-changes.outputs.terraform_changed == 'true'
+  #   steps:
+  #     - name: "Checkout code"
+  #       uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+  #     - name: "Setup ASDF"
+  #       uses: asdf-vm/actions/setup@1902764435ca0dd2f3388eea723a4f92a4eb8302
+  #     - name: "Trivy IaC Scan"
+  #       uses: ./.github/actions/trivy-iac
+  # trivy-package:
+  #   if: ${{ !inputs.skip_trivy_package }}
+  #   name: "Trivy Package Scan"
+  #   permissions:
+  #     contents: read
+  #   runs-on: ubuntu-latest
+  #   timeout-minutes: 10
+  #   steps:
+  #     - name: "Checkout code"
+  #       uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+  #     - name: "Setup ASDF"
+  #       uses: asdf-vm/actions/setup@1902764435ca0dd2f3388eea723a4f92a4eb8302
+  #     - name: "Trivy Package Scan"
+  #       uses: ./.github/actions/trivy-package
   count-lines-of-code:
     name: "Count lines of code"
     runs-on: ubuntu-latest
@@ -159,7 +192,7 @@ jobs:
     timeout-minutes: 5
     steps:
       - name: "Checkout code"
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - name: "Count lines of code"
         uses: ./.github/actions/create-lines-of-code-report
         with:
@@ -178,7 +211,7 @@ jobs:
     timeout-minutes: 5
     steps:
       - name: "Checkout code"
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - name: "Scan dependencies"
         uses: ./.github/actions/scan-dependencies
         with:
@@ -188,3 +221,107 @@ jobs:
           idp_aws_report_upload_region: "${{ secrets.IDP_AWS_REPORT_UPLOAD_REGION }}"
           idp_aws_report_upload_role_name: "${{ secrets.IDP_AWS_REPORT_UPLOAD_ROLE_NAME }}"
           idp_aws_report_upload_bucket_endpoint: "${{ secrets.IDP_AWS_REPORT_UPLOAD_BUCKET_ENDPOINT }}"
+
+
+  detect-event-schema-package-changes:
+    name: "Check for changes to event schema package compared to main branch"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      changed: ${{ steps.check.outputs.changed }}
+      main_version: ${{ steps.check.outputs.main_version }}
+
+    steps:
+      - name: "Checkout code"
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Detect package changes and current version
+        id: check
+        run: |
+          git fetch origin main
+
+          if git diff --quiet origin/main...HEAD -- packages/events; then
+            echo "No changes in event schemas package"
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "Changes detected in event schemas"
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+
+          if content=$(git show origin/main:packages/events/package.json 2>/dev/null); then
+            version=$(jq -r .version <<< $content);
+          else
+            version=null;
+          fi
+
+          echo "Detected package version $version in main branch"
+          echo "main_version=$version" >> $GITHUB_OUTPUT
+
+  check-schema-version-change:
+    name: Check event schema version has been updated
+    needs: detect-event-schema-package-changes
+    if: needs.detect-event-schema-package-changes.outputs.changed == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Check schema versions
+        run: |
+          source scripts/is_valid_increment.sh
+
+          main_version="${{ needs.detect-event-schema-package-changes.outputs.main_version }}"
+          echo "Main version: ${{ needs.detect-event-schema-package-changes.outputs.main_version }}"
+
+          local_version=$(jq -r '.version' packages/events/package.json)
+          echo "Local version: $local_version"
+
+          if ! is_valid_increment "$main_version" "$local_version" ; then
+            echo "Error: Event Schema package has changed, but new version ($local_version) is not a valid increment from latest version on main branch ($main_version)."
+            exit 1
+          fi
+
+  check-event-schemas-version-change:
+    name: Check for event schemas package version change
+    needs: detect-event-schema-package-changes
+    if: needs.detect-event-schema-package-changes.outputs.changed == 'true'
+    outputs:
+      version_changed: ${{ steps.check-version.outputs.version_changed }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Setup NodeJS
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: ${{ inputs.nodejs_version }}
+          registry-url: "https://npm.pkg.github.com"
+
+      - name: check if local version differs from latest published version
+        id: check-version
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          published_version=$(npm view @nhsdigital/nhs-notify-event-schemas-supplier-config --json 2>/dev/null | jq -r '.["dist-tags"].latest // "null"')
+          echo "Published version: $published_version"
+
+          local_version=$(jq -r '.version' packages/events/package.json)
+          echo "Local version: $local_version"
+
+          if [[ $local_version = $published_version ]]; then
+            echo "ERROR: Local version is the same as the latest published version, but event schemas have changed"
+            echo "version_changed=false" >> $GITHUB_OUTPUT
+            exit 1
+          else
+            echo "Local version is different to the latest published version - a new version will be published"
+            echo "version_changed=true" >> $GITHUB_OUTPUT
+          fi

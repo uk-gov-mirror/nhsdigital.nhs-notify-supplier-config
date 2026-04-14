@@ -1,0 +1,140 @@
+name: "Publish supplier config to DynamoDB"
+description: "Reads config from a file store and publishes records to a DynamoDB table."
+author: "NHS Notify"
+
+inputs:
+  source-path:
+    description: "Path to the config store root directory"
+    required: true
+  target-env:
+    description: "Target environment label (e.g. draft/int/prod)"
+    required: true
+  table-name:
+    description: "DynamoDB table name"
+    required: true
+  force:
+    description: "Bypass audit safety checks"
+    required: false
+    default: "false"
+  dry-run:
+    description: "Validate only (no AWS calls). Does not require credentials."
+    required: false
+    default: "false"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Resolve and download ddb-publish bundle
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+        CALLER_REPO: ${{ github.repository }}
+        ACTION_REPO: ${{ github.action_repository }}
+        ACTION_REF: ${{ github.action_ref }}
+        RELEASE_ASSET_NAME: ddb-publish-bundle.tgz
+        WORKFLOW_ARTIFACT_NAME: ddb-publish-bundle
+      run: |
+        set -euo pipefail
+
+        download_dir="${RUNNER_TEMP}/ddb-publish"
+        unpack_dir="${download_dir}/unpacked"
+
+        mkdir -p "${download_dir}" "${unpack_dir}"
+
+        echo "[ddb-publish] caller_repo=${CALLER_REPO}"
+        echo "[ddb-publish] action_repo=${ACTION_REPO}"
+        echo "[ddb-publish] action_ref=${ACTION_REF:-<empty>}"
+
+        if [[ -z "${ACTION_REF}" ]]; then
+          echo "ERROR: github.action_ref is empty; unable to locate release asset or branch artifact." >&2
+          exit 1
+        fi
+
+        if [[ -z "${ACTION_REPO}" ]]; then
+          echo "ERROR: github.action_repository is empty; unable to determine where to fetch bundle artifacts." >&2
+          exit 1
+        fi
+
+        # Prefer release assets when the action ref is a tag with a matching release in the action repo.
+        if gh release view "${ACTION_REF}" --repo "${ACTION_REPO}" >/dev/null 2>&1; then
+          echo "[ddb-publish] Found release for ref '${ACTION_REF}' in '${ACTION_REPO}'. Downloading '${RELEASE_ASSET_NAME}'."
+          gh release download "${ACTION_REF}" --repo "${ACTION_REPO}" --pattern "${RELEASE_ASSET_NAME}" --dir "${download_dir}"
+          tar -xzf "${download_dir}/${RELEASE_ASSET_NAME}" -C "${unpack_dir}"
+          echo "[ddb-publish] Bundle extracted from release asset."
+          exit 0
+        fi
+
+        # Otherwise treat the ref as a branch-like ref and fetch the latest successful CI artifact from the action repo.
+        branch="${ACTION_REF#refs/heads/}"
+        echo "[ddb-publish] No release found for ref '${ACTION_REF}'. Falling back to latest workflow artifact on branch '${branch}' from '${ACTION_REPO}'."
+
+        run_id=""
+        workflow_used=""
+
+        for workflow_file in "stage-3-build.yaml" "cicd-1-pull-request.yaml"; do
+          echo "[ddb-publish] Looking for successful runs in workflow '${workflow_file}'."
+
+          set +e
+          run_id_candidate="$(gh run list \
+            --repo "${ACTION_REPO}" \
+            --workflow "${workflow_file}" \
+            --branch "${branch}" \
+            --status success \
+            --json databaseId \
+            --jq '.[0].databaseId' 2>/tmp/ddb_publish_run_list_err.log)"
+          rc=$?
+          set -e
+
+          if [[ $rc -ne 0 ]]; then
+            if grep -q "HTTP 404" /tmp/ddb_publish_run_list_err.log; then
+              echo "[ddb-publish] Workflow '${workflow_file}' not found on default branch; trying next workflow candidate."
+              continue
+            fi
+
+            echo "ERROR: Failed to query workflow runs from '${ACTION_REPO}' for workflow '${workflow_file}'." >&2
+            cat /tmp/ddb_publish_run_list_err.log >&2 || true
+            echo "HINT: ensure the token has read access to '${ACTION_REPO}' and workflow permissions allow actions read." >&2
+            exit 1
+          fi
+
+          if [[ -n "${run_id_candidate}" && "${run_id_candidate}" != "null" ]]; then
+            run_id="${run_id_candidate}"
+            workflow_used="${workflow_file}"
+            break
+          fi
+        done
+
+        if [[ -z "${run_id}" || "${run_id}" == "null" ]]; then
+          echo "ERROR: Could not find a successful run on branch '${branch}' in '${ACTION_REPO}' containing artifact '${WORKFLOW_ARTIFACT_NAME}'. Checked workflows: stage-3-build.yaml, cicd-1-pull-request.yaml." >&2
+          exit 1
+        fi
+
+        echo "[ddb-publish] Downloading artifact '${WORKFLOW_ARTIFACT_NAME}' from workflow run ${run_id} (${workflow_used}) in '${ACTION_REPO}'."
+        gh run download "${run_id}" --repo "${ACTION_REPO}" --name "${WORKFLOW_ARTIFACT_NAME}" --dir "${download_dir}"
+
+        tarball_path="${download_dir}/${RELEASE_ASSET_NAME}"
+        if [[ ! -f "${tarball_path}" ]]; then
+          echo "ERROR: Downloaded artifact did not contain expected tarball '${RELEASE_ASSET_NAME}'." >&2
+          ls -la "${download_dir}" >&2
+          exit 1
+        fi
+
+        tar -xzf "${tarball_path}" -C "${unpack_dir}"
+        echo "[ddb-publish] Bundle extracted from workflow artifact."
+
+    - name: Run publisher
+      shell: bash
+      run: |
+        set -euo pipefail
+
+        echo "[ddb-publish] Starting publish run"
+        echo "[ddb-publish] source='${{ inputs.source-path }}' env='${{ inputs.target-env }}' table='${{ inputs.table-name }}' force='${{ inputs.force }}' dry-run='${{ inputs.dry-run }}'"
+
+        node "${RUNNER_TEMP}/ddb-publish/unpacked/index.cjs" \
+          --source "${{ inputs.source-path }}" \
+          --env "${{ inputs.target-env }}" \
+          --table "${{ inputs.table-name }}" \
+          $([[ "${{ inputs.force }}" == "true" ]] && echo "--force") \
+          $([[ "${{ inputs.dry-run }}" == "true" ]] && echo "--dry-run")
+
+        echo "[ddb-publish] Publish run completed"

@@ -1,0 +1,7 @@
+{
+  "description": "Simple example volume group for local testing",
+  "id": "vg-1",
+  "name": "Example Volume Group",
+  "startDate": "2026-01-01",
+  "status": "DRAFT"
+}

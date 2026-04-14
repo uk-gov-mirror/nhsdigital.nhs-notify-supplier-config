@@ -1,248 +1,113 @@
-# AI Agent Guide for NHS Notify Supplier Config
+# AGENTS.md
+<!-- vale off -->
 
-This document provides helpful context and commands for AI agents working on this project.
+## Scope
 
-## Project Structure
+This file is for **AI agents** working within NHS Notify repositories.
+Humans should read `README.md` and the docs for how we actually work day to day.
+Keep anything language or tool-specific in nested `AGENTS.md` files (for example under `infrastructure/terraform` or `packages`).
 
-This is a monorepo containing:
+## Repository Layout (high level)
 
-- **packages/events** - Event schemas and domain models using Zod
-- **packages/event-builder** - Tools for parsing Excel specs and generating reports
-- **lambdas/** - Lambda function implementations
-- **infrastructure/** - Terraform infrastructure as code
-- **docs/** - Documentation site
+At a glance, the main areas are:
 
-## Event Builder Package
+- `infrastructure/terraform/` – Terraform components, and shared modules for AWS accounts and environments.
+- `packages/` – Supplier-config libraries, tools, and prototype/support modules.
+- `src/` – Repository-level helper code (for example the Jekyll devcontainer support).
+- `docs/` – Documentation site, ADRs, RFCS, and other long‑form docs.
+- `.github/workflows/` and `.github/actions/` – GitHub Actions workflows and composite actions.
+- `scripts/` – Helper scripts and tooling used by humans and workflows.
+- `tests/` – Cross‑cutting tests and harnesses for the repo.
 
-### Quick Start Commands
+Agents should look for a nested `AGENTS.md` in or near these areas before making non‑trivial changes.
 
-```bash
-# Navigate to event-builder
-cd packages/event-builder
+## Root package.json – role and usage
 
-# Run tests
-npm test
+The root `package.json` is the orchestration manifest for this repo. It does not ship application code; it wires up shared dev tooling and delegates to workspace-level projects.
 
-# Generate supplier reports from Excel file
-npm run cli:report -- -f specifications.xlsx
+- Workspaces: The root workspace list currently uses the glob `packages/*`. New npm projects under that directory will be discovered automatically once they have a valid `package.json`; projects elsewhere still need an explicit workspace entry.
+- Scripts: Provides top-level commands that fan out across workspaces using `--workspaces` (lint, typecheck, unit tests) plus shared helpers such as `generate-dependencies`.
+- Dev tool dependencies: Centralises Jest, TypeScript, ESLint configurations and plugins to keep versions consistent across workspaces. Workspace projects should rely on these unless a local override is strictly needed.
+- Overrides/resolutions: Pins transitive dependencies (e.g. Jest/react-is) to avoid ecosystem conflicts. Agents must not remove overrides without verifying tests across all workspaces.
 
-# Generate reports with custom output directory
-npm run cli:report -- -f specifications.xlsx -o ./output
+Agent guidance:
 
-# Populate DynamoDB with events
-npm run cli:dynamodb -- -f specifications.xlsx
+- Before adding or removing a workspace, update the root `workspaces` array and ensure CI scripts still succeed with `npm run lint`, `npm run typecheck`, and `npm run test:unit` at the repo root.
+- When adding repo-wide scripts, keep names consistent with existing patterns (e.g. `lint`, `lint:fix`, `typecheck`, `test:unit`, `generate-dependencies`) and prefer `--workspaces` fan-out.
+- Do not publish from the root. If adding a new workspace intended for publication, mark that workspace package as `private: false` and keep the root as private.
+- Validate changes by running the repo pre-commit hooks: `make githooks-run`.
 
-# Generate CloudEvents
-npm run cli:events -- -f specifications.xlsx
-```
+Success criteria for changes affecting the root `package.json`:
 
-### Excel File Structure
+- `npm run lint`, `npm run typecheck`, and `npm run test:unit` pass at the repo root.
+- Workspace discovery is correct (new projects appear under `npm run typecheck --workspaces`).
+- Workspace discovery is still correct for the existing wildcard entries and any newly added explicit workspace entries.
 
-The `specifications.xlsx` file contains sheets:
+## What Agents Can / Can’t Do
 
-- **PackSpecification** - Pack specifications with postage, assembly, constraints
-- **LetterVariant** - Letter variants referencing pack specs
-- **VolumeGroup** - Volume groups (contracts)
-- **Supplier** - Supplier definitions
-- **SupplierAllocation** - Supplier allocations to volume groups
-- **SupplierPack** - Supplier pack approvals and status
+Agents **can**:
 
-See `EXCEL_HEADERS.md` for detailed field documentation.
+- Propose changes to code, tests, GitHub workflows, Terraform, and docs.
+- Suggest new scripts, Make targets, or composite actions by copying existing patterns.
+- Run tests to validate proposed solutions.
 
-### Supplier Reports
+Agents **must not**:
 
-HTML reports are generated per supplier showing:
+- Create, push, or merge branches or PRs.
+- Introduce new technologies, providers, or big architectural patterns without clearly calling out that an ADR is needed.
+- Invent secrets or hard‑code real credentials anywhere.
 
-- Assigned pack specifications
-- Table of Contents with two sections:
-  - **Submitted & Approved Packs**: Packs with approval status SUBMITTED, PROOF_RECEIVED, APPROVED, REJECTED, or DISABLED
-  - **Draft Packs**: Packs with approval status DRAFT
-- Both sections are sorted by pack specification ID
-- Approval status and environment status
-- Full pack details with tooltips from schema metadata
-- Volume group allocations
+## Working With This Repo
 
-**Location**: `packages/event-builder/supplier-reports/`
+- Use `make config` for common repo setup (notably git hooks and docs dependencies). For JavaScript package work you will usually also need a root `npm ci` or a package-local install.
+- **Don’t guess commands.** Derive them from what’s already here or ask for guidance from the human user:
+  - Prefer `Makefile` targets, `scripts/`, `.github/workflows/`, and `.github/actions/`.
+- For Terraform, follow `infrastructure/terraform/{components,modules}` and respect `versions.tf`.
+- Keep diffs small and focused. Avoid mixing refactors with behaviour changes unless you explain why.
 
-**Tooltips**: The reports use schema metadata from Zod `.meta()` calls to provide context-sensitive tooltips on hover for fields like:
+## Quality Expectations
 
-- Version number
-- Delivery days
-- Max weight/thickness
-- Paper colour options
+When proposing a change, agents should:
 
-### Testing
+- Keep code formatted and idiomatic (Terraform, TypeScript, Bash, YAML).
+- Stick to existing patterns where available (for example established package conventions under `packages/`, plus composite actions under `.github/actions`).
+- Use available information on best practices within the specific area of the codebase.
+- **Always** run local pre-commit hooks from the repo root with:
 
-```bash
-# Run all tests
-npm test
+  ```sh
+    pre-commit run \
+    --config scripts/config/pre-commit.yaml
+  ```
 
-# Run tests in watch mode
-npm test -- --watch
+  to catch formatting and basic lint issues. Domain specific checks will be defined in appropriate nested AGENTS.md files.
 
-# Run specific test file
-npm test -- parse-excel.test.ts
-```
+- When editing Markdown files, also run `./scripts/githooks/check-markdown-format.sh <file>` (or `check=all ./scripts/githooks/check-markdown-format.sh <file>` when needed) to catch markdownlint issues before review.
+- Suggest at least one extra validation step (for example `npm test` in a lambda, or triggering a specific workflow).
+- Any required follow up activites which fall outside of the current task's scope should be clearly marked with a 'TODO: CCM-12345' comment. The human user should be prompted to create and provide a JIRA ticket ID to be added to the comment.
 
-## Schema Metadata System
+## Security & Safety
 
-### How Tooltips Work
+- All agent-generated changes **must** be reviewed and merged by a human.
+- Provide a concise, clear summary of the proposed changes to make human review easier (what changed, why (refer directly to the guidance in relevant Agents.MD files when applicable), and how it was validated). It should be directly pastable into the PR description and make it clear that AI assistance was used.
+- Never output real secrets or tokens. Use placeholders and rely on the GitHub/AWS secrets already wired into workflows.
 
-1. Domain schemas define metadata using `.meta()`:
+## Escalation / Blockers
 
-   ```typescript
-   deliveryDays: z.number().optional().meta({
-     title: "Delivery Days",
-     description: "The expected number of days for delivery under this postage option."
-   })
-   ```
+If you are blocked by an unavailable secret, unclear architectural constraint, missing upstream module, or failing tooling you cannot safely fix, stop and ask a single clear clarifying question rather than guessing.
 
-2. The `.meta()` method automatically registers metadata in Zod's global registry
+## `nhs-notify-supplier-config` repo-specific notes
 
-3. Retrieve metadata using `.meta()` without arguments:
-
-   ```typescript
-   const description = $Postage.shape.deliveryDays.meta()?.description;
-   ```
-
-4. Supplier reports use `data-tooltip` attributes to display custom CSS tooltips (not browser default `title` tooltips)
-
-### Key Schema Files
-
-- `packages/events/src/domain/pack-specification.ts` - Main pack spec schema
-- `packages/events/src/domain/letter-variant.ts` - Letter variant schema
-- `packages/events/src/domain/common.ts` - Common types (EnvironmentStatus, etc.)
-
-## Common Tasks
-
-### Updating Field Names
-
-1. Update domain schema in `packages/events/src/domain/`
-2. Update Excel parsing in `packages/event-builder/src/lib/parse-excel.ts`
-3. Update supplier reports in `packages/event-builder/src/lib/supplier-report.ts`
-4. Update `EXCEL_HEADERS.md` documentation
-5. Update test files in `__tests__/` directories
-6. Run tests: `npm test`
-
-### Adding New Tooltips
-
-1. Add `.meta()` to schema field:
-
-   ```typescript
-   fieldName: z.string().meta({
-     title: "Display Title",
-     description: "Tooltip text shown on hover"
-   })
-   ```
-
-2. In supplier-report.ts, access metadata:
-
-   ```typescript
-   $Schema.shape.fieldName.meta()?.description
-   ```
-
-3. Use in HTML with `data-tooltip` attribute and `has-tooltip` class
-
-### Editing Markdown Files
-
-When editing markdown files (`.md`), always run the markdown linter to ensure formatting compliance:
-
-```bash
-# Check a specific markdown file
-./scripts/githooks/check-markdown-format.sh AGENTS.md
-
-# Check with all rules enabled
-check=all ./scripts/githooks/check-markdown-format.sh README.md
-```
-
-Common markdown rules to follow:
-
-- Add blank lines before and after lists
-- Add blank lines before and after fenced code blocks
-- Use angle brackets for bare URLs: `<https://example.com>`
-- Keep consistent list markers and indentation
-
-### Debugging Excel Parsing
-
-If Excel parsing fails:
-
-1. Check sheet names match expected names (case-sensitive)
-2. Verify required columns exist in `parse-excel.ts` interfaces
-3. Check data types (dates, numbers, enums)
-4. Run with debugger: `node --inspect-brk node_modules/.bin/ts-node src/cli/events.ts`
-
-## Workspace Commands
-
-```bash
-# Install all dependencies
-npm install
-
-# Run tests for specific workspace
-npm test --workspace=packages/events
-npm test --workspace=packages/event-builder
-
-# Build all packages
-npm run build --workspaces
-
-# Lint all code
-npm run lint
-
-# Check markdown formatting
-./scripts/githooks/check-markdown-format.sh <file>
-
-# Check markdown formatting for all files
-check=all ./scripts/githooks/check-markdown-format.sh <file>
-```
-
-## Helpful Links
-
-- Zod documentation: <https://zod.dev>
-- Zod 4 metadata: Use `.meta()` with/without arguments
-- CloudEvents spec: <https://cloudevents.io>
-
-## Troubleshooting
-
-### "Input file not found" Error
-
-The default Excel file path is `example_specifications.xlsx`. Use `-f` flag to specify:
-
-```bash
-npm run cli:report -- -f specifications.xlsx
-```
-
-### "Sheet not found" Error
-
-Check that the Excel file has all required sheets:
-
-- PackSpecification
-- LetterVariant
-- VolumeGroup
-- Supplier
-- SupplierAllocation
-- SupplierPack
-
-### Validation Errors
-
-Check the error output for specific Zod validation failures. Common issues:
-
-- Invalid enum values (e.g., using "PUBLISHED" instead of "PROD")
-- Missing required fields
-- Wrong data types (string vs number)
-- Invalid date formats
-
-### Tooltips Not Showing
-
-1. Check if field has `.meta({ description: "..." })` in schema
-2. Verify `data-tooltip` attribute is in HTML
-3. Verify `has-tooltip` class is applied
-4. Check browser console for CSS errors
-
-## Agent Notes
-
-- The project uses Zod 4.x for schema validation
-- Metadata is stored in Zod's global registry via `.meta()`
-- Excel parsing is forgiving - missing optional fields are handled gracefully
-- Reports are regenerated from scratch each time (not incremental)
-- CSS tooltips use `data-tooltip` to avoid duplicate browser tooltips
-- Test files should be updated whenever domain models change
-- Always run markdown linter when editing `.md` files to catch formatting issues
+- Template sync workflows and helper scripts may use `nhs-notify-repository-template/` as a temporary upstream checkout path. Treat it as sync/reference material rather than normal product code if it appears during maintenance work.
+- The main application and domain work in this repo is concentrated under `packages/`. Use local `README` files, manifests, and tests there to understand package-specific behaviour before making non-trivial changes.
+- Schema and event payload work is concentrated in `packages/events/`, with CloudEvent construction in `packages/event-builder/`. When changing schemas under `packages/events/src/domain/` or `packages/events/src/events/`, update any affected builders and Jest tests in both workspaces.
+- Supplier-config schemas use Zod 4 `.meta()` metadata for field titles/descriptions and generated artefacts. Preserve or update that metadata when changing schema fields, and rerun the relevant `packages/events/` generators when outputs change.
+- Important repo data inputs live at the top level and under `packages/ui/data/`, especially `specifications.json`, `specifications.xlsx`, and `letterVariants.csv`. Treat these as source material for supplier configuration work and preserve their formats unless the task explicitly changes them.
+- `make build` currently builds the Jekyll docs site (`docs/`); it is not a full monorepo build for the supplier-config packages.
+- CI currently still includes some template-era scaffolding. In particular, root workspace scripts and some `make test-*` paths do not yet cover every directory under `packages/`, so validate the specific package or area you changed directly as well as running the standard repo hooks.
+- Suggested extra validation by area:
+  - `packages/events/`: run focused scripts such as `npm run test:unit --workspace=@nhsdigital/nhs-notify-event-schemas-supplier-config`, plus generators when schema outputs or derived artefacts are affected.
+  - `packages/event-builder/`: run `npm run test:unit --workspace=@supplier-config/event-builder` and `npm run typecheck --workspace=@supplier-config/event-builder` when changing event builder logic.
+  - `packages/`: run the changed package's local scripts (for example tests, typecheck, or generators) in addition to repo-level hooks.
+  - `docs/`: run `(cd docs && make build)` when changing Jekyll content or templates.
+  - root config/docs guidance: run `pre-commit run --config scripts/config/pre-commit.yaml` from the repo root.
+- If you touch the root `package.json`, verify that the workspace globs and script fan-out still match the repo layout. Avoid incidental “tidying” unless the task requires it and you can validate the downstream impact.

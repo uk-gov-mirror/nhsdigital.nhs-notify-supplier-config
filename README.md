@@ -30,13 +30,9 @@ Configuration changes are validated, auditable, and published to environments vi
 
 ## Packages
 
-This branch contains the core packages:
-
 ### Core Libraries
 
 - **`@supplier-config/event-builder`** - Builds CloudEvents from domain objects (LetterVariant, PackSpecification, Supplier, VolumeGroup, SupplierAllocation, SupplierPack)
-
-### Schema Package
 
 - **`@nhsdigital/nhs-notify-event-schemas-supplier-config`** - Domain models and event schemas (Zod)
 

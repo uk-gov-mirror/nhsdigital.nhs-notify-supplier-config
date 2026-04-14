@@ -1,17 +1,17 @@
-// eslint-disable-next-line import-x/no-extraneous-dependencies
 import { generateMermaidDiagram } from "zod-mermaid";
 import fs from "node:fs";
 import path from "node:path";
 import { z } from "zod";
 import {
-  $VolumeGroup, $Envelope,
+  $Envelope,
   $LetterVariant,
-  $PackSpecification, $Supplier,
+  $PackSpecification,
+  $Supplier,
   $SupplierAllocation,
-  $SupplierPack, $Constraint,
+  $SupplierPack,
+  $VolumeGroup,
 } from "../domain";
 
-// eslint-disable-next-line security/detect-non-literal-fs-filename
 const out = fs.openSync(`${path.dirname(__filename)}/../domain/erd.md`, "w");
 
 fs.writeSync(

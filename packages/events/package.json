@@ -1,9 +1,10 @@
 {
   "author": "",
   "dependencies": {
+    "@asyncapi/bundler": "^0.6.4",
     "zod": "^4.1.12"
   },
-  "description": "Schemas for NHS Notify configuration",
+  "description": "Schemas for NHS Notify supplier configuration",
   "devDependencies": {
     "@types/jest": "^29.5.14",
     "@types/node": "^22.13.4",
@@ -23,13 +24,20 @@
     "build": "tsc -p ./tsconfig.build.json",
     "dev": "ts-node src/index.ts",
     "examples": "ts-node src/examples/specification-examples.ts",
+    "gen:asyncapi": "mkdir -p ./dist/asyncapi && ts-node src/cli/bundle-asyncapi.ts",
     "gen:erd": "ts-node src/cli/generate-erd.ts",
-    "gen:json": "ts-node src/cli/generate-json.ts",
-    "prepare": "npm run build",
+    "gen:jsonschema": "ts-node src/cli/generate-json.ts",
+    "lint:schema": "spectral lint client-config/client-config.yaml",
+    "prebuild": "rm -rf dist && npm run gen:asyncapi",
+    "pregen:asyncapi": "npm run gen:jsonschema",
+    "pregen:jsonschema": "rm -rf ./client-config/json",
+    "prelint:schema": "npm run gen:jsonschema",
+    "prepublishOnly": "npm run build",
+    "pretest:unit": "npm run gen:jsonschema",
     "start": "node dist/index.js",
     "test": "jest",
     "test:unit": "jest"
   },
   "types": "dist/index.d.ts",
-  "version": "1.0.0"
+  "version": "1.0.2"
 }

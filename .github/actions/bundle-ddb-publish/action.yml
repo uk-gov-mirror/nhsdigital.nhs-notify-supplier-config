@@ -1,0 +1,65 @@
+name: "Bundle ddb-publish"
+description: "Build and package the ddb-publish release bundle (ddb-publish-bundle.tgz) from the workspace sources."
+
+inputs:
+  node-version:
+    description: "Node.js version to use"
+    required: true
+  run-typecheck:
+    description: "Run workspace typecheck before bundling"
+    required: false
+    default: "true"
+
+outputs:
+  tarball-path:
+    description: "Path to the generated tarball"
+    value: ${{ steps.bundle.outputs.tarball_path }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set up Node.js
+      uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+      with:
+        node-version: "${{ inputs.node-version }}"
+        cache: npm
+
+    - name: Install dependencies
+      shell: bash
+      run: |
+        set -euo pipefail
+        npm ci
+
+    - name: Generate dependencies
+      shell: bash
+      run: |
+        set -euo pipefail
+        npm run generate-dependencies --workspaces --if-present
+
+    - name: Typecheck
+      if: inputs.run-typecheck == 'true'
+      shell: bash
+      run: |
+        set -euo pipefail
+        npm run typecheck --workspaces --if-present
+
+    - name: Build ddb-publish bundle
+      shell: bash
+      run: |
+        set -euo pipefail
+        npm run bundle:release --workspace @supplier-config/ddb-publisher
+
+    - name: Smoke-test bundle
+      shell: bash
+      run: |
+        set -euo pipefail
+        node packages/ddb-publisher/artifacts/ddb-publish/index.cjs --help > /dev/null
+
+    - name: Package tarball
+      id: bundle
+      shell: bash
+      run: |
+        set -euo pipefail
+        tarball="ddb-publish-bundle.tgz"
+        tar -czf "$tarball" -C packages/ddb-publisher/artifacts/ddb-publish .
+        echo "tarball_path=$tarball" >> "$GITHUB_OUTPUT"

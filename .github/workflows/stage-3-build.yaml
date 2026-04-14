@@ -39,18 +39,40 @@ jobs:
     timeout-minutes: 3
     steps:
       - name: "Checkout code"
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - name: "Build docs"
         uses: ./.github/actions/build-docs
         with:
           version: "${{ inputs.version }}"
+
+  ddb-publish-bundle:
+    name: "Bundle ddb-publish CLI"
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: "Checkout code"
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: "Bundle ddb-publish"
+        id: bundle
+        uses: ./.github/actions/bundle-ddb-publish
+        with:
+          node-version: "${{ inputs.nodejs_version }}"
+          run-typecheck: "false"
+
+      - name: "Upload bundle as workflow artifact"
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v5
+        with:
+          name: ddb-publish-bundle
+          path: "${{ steps.bundle.outputs.tarball-path }}"
+
   artefact-1:
     name: "Artefact 1"
     runs-on: ubuntu-latest
     timeout-minutes: 3
     steps:
       - name: "Checkout code"
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - name: "Build artefact 1"
         run: |
           echo "Building artefact 1 ..."
@@ -60,14 +82,14 @@ jobs:
       - name: "Upload artefact 1"
         run: |
           echo "Uploading artefact 1 ..."
-          # TODO: Use either action/cache or action/upload-artifact
+          # Use either action/cache or action/upload-artifact
   artefact-n:
     name: "Artefact n"
     runs-on: ubuntu-latest
     timeout-minutes: 3
     steps:
       - name: "Checkout code"
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - name: "Build artefact n"
         run: |
           echo "Building artefact n ..."
@@ -77,4 +99,4 @@ jobs:
       - name: "Upload artefact n"
         run: |
           echo "Uploading artefact n ..."
-          # TODO: Use either action/cache or action/upload-artifact
+          # Use either action/cache or action/upload-artifact

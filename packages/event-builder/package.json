@@ -18,6 +18,7 @@
     "build": "tsc",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
+    "pretypecheck": "[ -f ../events/dist/index.d.ts ] || tsc -p ../events/tsconfig.build.json",
     "test": "jest",
     "test:unit": "jest",
     "typecheck": "tsc --noEmit"

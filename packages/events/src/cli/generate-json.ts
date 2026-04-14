@@ -43,7 +43,6 @@ function generateJsonSchema(
     target: "openapi-3.0",
     reused: "ref",
   });
-  // eslint-disable-next-line security/detect-non-literal-fs-filename
   fs.writeFileSync(outputPath, JSON.stringify(jsonSchema, null, 2));
   console.info(`Wrote JSON schema for ${schemaName} to ${outputPath}`);
 }

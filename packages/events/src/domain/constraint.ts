@@ -4,8 +4,15 @@ export const $Constraint = z
   .object({
     value: z.number(),
     operator: z
-      .enum(["EQUALS", "NOT_EQUALS", "GREATER_THAN", "LESS_THAN"])
-      .default("LESS_THAN"),
+      .enum([
+        "EQUALS",
+        "NOT_EQUALS",
+        "GREATER_THAN",
+        "LESS_THAN",
+        "GREATER_THAN_OR_EQUAL",
+        "LESS_THAN_OR_EQUAL",
+      ])
+      .default("LESS_THAN_OR_EQUAL"),
   })
   .meta({
     title: "Constraint",

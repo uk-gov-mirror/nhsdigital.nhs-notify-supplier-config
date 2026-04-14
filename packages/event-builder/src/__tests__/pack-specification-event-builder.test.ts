@@ -11,6 +11,7 @@ describe("pack-specification-event-builder", () => {
     createdAt: "2024-01-01T00:00:00.000Z",
     updatedAt: "2024-01-01T00:00:00.000Z",
     version: 1,
+    billingId: "TEST-BILLING-001",
     postage: { id: "postage-test" as any, size: "STANDARD" },
   } satisfies Omit<PackSpecification, "id">;
 
