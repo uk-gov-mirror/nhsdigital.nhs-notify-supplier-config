@@ -14,6 +14,7 @@ jest.mock("@nhsdigital/nhs-notify-event-schemas-supplier-config", () => {
     }),
     $LetterVariant: z.object({
       id: z.string(),
+      priority: z.number().int().min(1).max(99).default(50),
       packSpecificationIds: z.array(z.string()).min(1),
     }),
     $PackSpecification: z.object({
@@ -154,6 +155,7 @@ describe("validateConfigStore", () => {
       records: [
         makeRecord("letter-variant", "lv-1", {
           id: "lv-1",
+          priority: 10,
           packSpecificationIds: [123],
         }),
       ],
@@ -161,6 +163,29 @@ describe("validateConfigStore", () => {
 
     expect(result.ok).toBe(false);
     expect(result.issues[0]?.path).toEqual(["packSpecificationIds", 0]);
+  });
+
+  it("should reject letter variant priority values outside the allowed range", () => {
+    const result = validateConfigStore({
+      rootPath: mockRootPath,
+      records: [
+        makeRecord("letter-variant", "lv-1", {
+          id: "lv-1",
+          priority: 100,
+          packSpecificationIds: ["pack-spec-1"],
+        }),
+      ],
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.issues).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          entity: "letter-variant",
+          path: ["priority"],
+        }),
+      ]),
+    );
   });
 
   it("should return ok=true with no issues when all records are valid", () => {
