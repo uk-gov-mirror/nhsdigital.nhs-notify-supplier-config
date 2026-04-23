@@ -203,6 +203,21 @@ describe("writeParseResultToConfigStore", () => {
       await expect(readFile(packFile, "utf8")).resolves.toContain(
         '  "billingId": "BILL-001"',
       );
+      await expect(readFile(packFile, "utf8")).resolves.toBe(`{
+  "billingId": "BILL-001",
+  "createdAt": "2026-01-01T00:00:00.000Z",
+  "description": "Basic pack specification for local testing",
+  "id": "pack-spec-1",
+  "name": "Standard Letter Pack",
+  "postage": {
+    "deliveryDays": 2,
+    "id": "postage-standard",
+    "size": "STANDARD"
+  },
+  "status": "DRAFT",
+  "updatedAt": "2026-01-01T00:00:00.000Z",
+  "version": 1
+}\n`);
     } finally {
       await rm(outputDir, { recursive: true, force: true });
     }

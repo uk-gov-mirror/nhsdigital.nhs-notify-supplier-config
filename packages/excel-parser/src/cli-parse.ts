@@ -4,6 +4,7 @@ import path from "node:path";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 import { writeParseResultToConfigStore } from "./config-store-output";
+import { stringifyJsonWithSortedKeys } from "./json-output";
 import { parseExcelFile } from "./parse-excel";
 
 interface Arguments {
@@ -88,9 +89,10 @@ async function main() {
     const result = parseExcelFile(resolvedInput);
 
     // Format the output
-    const jsonOutput = pretty
-      ? JSON.stringify(result, null, 2)
-      : JSON.stringify(result);
+    const jsonOutput = stringifyJsonWithSortedKeys(
+      result,
+      pretty ? 2 : undefined,
+    );
 
     if (outputDir) {
       const resolvedOutputDir = path.isAbsolute(outputDir)

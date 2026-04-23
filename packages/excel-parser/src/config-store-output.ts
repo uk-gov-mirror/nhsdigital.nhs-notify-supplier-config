@@ -1,6 +1,7 @@
 import { mkdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 
+import { stringifyJsonWithSortedKeys } from "./json-output";
 import type { ParseResult } from "./parse-excel";
 
 type ConfigStoreEntityDirectory =
@@ -140,7 +141,7 @@ export async function writeParseResultToConfigStore(
         entity,
         `${encodeRecordIdForFileName(id)}.json`,
       );
-      const serialized = `${JSON.stringify(data, null, jsonSpacing)}\n`;
+      const serialized = `${stringifyJsonWithSortedKeys(data, jsonSpacing)}\n`;
 
       // eslint-disable-next-line security/detect-non-literal-fs-filename
       await writeFile(outputFile, serialized, "utf8");

@@ -59,6 +59,8 @@ The JSON output contains the following top-level keys:
 - `allocations` - Record of SupplierAllocation objects keyed by ID
 - `supplierPacks` - Record of SupplierPack objects keyed by ID
 
+Object keys are written in sorted order to keep generated JSON deterministic across runs.
+
 #### Parse Excel to a file-store directory
 
 When `--output-dir` is used, the parser writes one JSON file per record using the directory names expected by the file-store package:
