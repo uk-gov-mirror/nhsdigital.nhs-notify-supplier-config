@@ -102,6 +102,7 @@ export function generateTemplateExcel(out: string, force = false): string {
     "id",
     "packSpecificationId",
     "supplierId",
+    "approval",
     "status",
   ]);
 
