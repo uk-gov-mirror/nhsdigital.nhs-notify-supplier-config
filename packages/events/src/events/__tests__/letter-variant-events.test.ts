@@ -28,6 +28,7 @@ describe("LetterVariant Events", () => {
         description: "A standard letter variant for general correspondence",
         volumeGroupId: "supplier-framework-123",
         type: "STANDARD",
+        priority: 10,
         status: "PROD",
         packSpecificationIds: ["bau-standard-c5", "bau-standard-c4"],
       },
@@ -68,6 +69,7 @@ describe("LetterVariant Events", () => {
           name: "Braille Letter Variant",
           volumeGroupId: "supplier-framework-123",
           type: "BRAILLE",
+          priority: 20,
           status: "PROD",
           packSpecificationIds: ["braille"],
         },
@@ -85,6 +87,7 @@ describe("LetterVariant Events", () => {
           name: "Audio Letter Variant",
           volumeGroupId: "supplier-framework-123",
           type: "AUDIO",
+          priority: 30,
           status: "PROD",
           packSpecificationIds: ["audio"],
         },
@@ -166,6 +169,86 @@ describe("LetterVariant Events", () => {
         data: {
           ...validProdEvent.data,
           type: "INVALID_TYPE",
+        },
+      };
+
+      const result = $LetterVariantEvent.safeParse(invalidEvent);
+      expect(result.success).toBe(false);
+    });
+
+    it("should reject event with non-integer priority", () => {
+      const invalidEvent = {
+        ...validProdEvent,
+        data: {
+          ...validProdEvent.data,
+          priority: 1.5,
+        },
+      };
+
+      const result = $LetterVariantEvent.safeParse(invalidEvent);
+      expect(result.success).toBe(false);
+    });
+
+    it("should default priority to 50 when omitted", () => {
+      const { priority, ...dataWithoutPriority } = validProdEvent.data;
+      expect(priority).toBe(10);
+      const eventWithoutPriority = {
+        ...validProdEvent,
+        data: dataWithoutPriority,
+      };
+
+      const result = $LetterVariantEvent.safeParse(eventWithoutPriority);
+      expect(result.success).toBe(true);
+      expect(result.data?.data.priority).toBe(50);
+    });
+
+    it("should validate priority at the highest boundary value", () => {
+      const eventAtHighestPriority = {
+        ...validProdEvent,
+        data: {
+          ...validProdEvent.data,
+          priority: 1,
+        },
+      };
+
+      const result = $LetterVariantEvent.safeParse(eventAtHighestPriority);
+      expect(result.success).toBe(true);
+      expect(result.data?.data.priority).toBe(1);
+    });
+
+    it("should validate priority at the lowest boundary value", () => {
+      const eventAtLowestPriority = {
+        ...validProdEvent,
+        data: {
+          ...validProdEvent.data,
+          priority: 99,
+        },
+      };
+
+      const result = $LetterVariantEvent.safeParse(eventAtLowestPriority);
+      expect(result.success).toBe(true);
+      expect(result.data?.data.priority).toBe(99);
+    });
+
+    it("should reject priority lower than the allowed range", () => {
+      const invalidEvent = {
+        ...validProdEvent,
+        data: {
+          ...validProdEvent.data,
+          priority: 0,
+        },
+      };
+
+      const result = $LetterVariantEvent.safeParse(invalidEvent);
+      expect(result.success).toBe(false);
+    });
+
+    it("should reject priority higher than the allowed range", () => {
+      const invalidEvent = {
+        ...validProdEvent,
+        data: {
+          ...validProdEvent.data,
+          priority: 100,
         },
       };
 
@@ -290,6 +373,7 @@ describe("LetterVariant Events", () => {
         name: "Disabled Letter Variant",
         volumeGroupId: "supplier-framework-123",
         type: "STANDARD",
+        priority: 15,
         status: "INT",
         packSpecificationIds: ["bau-standard-c5"],
       },
@@ -350,6 +434,7 @@ describe("LetterVariant Events", () => {
         description: "A letter variant that has been disabled",
         volumeGroupId: "supplier-framework-123",
         type: "STANDARD",
+        priority: 15,
         status: "DISABLED",
         packSpecificationIds: ["bau-standard-c5"],
       },
