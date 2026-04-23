@@ -243,11 +243,15 @@ jobs:
         run: |
           git fetch origin main
 
-          if git diff --quiet origin/main...HEAD -- packages/events; then
+          changed_files=$(git diff --name-only origin/main...HEAD -- packages/events)
+          non_test_changes=$(printf '%s\n' "$changed_files" | grep -Ev '(^|/)(__tests__|tests)(/|$)' || true)
+
+          if [[ -z "$non_test_changes" ]]; then
             echo "No changes in event schemas package"
             echo "changed=false" >> $GITHUB_OUTPUT
           else
             echo "Changes detected in event schemas"
+            echo "$non_test_changes"
             echo "changed=true" >> $GITHUB_OUTPUT
           fi
 
