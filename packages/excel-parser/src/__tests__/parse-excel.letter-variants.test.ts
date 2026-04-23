@@ -30,11 +30,11 @@ describe("parse-excel letter variants", () => {
       ],
     });
 
-    expect(result.packs.pack1.postage.id).toBe("postage-standard");
-    expect(result.packs.pack1.postage.size).toBe("STANDARD");
-    expect(result.packs.pack2.postage.id).toBe("postage-large");
-    expect(result.packs.pack2.postage.size).toBe("LARGE");
-    expect(result.variants.variant1.packSpecificationIds).toEqual([
+    expect(result.packs["pack-1"]?.postage.id).toBe("postage-standard");
+    expect(result.packs["pack-1"]?.postage.size).toBe("STANDARD");
+    expect(result.packs["pack-2"]?.postage.id).toBe("postage-large");
+    expect(result.packs["pack-2"]?.postage.size).toBe("LARGE");
+    expect(result.variants["variant-1"]?.packSpecificationIds).toEqual([
       "pack-1",
       "pack-2",
     ]);
@@ -54,7 +54,7 @@ describe("parse-excel letter variants", () => {
       ],
     });
 
-    expect(result.variants.variantwithconstraints.constraints).toEqual({
+    expect(result.variants["variant-with-constraints"]?.constraints).toEqual({
       sheets: { value: 8, operator: "LESS_THAN" },
       deliveryDays: { value: 3, operator: "LESS_THAN" },
     });
@@ -88,8 +88,8 @@ describe("parse-excel letter variants", () => {
       ],
     });
 
-    expect(result.variants.variantwithids.clientId).toBe("client-123");
-    expect(result.variants.variantwithids.campaignIds).toEqual([
+    expect(result.variants["variant-with-ids"]?.clientId).toBe("client-123");
+    expect(result.variants["variant-with-ids"]?.campaignIds).toEqual([
       "campaign-1",
       "campaign-2",
       "campaign-3",
@@ -109,7 +109,7 @@ describe("parse-excel letter variants", () => {
       ],
     });
 
-    expect(result.variants.variantwithsupplier.supplierId).toBe(
+    expect(result.variants["variant-with-supplier"]?.supplierId).toBe(
       "supplier-printco",
     );
   });
@@ -143,7 +143,7 @@ describe("parse-excel letter variants", () => {
       ],
     });
 
-    expect(result.variants.variantpriority.priority).toBe(12);
+    expect(result.variants["variant-priority"]?.priority).toBe(12);
   });
 
   it("uses the LetterVariant priority default when omitted", () => {
@@ -174,7 +174,7 @@ describe("parse-excel letter variants", () => {
       ],
     });
 
-    expect(result.variants.variantdefaultpriority.priority).toBe(50);
+    expect(result.variants["variant-default-priority"]?.priority).toBe(50);
   });
 
   it("uses the LetterVariant priority default when the Excel cell is blank", () => {
@@ -206,7 +206,7 @@ describe("parse-excel letter variants", () => {
       ],
     });
 
-    expect(result.variants.variantblankpriority.priority).toBe(50);
+    expect(result.variants["variant-blank-priority"]?.priority).toBe(50);
   });
 
   it("throws when LetterVariant priority is outside the allowed range", () => {
@@ -253,7 +253,9 @@ describe("parse-excel letter variants", () => {
       ],
     });
 
-    expect(result.variants.variantnodesc.description).toBe("My Variant Name");
+    expect(result.variants["variant-no-desc"]?.description).toBe(
+      "My Variant Name",
+    );
   });
 
   it("throws on empty packSpecificationIds", () => {
@@ -299,7 +301,9 @@ describe("parse-excel letter variants", () => {
       ],
     });
 
-    expect(result.variants.variantnoconstraints.constraints).toBeUndefined();
+    expect(
+      result.variants["variant-no-constraints"]?.constraints,
+    ).toBeUndefined();
   });
 
   it("trims spaces in campaignIds and packSpecificationIds", () => {
@@ -337,11 +341,11 @@ describe("parse-excel letter variants", () => {
       ],
     });
 
-    expect(result.variants.variantspace.packSpecificationIds).toEqual([
+    expect(result.variants["variant-space"]?.packSpecificationIds).toEqual([
       "pack-space-1",
       "pack-space-2",
     ]);
-    expect(result.variants.variantspace.campaignIds).toEqual([
+    expect(result.variants["variant-space"]?.campaignIds).toEqual([
       "campaign-1",
       "campaign-2",
     ]);
@@ -361,7 +365,7 @@ describe("parse-excel letter variants", () => {
       ],
     });
 
-    expect(result.variants.variantwithsides.constraints).toEqual({
+    expect(result.variants["variant-with-sides"]?.constraints).toEqual({
       sheets: { value: 8, operator: "LESS_THAN" },
       sides: { value: 16, operator: "LESS_THAN" },
       deliveryDays: { value: 3, operator: "LESS_THAN" },

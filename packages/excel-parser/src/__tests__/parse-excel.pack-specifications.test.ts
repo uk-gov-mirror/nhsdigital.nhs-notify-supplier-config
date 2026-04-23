@@ -57,7 +57,7 @@ describe("parse-excel pack specifications", () => {
       variants: [],
     });
 
-    expect(result.packs.packwithconstraints.constraints).toEqual({
+    expect(result.packs["pack-with-constraints"]?.constraints).toEqual({
       sheets: { value: 10, operator: "LESS_THAN" },
       deliveryDays: { value: 5, operator: "LESS_THAN" },
       blackCoveragePercentage: { value: 80.5, operator: "LESS_THAN" },
@@ -78,7 +78,7 @@ describe("parse-excel pack specifications", () => {
       variants: [],
     });
 
-    expect(result.packs.packwithdescription.description).toBe(
+    expect(result.packs["pack-with-description"]?.description).toBe(
       "A standard economy-class letter for bulk mailings",
     );
   });
@@ -95,7 +95,9 @@ describe("parse-excel pack specifications", () => {
       variants: [],
     });
 
-    expect(result.packs.packwithoutdescription.description).toBeUndefined();
+    expect(
+      result.packs["pack-without-description"]?.description,
+    ).toBeUndefined();
   });
 
   it("parses assembly with paper, insertIds, and features", () => {
@@ -120,7 +122,7 @@ describe("parse-excel pack specifications", () => {
       variants: [],
     });
 
-    const pack = result.packs.packwithassembly;
+    const pack = result.packs["pack-with-assembly"];
     expect(pack.assembly?.envelopeId).toBe("envelope-1");
     expect(pack.assembly?.printColour).toBe("COLOUR");
     expect(pack.assembly?.paper?.id).toBe("paper-1");
@@ -147,7 +149,7 @@ describe("parse-excel pack specifications", () => {
       variants: [],
     });
 
-    expect(result.packs.packwithduplextrue.assembly?.duplex).toBe(true);
+    expect(result.packs["pack-with-duplex-true"]?.assembly?.duplex).toBe(true);
   });
 
   it("parses assembly with duplex set to false", () => {
@@ -164,7 +166,9 @@ describe("parse-excel pack specifications", () => {
       variants: [],
     });
 
-    expect(result.packs.packwithduplexfalse.assembly?.duplex).toBe(false);
+    expect(result.packs["pack-with-duplex-false"]?.assembly?.duplex).toBe(
+      false,
+    );
   });
 
   it("parses assembly without duplex field", () => {
@@ -180,7 +184,9 @@ describe("parse-excel pack specifications", () => {
       variants: [],
     });
 
-    expect(result.packs.packwithoutduplex.assembly?.duplex).toBeUndefined();
+    expect(
+      result.packs["pack-without-duplex"]?.assembly?.duplex,
+    ).toBeUndefined();
   });
 
   it("parses required billingId field", () => {
@@ -191,7 +197,7 @@ describe("parse-excel pack specifications", () => {
       variants: [],
     });
 
-    expect(result.packs.packwithbilling.billingId).toBe("billing-123");
+    expect(result.packs["pack-with-billing"]?.billingId).toBe("billing-123");
   });
 
   it("throws when billingId is missing", () => {
@@ -225,7 +231,7 @@ describe("parse-excel pack specifications", () => {
       variants: [],
     });
 
-    const { postage } = result.packs.packfullpostage;
+    const { postage } = result.packs["pack-full-postage"];
     expect(postage.deliveryDays).toBe(2);
     expect(postage.maxWeightGrams).toBe(100.5);
     expect(postage.maxThicknessMm).toBe(5.2);
@@ -245,8 +251,12 @@ describe("parse-excel pack specifications", () => {
       variants: [],
     });
 
-    expect(result.packs.packnodates.createdAt).toBe("2023-01-01T00:00:00Z");
-    expect(result.packs.packnodates.updatedAt).toBe("2023-01-01T00:00:00Z");
+    expect(result.packs["pack-no-dates"]?.createdAt).toBe(
+      "2023-01-01T00:00:00Z",
+    );
+    expect(result.packs["pack-no-dates"]?.updatedAt).toBe(
+      "2023-01-01T00:00:00Z",
+    );
   });
 
   it("handles invalid date strings with default date", () => {
@@ -263,10 +273,10 @@ describe("parse-excel pack specifications", () => {
       variants: [],
     });
 
-    expect(result.packs.packinvaliddates.createdAt).toBe(
+    expect(result.packs["pack-invalid-dates"]?.createdAt).toBe(
       "2023-01-01T00:00:00Z",
     );
-    expect(result.packs.packinvaliddates.updatedAt).toBe(
+    expect(result.packs["pack-invalid-dates"]?.updatedAt).toBe(
       "2023-01-01T00:00:00Z",
     );
   });
@@ -285,8 +295,12 @@ describe("parse-excel pack specifications", () => {
       variants: [],
     });
 
-    expect(result.packs.packemptyarrays.assembly?.insertIds).toBeUndefined();
-    expect(result.packs.packemptyarrays.assembly?.features).toBeUndefined();
+    expect(
+      result.packs["pack-empty-arrays"]?.assembly?.insertIds,
+    ).toBeUndefined();
+    expect(
+      result.packs["pack-empty-arrays"]?.assembly?.features,
+    ).toBeUndefined();
   });
 
   it("parses assembly.additional as JSON", () => {
@@ -302,7 +316,7 @@ describe("parse-excel pack specifications", () => {
       variants: [],
     });
 
-    expect(result.packs.packwithadditional.assembly?.additional).toEqual({
+    expect(result.packs["pack-with-additional"]?.assembly?.additional).toEqual({
       key1: "value1",
       key2: "value2",
     });
@@ -321,7 +335,7 @@ describe("parse-excel pack specifications", () => {
       variants: [],
     });
 
-    expect(result.packs.packbadjson.assembly?.additional).toBeUndefined();
+    expect(result.packs["pack-bad-json"]?.assembly?.additional).toBeUndefined();
   });
 
   it("parses paper.recycled as boolean", () => {
@@ -353,8 +367,10 @@ describe("parse-excel pack specifications", () => {
       variants: [],
     });
 
-    expect(result.packs.packrecycledtrue.assembly?.paper?.recycled).toBe(true);
-    expect(result.packs.packrecycledfalse.assembly?.paper?.recycled).toBe(
+    expect(result.packs["pack-recycled-true"]?.assembly?.paper?.recycled).toBe(
+      true,
+    );
+    expect(result.packs["pack-recycled-false"]?.assembly?.paper?.recycled).toBe(
       false,
     );
   });
@@ -375,10 +391,12 @@ describe("parse-excel pack specifications", () => {
       variants: [],
     });
 
-    expect(result.packs.packdefaultgsm.assembly?.paper?.weightGSM).toBe(80);
+    expect(result.packs["pack-default-gsm"]?.assembly?.paper?.weightGSM).toBe(
+      80,
+    );
   });
 
-  it("sanitizes IDs by removing non-alphanumeric characters", () => {
+  it("preserves raw ids as parse result keys", () => {
     const result = parseWorkbook({
       packs: [
         makePackRow({
@@ -396,8 +414,8 @@ describe("parse-excel pack specifications", () => {
       ],
     });
 
-    expect(result.packs.packwithdashes123).toBeDefined();
-    expect(result.variants.variantwithunderscores456).toBeDefined();
+    expect(result.packs["pack-with-dashes-123"]).toBeDefined();
+    expect(result.variants.variant_with_underscores_456).toBeDefined();
   });
 
   it("handles partial constraints using only sheets", () => {
@@ -413,7 +431,7 @@ describe("parse-excel pack specifications", () => {
       variants: [],
     });
 
-    expect(result.packs.packpartial1.constraints).toEqual({
+    expect(result.packs["pack-partial-1"]?.constraints).toEqual({
       sheets: { value: 15, operator: "LESS_THAN" },
     });
   });
@@ -431,7 +449,7 @@ describe("parse-excel pack specifications", () => {
       variants: [],
     });
 
-    expect(result.packs.packpartial2.constraints).toEqual({
+    expect(result.packs["pack-partial-2"]?.constraints).toEqual({
       deliveryDays: { value: 7, operator: "LESS_THAN" },
     });
   });
@@ -450,7 +468,7 @@ describe("parse-excel pack specifications", () => {
       variants: [],
     });
 
-    expect(result.packs.packpartial3.constraints).toEqual({
+    expect(result.packs["pack-partial-3"]?.constraints).toEqual({
       blackCoveragePercentage: { value: 90.5, operator: "LESS_THAN" },
       colourCoveragePercentage: { value: 60.25, operator: "LESS_THAN" },
     });
@@ -469,7 +487,7 @@ describe("parse-excel pack specifications", () => {
       variants: [],
     });
 
-    expect(result.packs.packenvelopeonly.assembly).toEqual({
+    expect(result.packs["pack-envelope-only"]?.assembly).toEqual({
       envelopeId: "envelope-123",
     });
   });
@@ -487,7 +505,7 @@ describe("parse-excel pack specifications", () => {
       variants: [],
     });
 
-    expect(result.packs.packprintonly.assembly).toEqual({
+    expect(result.packs["pack-print-only"]?.assembly).toEqual({
       printColour: "BLACK",
     });
   });
@@ -549,7 +567,7 @@ describe("parse-excel pack specifications", () => {
       variants: [],
     });
 
-    const { assembly } = result.packs.packfullassembly;
+    const { assembly } = result.packs["pack-full-assembly"];
     expect(assembly?.envelopeId).toBe("env-1");
     expect(assembly?.printColour).toBe("COLOUR");
     expect(assembly?.paper?.id).toBe("paper-1");
@@ -572,12 +590,10 @@ describe("parse-excel pack specifications", () => {
       variants: [],
     });
 
-    expect(result.packs.packwhitespacearrays.assembly?.insertIds).toEqual([
-      "insert-1",
-      "insert-2",
-      "insert-3",
-    ]);
-    expect(result.packs.packwhitespacearrays.assembly?.features).toEqual([
+    expect(result.packs["pack-whitespace-arrays"]?.assembly?.insertIds).toEqual(
+      ["insert-1", "insert-2", "insert-3"],
+    );
+    expect(result.packs["pack-whitespace-arrays"]?.assembly?.features).toEqual([
       "BRAILLE",
       "AUDIO",
     ]);
@@ -597,8 +613,10 @@ describe("parse-excel pack specifications", () => {
       variants: [],
     });
 
-    expect(result.packs.packemptyinserts.assembly?.insertIds).toBeUndefined();
-    expect(result.packs.packemptyinserts.assembly?.features).toEqual([
+    expect(
+      result.packs["pack-empty-inserts"]?.assembly?.insertIds,
+    ).toBeUndefined();
+    expect(result.packs["pack-empty-inserts"]?.assembly?.features).toEqual([
       "BRAILLE",
     ]);
   });
@@ -617,10 +635,12 @@ describe("parse-excel pack specifications", () => {
       variants: [],
     });
 
-    expect(result.packs.packemptyfeatures.assembly?.insertIds).toEqual([
+    expect(result.packs["pack-empty-features"]?.assembly?.insertIds).toEqual([
       "insert-1",
     ]);
-    expect(result.packs.packemptyfeatures.assembly?.features).toBeUndefined();
+    expect(
+      result.packs["pack-empty-features"]?.assembly?.features,
+    ).toBeUndefined();
   });
 
   it("parses Excel serial date numbers for timestamps", () => {
@@ -637,8 +657,8 @@ describe("parse-excel pack specifications", () => {
       variants: [],
     });
 
-    expect(result.packs.packexceldates.createdAt).toMatch(/2023-01-01/);
-    expect(result.packs.packexceldates.updatedAt).toMatch(/2023-02-01/);
+    expect(result.packs["pack-excel-dates"]?.createdAt).toMatch(/2023-01-01/);
+    expect(result.packs["pack-excel-dates"]?.updatedAt).toMatch(/2023-02-01/);
   });
 
   it("parses constraints.sides on PackSpecification", () => {
@@ -656,7 +676,7 @@ describe("parse-excel pack specifications", () => {
       variants: [],
     });
 
-    expect(result.packs.packwithsides.constraints).toEqual({
+    expect(result.packs["pack-with-sides"]?.constraints).toEqual({
       sheets: { value: 10, operator: "LESS_THAN" },
       sides: { value: 20, operator: "LESS_THAN" },
       deliveryDays: { value: 5, operator: "LESS_THAN" },
@@ -682,7 +702,7 @@ describe("parse-excel pack specifications", () => {
       variants: [],
     });
 
-    expect(result.packs.packwithpaperfinish.assembly?.paper).toEqual({
+    expect(result.packs["pack-with-paper-finish"]?.assembly?.paper).toEqual({
       id: "paper-glossy",
       name: "Glossy Paper",
       weightGSM: 120,
@@ -711,7 +731,7 @@ describe("parse-excel pack specifications", () => {
       variants: [],
     });
 
-    expect(result.packs.packwithoutpaperfinish.assembly?.paper).toEqual({
+    expect(result.packs["pack-without-paper-finish"]?.assembly?.paper).toEqual({
       id: "paper-plain",
       name: "Plain Paper",
       weightGSM: 80,
@@ -720,7 +740,7 @@ describe("parse-excel pack specifications", () => {
       recycled: false,
     });
     expect(
-      result.packs.packwithoutpaperfinish.assembly?.paper?.finish,
+      result.packs["pack-without-paper-finish"]?.assembly?.paper?.finish,
     ).toBeUndefined();
   });
 
@@ -741,9 +761,9 @@ describe("parse-excel pack specifications", () => {
       variants: [],
     });
 
-    expect(result.packs.packwithoutpapercolour.assembly?.paper?.colour).toBe(
-      "WHITE",
-    );
+    expect(
+      result.packs["pack-without-paper-colour"]?.assembly?.paper?.colour,
+    ).toBe("WHITE");
   });
 
   it("leaves pack constraints undefined when none are provided", () => {
@@ -772,6 +792,6 @@ describe("parse-excel pack specifications", () => {
       ],
     });
 
-    expect(result.packs.packnoconstraints.constraints).toBeUndefined();
+    expect(result.packs["pack-no-constraints"]?.constraints).toBeUndefined();
   });
 });

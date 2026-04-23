@@ -478,18 +478,13 @@ export interface ParseResult {
   supplierPacks: Record<string, SupplierPack>;
 }
 
-function sanitizeId(id: string): string {
-  return id.replaceAll(/[^a-zA-Z0-9]/g, "");
-}
-
 function buildPacks(
   packRows: PackSpecificationRow[],
 ): Record<string, PackSpecification> {
   const packs: Record<string, PackSpecification> = {};
   for (const row of packRows) {
     const pack = parsePackSpecification(row);
-    const key = sanitizeId(pack.id);
-    Object.defineProperty(packs, key, { value: pack, enumerable: true });
+    Object.defineProperty(packs, pack.id, { value: pack, enumerable: true });
   }
   return packs;
 }
@@ -500,8 +495,10 @@ function buildVariants(
   const variants: Record<string, LetterVariant> = {};
   for (const row of variantRows) {
     const variant = parseLetterVariant(row);
-    const key = sanitizeId(variant.id);
-    Object.defineProperty(variants, key, { value: variant, enumerable: true });
+    Object.defineProperty(variants, variant.id, {
+      value: variant,
+      enumerable: true,
+    });
   }
   return variants;
 }
@@ -512,8 +509,7 @@ function buildVolumeGroups(
   const volumeGroups: Record<string, VolumeGroup> = {};
   for (const row of volumeGroupRows) {
     const volumeGroup = parseVolumeGroup(row);
-    const key = sanitizeId(volumeGroup.id);
-    Object.defineProperty(volumeGroups, key, {
+    Object.defineProperty(volumeGroups, volumeGroup.id, {
       value: volumeGroup,
       enumerable: true,
     });
@@ -525,8 +521,7 @@ function buildSuppliers(supplierRows: SupplierRow[]): Record<string, Supplier> {
   const suppliers: Record<string, Supplier> = {};
   for (const row of supplierRows) {
     const supplier = parseSupplier(row);
-    const key = sanitizeId(supplier.id);
-    Object.defineProperty(suppliers, key, {
+    Object.defineProperty(suppliers, supplier.id, {
       value: supplier,
       enumerable: true,
     });
@@ -540,8 +535,7 @@ function buildAllocations(
   const allocations: Record<string, SupplierAllocation> = {};
   for (const row of allocationRows) {
     const allocation = parseSupplierAllocation(row);
-    const key = sanitizeId(allocation.id);
-    Object.defineProperty(allocations, key, {
+    Object.defineProperty(allocations, allocation.id, {
       value: allocation,
       enumerable: true,
     });
@@ -555,8 +549,7 @@ function buildSupplierPacks(
   const supplierPacks: Record<string, SupplierPack> = {};
   for (const row of supplierPackRows) {
     const supplierPack = parseSupplierPack(row);
-    const key = sanitizeId(supplierPack.id);
-    Object.defineProperty(supplierPacks, key, {
+    Object.defineProperty(supplierPacks, supplierPack.id, {
       value: supplierPack,
       enumerable: true,
     });

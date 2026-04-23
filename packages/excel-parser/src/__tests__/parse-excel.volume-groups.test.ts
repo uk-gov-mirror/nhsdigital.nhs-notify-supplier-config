@@ -40,10 +40,12 @@ describe("parse-excel volume groups", () => {
       supplierPacks: [],
     });
 
-    expect(result.volumeGroups.volumegroupx.description).toBe("My VolumeGroup");
-    expect(result.volumeGroups.volumegroupx.endDate).toBe("2025-12-31");
-    expect(result.volumeGroups.volumegroupx.startDate).toBe("2025-01-01");
-    expect(result.volumeGroups.volumegroupx.status).toBe("PROD");
+    expect(result.volumeGroups["volume-group-x"]?.description).toBe(
+      "My VolumeGroup",
+    );
+    expect(result.volumeGroups["volume-group-x"]?.endDate).toBe("2025-12-31");
+    expect(result.volumeGroups["volume-group-x"]?.startDate).toBe("2025-01-01");
+    expect(result.volumeGroups["volume-group-x"]?.status).toBe("PROD");
   });
 
   it("throws validation error for VolumeGroup with missing name", () => {
@@ -122,10 +124,10 @@ describe("parse-excel volume groups", () => {
       ],
     });
 
-    expect(result.volumeGroups.volumegroupmissingdate.startDate).toBe(
+    expect(result.volumeGroups["volume-group-missing-date"]?.startDate).toBe(
       "2023-01-01",
     );
-    expect(result.volumeGroups.volumegroupinvaliddate.startDate).toBe(
+    expect(result.volumeGroups["volume-group-invalid-date"]?.startDate).toBe(
       "2023-01-01",
     );
   });
@@ -145,10 +147,10 @@ describe("parse-excel volume groups", () => {
       ],
     });
 
-    expect(result.volumeGroups.volumegroupexceldates.startDate).toBe(
+    expect(result.volumeGroups["volume-group-excel-dates"]?.startDate).toBe(
       "2023-01-01",
     );
-    expect(result.volumeGroups.volumegroupexceldates.endDate).toBe(
+    expect(result.volumeGroups["volume-group-excel-dates"]?.endDate).toBe(
       "2024-01-01",
     );
   });
@@ -166,6 +168,6 @@ describe("parse-excel volume groups", () => {
       ],
     });
 
-    expect(result.volumeGroups.volumegroupnostatus.status).toBe("DRAFT");
+    expect(result.volumeGroups["volume-group-no-status"]?.status).toBe("DRAFT");
   });
 });

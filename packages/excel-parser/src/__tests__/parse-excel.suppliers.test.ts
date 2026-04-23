@@ -51,10 +51,10 @@ describe("parse-excel suppliers, allocations, and supplier packs", () => {
       supplierPacks: [],
     });
 
-    expect(result.suppliers.supplierapp.channelType).toBe("NHSAPP");
-    expect(result.suppliers.suppliersms.channelType).toBe("SMS");
-    expect(result.suppliers.supplieremail.channelType).toBe("EMAIL");
-    expect(result.suppliers.supplierletter.channelType).toBe("LETTER");
+    expect(result.suppliers["supplier-app"]?.channelType).toBe("NHSAPP");
+    expect(result.suppliers["supplier-sms"]?.channelType).toBe("SMS");
+    expect(result.suppliers["supplier-email"]?.channelType).toBe("EMAIL");
+    expect(result.suppliers["supplier-letter"]?.channelType).toBe("LETTER");
   });
 
   it("throws on invalid Supplier channelType", () => {
@@ -140,9 +140,11 @@ describe("parse-excel suppliers, allocations, and supplier packs", () => {
       supplierPacks: [],
     });
 
-    expect(result.allocations.allocation1.volumeGroup).toBe("volume-group-a");
-    expect(result.allocations.allocation2.allocationPercentage).toBe(75);
-    expect(result.allocations.allocation3.allocationPercentage).toBe(100);
+    expect(result.allocations["allocation-1%"]?.volumeGroup).toBe(
+      "volume-group-a",
+    );
+    expect(result.allocations["allocation-2%"]?.allocationPercentage).toBe(75);
+    expect(result.allocations["allocation-3%"]?.allocationPercentage).toBe(100);
   });
 
   it("throws when allocationPercentage is out of bounds (<0 or >100)", () => {
@@ -270,10 +272,10 @@ describe("parse-excel suppliers, allocations, and supplier packs", () => {
       ],
     });
 
-    expect(result.supplierPacks.spsubmitted.approval).toBe("SUBMITTED");
-    expect(result.supplierPacks.spapproved.approval).toBe("APPROVED");
-    expect(result.supplierPacks.sprejected.approval).toBe("REJECTED");
-    expect(result.supplierPacks.spdisabled.approval).toBe("DISABLED");
+    expect(result.supplierPacks["sp-submitted"]?.approval).toBe("SUBMITTED");
+    expect(result.supplierPacks["sp-approved"]?.approval).toBe("APPROVED");
+    expect(result.supplierPacks["sp-rejected"]?.approval).toBe("REJECTED");
+    expect(result.supplierPacks["sp-disabled"]?.approval).toBe("DISABLED");
   });
 
   it("throws on invalid SupplierPack status", () => {
@@ -339,10 +341,12 @@ describe("parse-excel suppliers, allocations, and supplier packs", () => {
       supplierPacks: [],
     });
 
-    expect(result.volumeGroups.volumegroupsanitize.name).toBe(
+    expect(result.volumeGroups["volume-group#sanitize"]?.name).toBe(
       "VolumeGroup Sanitize",
     );
-    expect(result.suppliers.suppliersanitize.name).toBe("Supplier Sanitize");
+    expect(result.suppliers["supplier@sanitize"]?.name).toBe(
+      "Supplier Sanitize",
+    );
   });
 
   it("defaults Supplier status to DRAFT when missing", () => {
@@ -359,6 +363,6 @@ describe("parse-excel suppliers, allocations, and supplier packs", () => {
       ],
     });
 
-    expect(result.suppliers.suppliernostatus.status).toBe("DRAFT");
+    expect(result.suppliers["supplier-no-status"]?.status).toBe("DRAFT");
   });
 });
