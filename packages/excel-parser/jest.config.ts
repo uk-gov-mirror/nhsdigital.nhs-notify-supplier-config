@@ -40,7 +40,10 @@ const config: Config = {
   ],
 
   moduleNameMapper: {
+    "^@supplier-config/file-store$": "<rootDir>/../file-store/src/index.ts",
     "^@supplier-config/excel-parser/(.*)$": "<rootDir>/src/$1",
+    "^@nhsdigital/nhs-notify-event-schemas-supplier-config$":
+      "<rootDir>/../events/src/index.ts",
   },
 
   testEnvironment: "node",
