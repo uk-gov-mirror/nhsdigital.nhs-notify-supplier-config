@@ -71,10 +71,12 @@ The variant mapping CSV includes the following columns:
 - `variant_id` - Letter variant ID
 - `variant_name` - Letter variant name
 - `variant_status` - Letter variant environment status (INT/PROD)
+- `variant_priority` - Letter variant dispatch priority (1 to 99, lower values are higher priority)
 - `pack_specification_id` - Pack specification ID
 - `pack_specification_name` - Pack specification name
 - `pack_specification_status` - Pack specification environment status (INT/PROD)
 - `pack_specification_version` - Pack specification version number
+- `pack_specification_billing_id` - Pack specification billing identifier
 - `supplier_pack_id` - Supplier pack ID
 - `supplier_pack_approval` - Supplier pack approval status
 - `supplier_pack_status` - Supplier pack environment status (INT/PROD)

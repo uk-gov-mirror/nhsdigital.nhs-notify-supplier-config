@@ -1083,7 +1083,7 @@ export interface GenerateReportsResult {
 }
 
 function escapeCsvValue(value: string | number | boolean | undefined): string {
-  if (value === undefined || value === null) {
+  if (value === undefined || value == null) {
     return "";
   }
   const str = String(value);
@@ -1098,24 +1098,26 @@ export function generateVariantMappingCsv(
   data: ParseResult,
   outputDir: string,
 ): string {
-  const rows: string[][] = [];
+  const rows: string[][] = [
+    [
+      "variant_id",
+      "variant_name",
+      "variant_status",
+      "variant_priority",
+      "pack_specification_id",
+      "pack_specification_name",
+      "pack_specification_status",
+      "pack_specification_version",
+      "pack_specification_billing_id",
+      "supplier_pack_id",
+      "supplier_pack_approval",
+      "supplier_pack_status",
+      "supplier_id",
+      "supplier_name",
+    ],
+  ];
 
   // CSV Header
-  rows.push([
-    "variant_id",
-    "variant_name",
-    "variant_status",
-    "pack_specification_id",
-    "pack_specification_name",
-    "pack_specification_status",
-    "pack_specification_version",
-    "pack_specification_billing_id",
-    "supplier_pack_id",
-    "supplier_pack_approval",
-    "supplier_pack_status",
-    "supplier_id",
-    "supplier_name",
-  ]);
 
   // Process each variant
   for (const variant of Object.values(data.variants)) {
@@ -1123,6 +1125,8 @@ export function generateVariantMappingCsv(
     if (variant.status !== "INT" && variant.status !== "PROD") {
       continue;
     }
+
+    const variantPriority = variant.priority ?? 50;
 
     // For each pack specification in this variant
     for (const packSpecId of variant.packSpecificationIds) {
@@ -1172,6 +1176,7 @@ export function generateVariantMappingCsv(
           variant.id,
           variant.name,
           variant.status,
+          String(variantPriority),
           packSpec.id,
           packSpec.name,
           packSpec.status,

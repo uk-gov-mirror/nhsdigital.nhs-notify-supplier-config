@@ -46,6 +46,7 @@ const createMockData = (): ParseResult => ({
           operator: "LESS_THAN" as const,
         },
       },
+      billingId: "default-standard",
       createdAt: "2024-01-01T00:00:00Z",
       id: "pack-std-2day" as any,
       name: "Standard 2-Day Delivery",
@@ -58,6 +59,7 @@ const createMockData = (): ParseResult => ({
       version: 1,
     },
     pack2: {
+      billingId: "default-express",
       createdAt: "2024-01-01T00:00:00Z",
       id: "pack-express" as any,
       name: "Express Delivery",
@@ -129,7 +131,6 @@ describe("supplier-report", () => {
   });
 
   afterEach(() => {
-    // eslint-disable-next-line security/detect-non-literal-fs-filename
     if (tempDir && fs.existsSync(tempDir)) {
       fs.rmSync(tempDir, { force: true, recursive: true });
     }
@@ -144,7 +145,6 @@ describe("supplier-report", () => {
 
     // Check that files were created
     for (const report of result.reports) {
-      // eslint-disable-next-line security/detect-non-literal-fs-filename
       expect(fs.existsSync(report.filePath)).toBe(true);
     }
   });
@@ -161,7 +161,7 @@ describe("supplier-report", () => {
     expect(printcoReport!.supplierName).toBe("PrintCo Ltd");
 
     // Read and verify HTML content
-    // eslint-disable-next-line security/detect-non-literal-fs-filename
+
     const html = fs.readFileSync(printcoReport!.filePath, "utf8");
     expect(html).toContain("PrintCo Ltd");
     expect(html).toContain("Standard 2-Day Delivery");
@@ -182,7 +182,7 @@ describe("supplier-report", () => {
     expect(mailhouseReport!.supplierName).toBe("MailHouse Services");
 
     // Read and verify HTML content
-    // eslint-disable-next-line security/detect-non-literal-fs-filename
+
     const html = fs.readFileSync(mailhouseReport!.filePath, "utf8");
     expect(html).toContain("MailHouse Services");
     expect(html).toContain("Standard 2-Day Delivery");
@@ -196,7 +196,7 @@ describe("supplier-report", () => {
     const printcoReport = result.reports.find(
       (r) => r.supplierId === "supplier-printco",
     );
-    // eslint-disable-next-line security/detect-non-literal-fs-filename
+
     const html = fs.readFileSync(printcoReport!.filePath, "utf8");
 
     // Check postage details
@@ -220,7 +220,6 @@ describe("supplier-report", () => {
 
     const result = generateSupplierReports(data, newDir);
 
-    // eslint-disable-next-line security/detect-non-literal-fs-filename
     expect(fs.existsSync(newDir)).toBe(true);
     expect(result.reports.length).toBeGreaterThan(0);
   });
@@ -248,7 +247,6 @@ describe("supplier-report", () => {
     expect(result.reports).toHaveLength(1);
     expect(result.reports[0].packCount).toBe(0);
 
-    // eslint-disable-next-line security/detect-non-literal-fs-filename
     const html = fs.readFileSync(result.reports[0].filePath, "utf8");
     expect(html).toContain("Empty Supplier");
     expect(html).toContain("No pack specifications assigned to this supplier");
@@ -284,6 +282,7 @@ describe("supplier-report", () => {
       allocations: {},
       packs: {
         pack1: {
+          billingId: "default-pack-1",
           createdAt: "2024-01-01T00:00:00Z",
           id: "pack-1" as any,
           name: "Pack 1",
@@ -359,6 +358,7 @@ describe("supplier-report", () => {
               weightGSM: 80,
             },
           },
+          billingId: "default-pack-1",
           createdAt: "2024-01-01T00:00:00Z",
           id: "pack-1" as any,
           name: "Pack 1",
@@ -391,7 +391,7 @@ describe("supplier-report", () => {
     };
 
     const result = generateSupplierReports(data, tempDir);
-    // eslint-disable-next-line security/detect-non-literal-fs-filename
+
     const html = fs.readFileSync(result.reports[0].filePath, "utf8");
 
     // Check boolean rendered as No (recycled: false)
@@ -408,7 +408,7 @@ describe("supplier-report", () => {
     const printcoReport = result.reports.find(
       (r) => r.supplierId === "supplier-printco",
     );
-    // eslint-disable-next-line security/detect-non-literal-fs-filename
+
     const html = fs.readFileSync(printcoReport!.filePath, "utf8");
 
     // Check TOC exists
@@ -441,7 +441,7 @@ describe("supplier-report", () => {
     const printcoReport = result.reports.find(
       (r) => r.supplierId === "supplier-printco",
     );
-    // eslint-disable-next-line security/detect-non-literal-fs-filename
+
     const html = fs.readFileSync(printcoReport!.filePath, "utf8");
 
     // Check explicit status labels exist
@@ -459,7 +459,7 @@ describe("supplier-report", () => {
     const printcoReport = result.reports.find(
       (r) => r.supplierId === "supplier-printco",
     );
-    // eslint-disable-next-line security/detect-non-literal-fs-filename
+
     const html = fs.readFileSync(printcoReport!.filePath, "utf8");
 
     // Check allocations section exists
@@ -496,7 +496,7 @@ describe("supplier-report", () => {
     expect(printcoReport!.packCount).toBe(2);
 
     // Read and verify HTML content doesn't contain draft approval status
-    // eslint-disable-next-line security/detect-non-literal-fs-filename
+
     const html = fs.readFileSync(printcoReport!.filePath, "utf8");
     // Check that DRAFT approval status badge is not present
     expect(html).not.toContain("approval-status status-draft");
@@ -525,7 +525,7 @@ describe("supplier-report", () => {
     expect(printcoReport!.packCount).toBe(3);
 
     // Read and verify HTML content contains draft approval status
-    // eslint-disable-next-line security/detect-non-literal-fs-filename
+
     const html = fs.readFileSync(printcoReport!.filePath, "utf8");
     // Check for DRAFT approval status badge
     expect(html).toContain("approval-status status-draft");
@@ -543,7 +543,7 @@ describe("supplier-report", () => {
     const printcoReport = result.reports.find(
       (r) => r.supplierId === "supplier-printco",
     );
-    // eslint-disable-next-line security/detect-non-literal-fs-filename
+
     const html = fs.readFileSync(printcoReport!.filePath, "utf8");
 
     expect(html).toContain("A standard economy-class letter for bulk mailings");
@@ -560,7 +560,7 @@ describe("supplier-report", () => {
     const printcoReport = result.reports.find(
       (r) => r.supplierId === "supplier-printco",
     );
-    // eslint-disable-next-line security/detect-non-literal-fs-filename
+
     const html = fs.readFileSync(printcoReport!.filePath, "utf8");
 
     // Count occurrences of "Description" - should appear twice (once for each pack)
@@ -585,7 +585,7 @@ describe("supplier-report", () => {
     const printcoReport = result.reports.find(
       (r) => r.supplierId === "supplier-printco",
     );
-    // eslint-disable-next-line security/detect-non-literal-fs-filename
+
     const html = fs.readFileSync(printcoReport!.filePath, "utf8");
 
     expect(html).toContain("Duplex");
@@ -604,7 +604,7 @@ describe("supplier-report", () => {
     const printcoReport = result.reports.find(
       (r) => r.supplierId === "supplier-printco",
     );
-    // eslint-disable-next-line security/detect-non-literal-fs-filename
+
     const html = fs.readFileSync(printcoReport!.filePath, "utf8");
 
     expect(html).toContain("Duplex");
@@ -621,7 +621,7 @@ describe("supplier-report", () => {
     const printcoReport = result.reports.find(
       (r) => r.supplierId === "supplier-printco",
     );
-    // eslint-disable-next-line security/detect-non-literal-fs-filename
+
     const html = fs.readFileSync(printcoReport!.filePath, "utf8");
 
     // Count occurrences of "Duplex" - should appear twice (once for each pack in assembly section)
@@ -640,6 +640,7 @@ describe("supplier-report", () => {
         variant1: {
           id: "variant-standard" as any,
           name: "Standard Variant",
+          priority: 20,
           type: "STANDARD" as any,
           status: "PROD",
           volumeGroupId: "vg-q1-2024" as any,
@@ -651,7 +652,6 @@ describe("supplier-report", () => {
 
       expect(result.csvFilePath).toBeDefined();
       expect(result.csvFilePath).toContain("variant-mapping.csv");
-      // eslint-disable-next-line security/detect-non-literal-fs-filename
       expect(fs.existsSync(result.csvFilePath!)).toBe(true);
     });
 
@@ -661,6 +661,7 @@ describe("supplier-report", () => {
         variant1: {
           id: "variant-standard" as any,
           name: "Standard Variant",
+          priority: 50,
           type: "STANDARD" as any,
           status: "PROD",
           volumeGroupId: "vg-q1-2024" as any,
@@ -669,12 +670,59 @@ describe("supplier-report", () => {
       };
 
       const result = generateSupplierReports(data, tempDir);
-      // eslint-disable-next-line security/detect-non-literal-fs-filename
       const csvContent = fs.readFileSync(result.csvFilePath!, "utf8");
       const lines = csvContent.split("\n");
 
       expect(lines[0]).toBe(
-        "variant_id,variant_name,variant_status,pack_specification_id,pack_specification_name,pack_specification_status,pack_specification_version,supplier_pack_id,supplier_pack_approval,supplier_pack_status,supplier_id,supplier_name",
+        "variant_id,variant_name,variant_status,variant_priority,pack_specification_id,pack_specification_name,pack_specification_status,pack_specification_version,pack_specification_billing_id,supplier_pack_id,supplier_pack_approval,supplier_pack_status,supplier_id,supplier_name",
+      );
+    });
+
+    it("includes variant priority in CSV output", () => {
+      const data = createMockData();
+      data.variants = {
+        variant1: {
+          id: "variant-priority" as any,
+          name: "Priority Variant",
+          priority: 12,
+          type: "STANDARD" as any,
+          status: "PROD",
+          volumeGroupId: "vg-q1-2024" as any,
+          packSpecificationIds: ["pack-std-2day" as any],
+        },
+      };
+
+      const result = generateSupplierReports(data, tempDir);
+
+      const csvContent = fs.readFileSync(result.csvFilePath!, "utf8");
+
+      expect(csvContent).toContain("variant_priority");
+      expect(csvContent).toContain(
+        "variant-priority,Priority Variant,PROD,12,",
+      );
+    });
+
+    it("defaults variant priority to 50 in CSV output when omitted", () => {
+      const data = createMockData();
+      const variantWithoutPriority = {
+        id: "variant-default-priority" as any,
+        name: "Default Priority Variant",
+        type: "STANDARD" as any,
+        status: "PROD",
+        volumeGroupId: "vg-q1-2024" as any,
+        packSpecificationIds: ["pack-std-2day" as any],
+      } as any;
+
+      data.variants = {
+        variant1: variantWithoutPriority,
+      };
+
+      const result = generateSupplierReports(data, tempDir);
+
+      const csvContent = fs.readFileSync(result.csvFilePath!, "utf8");
+
+      expect(csvContent).toContain(
+        "variant-default-priority,Default Priority Variant,PROD,50,",
       );
     });
 
@@ -684,6 +732,7 @@ describe("supplier-report", () => {
         variant1: {
           id: "variant-standard" as any,
           name: "Standard Variant",
+          priority: 50,
           type: "STANDARD" as any,
           status: "PROD",
           volumeGroupId: "vg-q1-2024" as any,
@@ -692,7 +741,7 @@ describe("supplier-report", () => {
       };
 
       const result = generateSupplierReports(data, tempDir);
-      // eslint-disable-next-line security/detect-non-literal-fs-filename
+
       const csvContent = fs.readFileSync(result.csvFilePath!, "utf8");
       const lines = csvContent.split("\n").filter((l) => l.trim());
 
@@ -711,6 +760,7 @@ describe("supplier-report", () => {
         variant1: {
           id: "variant-prod" as any,
           name: "Production Variant",
+          priority: 50,
           type: "STANDARD" as any,
           status: "PROD",
           volumeGroupId: "vg-q1-2024" as any,
@@ -719,6 +769,7 @@ describe("supplier-report", () => {
         variant2: {
           id: "variant-draft" as any,
           name: "Draft Variant",
+          priority: 60,
           type: "STANDARD" as any,
           status: "DRAFT",
           volumeGroupId: "vg-q1-2024" as any,
@@ -727,7 +778,7 @@ describe("supplier-report", () => {
       };
 
       const result = generateSupplierReports(data, tempDir);
-      // eslint-disable-next-line security/detect-non-literal-fs-filename
+
       const csvContent = fs.readFileSync(result.csvFilePath!, "utf8");
 
       expect(csvContent).toContain("variant-prod");
@@ -737,6 +788,7 @@ describe("supplier-report", () => {
     it("only includes pack specifications with INT or PROD status", () => {
       const data = createMockData();
       data.packs.pack3 = {
+        billingId: "default-draft",
         createdAt: "2024-01-01T00:00:00Z",
         id: "pack-draft" as any,
         name: "Draft Pack",
@@ -759,6 +811,7 @@ describe("supplier-report", () => {
         variant1: {
           id: "variant-mixed" as any,
           name: "Mixed Variant",
+          priority: 50,
           type: "STANDARD" as any,
           status: "PROD",
           volumeGroupId: "vg-q1-2024" as any,
@@ -767,7 +820,7 @@ describe("supplier-report", () => {
       };
 
       const result = generateSupplierReports(data, tempDir);
-      // eslint-disable-next-line security/detect-non-literal-fs-filename
+
       const csvContent = fs.readFileSync(result.csvFilePath!, "utf8");
 
       expect(csvContent).toContain("pack-std-2day");
@@ -787,6 +840,7 @@ describe("supplier-report", () => {
         variant1: {
           id: "variant-standard" as any,
           name: "Standard Variant",
+          priority: 50,
           type: "STANDARD" as any,
           status: "PROD",
           volumeGroupId: "vg-q1-2024" as any,
@@ -795,7 +849,7 @@ describe("supplier-report", () => {
       };
 
       const result = generateSupplierReports(data, tempDir);
-      // eslint-disable-next-line security/detect-non-literal-fs-filename
+
       const csvContent = fs.readFileSync(result.csvFilePath!, "utf8");
       const lines = csvContent.split("\n").filter((l) => l.trim());
 
@@ -812,6 +866,7 @@ describe("supplier-report", () => {
         variant1: {
           id: "variant-printco-only" as any,
           name: "PrintCo Only Variant",
+          priority: 50,
           type: "STANDARD" as any,
           status: "PROD",
           volumeGroupId: "vg-q1-2024" as any,
@@ -821,7 +876,7 @@ describe("supplier-report", () => {
       };
 
       const result = generateSupplierReports(data, tempDir);
-      // eslint-disable-next-line security/detect-non-literal-fs-filename
+
       const csvContent = fs.readFileSync(result.csvFilePath!, "utf8");
       const lines = csvContent.split("\n").filter((l) => l.trim());
 
@@ -837,6 +892,7 @@ describe("supplier-report", () => {
         variant1: {
           id: "variant-any-supplier" as any,
           name: "Any Supplier Variant",
+          priority: 50,
           type: "STANDARD" as any,
           status: "PROD",
           volumeGroupId: "vg-q1-2024" as any,
@@ -846,7 +902,7 @@ describe("supplier-report", () => {
       };
 
       const result = generateSupplierReports(data, tempDir);
-      // eslint-disable-next-line security/detect-non-literal-fs-filename
+
       const csvContent = fs.readFileSync(result.csvFilePath!, "utf8");
       const lines = csvContent.split("\n").filter((l) => l.trim());
 
@@ -862,6 +918,7 @@ describe("supplier-report", () => {
         variant1: {
           id: "variant-multi-pack" as any,
           name: "Multi Pack Variant",
+          priority: 50,
           type: "STANDARD" as any,
           status: "PROD",
           volumeGroupId: "vg-q1-2024" as any,
@@ -870,7 +927,7 @@ describe("supplier-report", () => {
       };
 
       const result = generateSupplierReports(data, tempDir);
-      // eslint-disable-next-line security/detect-non-literal-fs-filename
+
       const csvContent = fs.readFileSync(result.csvFilePath!, "utf8");
       const lines = csvContent.split("\n").filter((l) => l.trim());
 
@@ -887,6 +944,7 @@ describe("supplier-report", () => {
         variant1: {
           id: "variant-standard" as any,
           name: "Standard Variant",
+          priority: 50,
           type: "STANDARD" as any,
           status: "PROD",
           volumeGroupId: "vg-q1-2024" as any,
@@ -895,7 +953,7 @@ describe("supplier-report", () => {
       };
 
       const result = generateSupplierReports(data, tempDir);
-      // eslint-disable-next-line security/detect-non-literal-fs-filename
+
       const csvContent = fs.readFileSync(result.csvFilePath!, "utf8");
 
       // Value with comma should be wrapped in quotes
@@ -909,6 +967,7 @@ describe("supplier-report", () => {
         variant1: {
           id: "variant-standard" as any,
           name: "Standard Variant",
+          priority: 50,
           type: "STANDARD" as any,
           status: "PROD",
           volumeGroupId: "vg-q1-2024" as any,
@@ -917,7 +976,7 @@ describe("supplier-report", () => {
       };
 
       const result = generateSupplierReports(data, tempDir);
-      // eslint-disable-next-line security/detect-non-literal-fs-filename
+
       const csvContent = fs.readFileSync(result.csvFilePath!, "utf8");
 
       // Quotes should be escaped as double quotes
@@ -929,7 +988,7 @@ describe("supplier-report", () => {
       data.variants = {};
 
       const result = generateSupplierReports(data, tempDir);
-      // eslint-disable-next-line security/detect-non-literal-fs-filename
+
       const csvContent = fs.readFileSync(result.csvFilePath!, "utf8");
       const lines = csvContent.split("\n").filter((l) => l.trim());
 
@@ -944,6 +1003,7 @@ describe("supplier-report", () => {
         variant1: {
           id: "variant-standard" as any,
           name: "Standard Variant",
+          priority: 50,
           type: "STANDARD" as any,
           status: "PROD",
           volumeGroupId: "vg-q1-2024" as any,
@@ -952,7 +1012,7 @@ describe("supplier-report", () => {
       };
 
       const result = generateSupplierReports(data, tempDir);
-      // eslint-disable-next-line security/detect-non-literal-fs-filename
+
       const csvContent = fs.readFileSync(result.csvFilePath!, "utf8");
 
       expect(csvContent).toContain(",5,");
