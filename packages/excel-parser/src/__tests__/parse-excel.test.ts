@@ -44,6 +44,7 @@ function buildWorkbookOmitting(omit: string): XLSX.WorkBook {
       version: "1",
       createdAt: "2024-01-01",
       updatedAt: "2024-01-01",
+      billingId: "billing-pack-1",
       "postage.id": "postage-1",
       "postage.size": "STANDARD",
     },
@@ -102,6 +103,7 @@ describe("parse-excel", () => {
           version: "1",
           createdAt: "2024-01-01",
           updatedAt: "2024-01-01",
+          billingId: "billing-pack-1",
           "postage.id": "postage-standard",
           "postage.size": "STANDARD",
         },
@@ -112,6 +114,7 @@ describe("parse-excel", () => {
           version: "1",
           createdAt: "2024-01-01",
           updatedAt: "2024-01-01",
+          billingId: "billing-pack-2",
           "postage.id": "postage-large",
           "postage.size": "LARGE",
         },
@@ -150,6 +153,7 @@ describe("parse-excel", () => {
           version: "1",
           createdAt: "2024-01-01",
           updatedAt: "2024-01-01",
+          billingId: "billing-pack-bad-size",
           "postage.id": "postage-bad",
           "postage.size": "C5", // invalid size value
         },
@@ -172,6 +176,7 @@ describe("parse-excel", () => {
           version: "1",
           createdAt: "2024-01-01",
           updatedAt: "2024-01-01",
+          billingId: "billing-pack-missing",
           // missing postage fields entirely
         },
       ],
@@ -193,6 +198,7 @@ describe("parse-excel", () => {
           version: "1",
           createdAt: "2024-01-01",
           updatedAt: "2024-01-01",
+          billingId: "billing-pack-with-constraints",
           "postage.id": "postage-1",
           "postage.size": "STANDARD",
           "constraints.sheets": "10",
@@ -224,6 +230,7 @@ describe("parse-excel", () => {
           version: "1",
           createdAt: "2024-01-01",
           updatedAt: "2024-01-01",
+          billingId: "billing-pack-with-description",
           "postage.id": "postage-1",
           "postage.size": "STANDARD",
         },
@@ -247,6 +254,7 @@ describe("parse-excel", () => {
           version: "1",
           createdAt: "2024-01-01",
           updatedAt: "2024-01-01",
+          billingId: "billing-pack-without-description",
           "postage.id": "postage-1",
           "postage.size": "STANDARD",
         },
@@ -268,6 +276,7 @@ describe("parse-excel", () => {
           version: "1",
           createdAt: "2024-01-01",
           updatedAt: "2024-01-01",
+          billingId: "billing-pack-1",
           "postage.id": "postage-1",
           "postage.size": "STANDARD",
         },
@@ -304,6 +313,7 @@ describe("parse-excel", () => {
           version: "1",
           createdAt: "2024-01-01",
           updatedAt: "2024-01-01",
+          billingId: "billing-pack-with-assembly",
           "postage.id": "postage-1",
           "postage.size": "STANDARD",
           "assembly.envelopeId": "envelope-1",
@@ -345,6 +355,7 @@ describe("parse-excel", () => {
           version: "1",
           createdAt: "2024-01-01",
           updatedAt: "2024-01-01",
+          billingId: "billing-pack-with-duplex-true",
           "postage.id": "postage-1",
           "postage.size": "STANDARD",
           "assembly.envelopeId": "envelope-1",
@@ -368,6 +379,7 @@ describe("parse-excel", () => {
           version: "1",
           createdAt: "2024-01-01",
           updatedAt: "2024-01-01",
+          billingId: "billing-pack-with-duplex-false",
           "postage.id": "postage-1",
           "postage.size": "STANDARD",
           "assembly.envelopeId": "envelope-1",
@@ -391,6 +403,7 @@ describe("parse-excel", () => {
           version: "1",
           createdAt: "2024-01-01",
           updatedAt: "2024-01-01",
+          billingId: "billing-pack-without-duplex",
           "postage.id": "postage-1",
           "postage.size": "STANDARD",
           "assembly.envelopeId": "envelope-1",
@@ -413,6 +426,7 @@ describe("parse-excel", () => {
         version: "1",
         createdAt: "2024-01-01",
         updatedAt: "2024-01-01",
+        billingId: "billing-pack-1",
         "postage.id": "postage-standard",
         "postage.size": "STANDARD",
       },
@@ -464,6 +478,7 @@ describe("parse-excel", () => {
         version: "1",
         createdAt: "2024-01-01",
         updatedAt: "2024-01-01",
+        billingId: "billing-pack-1",
         "postage.id": "postage-standard",
         "postage.size": "STANDARD",
       },
@@ -473,7 +488,7 @@ describe("parse-excel", () => {
     expect(() => parseExcelFile(file)).toThrow(/Validation failed.*variant-1/);
   });
 
-  it("parses optional billingId field", () => {
+  it("parses required billingId field", () => {
     const wb = buildWorkbook({
       packs: [
         {
@@ -495,6 +510,49 @@ describe("parse-excel", () => {
     expect(result.packs.packwithbilling.billingId).toBe("billing-123");
   });
 
+  it("throws when billingId is missing", () => {
+    const wb = XLSX.utils.book_new();
+    const packSheet = XLSX.utils.json_to_sheet([
+      {
+        id: "pack-missing-billing",
+        name: "Pack Missing Billing",
+        status: "PROD",
+        version: "1",
+        createdAt: "2024-01-01",
+        updatedAt: "2024-01-01",
+        "postage.id": "postage-1",
+        "postage.size": "STANDARD",
+      },
+    ]);
+    XLSX.utils.book_append_sheet(wb, packSheet, "PackSpecification");
+    XLSX.utils.book_append_sheet(
+      wb,
+      XLSX.utils.json_to_sheet([]),
+      "LetterVariant",
+    );
+    XLSX.utils.book_append_sheet(
+      wb,
+      XLSX.utils.json_to_sheet([]),
+      "VolumeGroup",
+    );
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet([]), "Supplier");
+    XLSX.utils.book_append_sheet(
+      wb,
+      XLSX.utils.json_to_sheet([]),
+      "SupplierAllocation",
+    );
+    XLSX.utils.book_append_sheet(
+      wb,
+      XLSX.utils.json_to_sheet([]),
+      "SupplierPack",
+    );
+
+    const file = writeWorkbook(wb);
+    expect(() => parseExcelFile(file)).toThrow(
+      /Missing required billingId.*pack-missing-billing/,
+    );
+  });
+
   it("parses optional postage fields", () => {
     const wb = buildWorkbook({
       packs: [
@@ -505,6 +563,7 @@ describe("parse-excel", () => {
           version: "1",
           createdAt: "2024-01-01",
           updatedAt: "2024-01-01",
+          billingId: "billing-pack-full-postage",
           "postage.id": "postage-1",
           "postage.size": "LARGE",
           "postage.deliveryDays": "2",
@@ -530,6 +589,7 @@ describe("parse-excel", () => {
           name: "Pack No Dates",
           status: "PROD",
           version: "1",
+          billingId: "billing-pack-no-dates",
           "postage.id": "postage-1",
           "postage.size": "STANDARD",
         },
@@ -552,6 +612,7 @@ describe("parse-excel", () => {
           version: "1",
           createdAt: "not-a-date",
           updatedAt: "also-not-a-date",
+          billingId: "billing-pack-invalid-dates",
           "postage.id": "postage-1",
           "postage.size": "STANDARD",
         },
@@ -578,6 +639,7 @@ describe("parse-excel", () => {
           version: "1",
           createdAt: "2024-01-01",
           updatedAt: "2024-01-01",
+          billingId: "billing-pack-empty-arrays",
           "postage.id": "postage-1",
           "postage.size": "STANDARD",
           "assembly.insertIds": "",
@@ -602,6 +664,7 @@ describe("parse-excel", () => {
           version: "1",
           createdAt: "2024-01-01",
           updatedAt: "2024-01-01",
+          billingId: "billing-pack-with-additional",
           "postage.id": "postage-1",
           "postage.size": "STANDARD",
           "assembly.additional": '{"key1":"value1","key2":"value2"}',
@@ -627,6 +690,7 @@ describe("parse-excel", () => {
           version: "1",
           createdAt: "2024-01-01",
           updatedAt: "2024-01-01",
+          billingId: "billing-pack-bad-json",
           "postage.id": "postage-1",
           "postage.size": "STANDARD",
           "assembly.additional": "not-valid-json{",
@@ -649,6 +713,7 @@ describe("parse-excel", () => {
           version: "1",
           createdAt: "2024-01-01",
           updatedAt: "2024-01-01",
+          billingId: "billing-pack-recycled-true",
           "postage.id": "postage-1",
           "postage.size": "STANDARD",
           "assembly.paper.id": "paper-1",
@@ -664,6 +729,7 @@ describe("parse-excel", () => {
           version: "1",
           createdAt: "2024-01-01",
           updatedAt: "2024-01-01",
+          billingId: "billing-pack-recycled-false",
           "postage.id": "postage-2",
           "postage.size": "LARGE",
           "assembly.paper.id": "paper-2",
@@ -693,6 +759,7 @@ describe("parse-excel", () => {
           version: "1",
           createdAt: "2024-01-01",
           updatedAt: "2024-01-01",
+          billingId: "billing-pack-default-gsm",
           "postage.id": "postage-1",
           "postage.size": "STANDARD",
           "assembly.paper.id": "paper-1",
@@ -718,6 +785,7 @@ describe("parse-excel", () => {
           version: "1",
           createdAt: "2024-01-01",
           updatedAt: "2024-01-01",
+          billingId: "billing-pack-1",
           "postage.id": "postage-1",
           "postage.size": "STANDARD",
         },
@@ -756,6 +824,7 @@ describe("parse-excel", () => {
           version: "1",
           createdAt: "2024-01-01",
           updatedAt: "2024-01-01",
+          billingId: "billing-pack-1",
           "postage.id": "postage-1",
           "postage.size": "STANDARD",
         },
@@ -780,6 +849,166 @@ describe("parse-excel", () => {
     );
   });
 
+  it("parses LetterVariant priority when provided", () => {
+    const wb = buildWorkbook({
+      packs: [
+        {
+          id: "pack-priority",
+          name: "Pack Priority",
+          status: "PROD",
+          version: "1",
+          createdAt: "2024-01-01",
+          updatedAt: "2024-01-01",
+          billingId: "billing-pack-priority",
+          "postage.id": "postage-priority",
+          "postage.size": "STANDARD",
+        },
+      ],
+      variants: [
+        {
+          id: "variant-priority",
+          name: "Variant Priority",
+          volumeGroupId: "volume-group-priority",
+          packSpecificationIds: "pack-priority",
+          priority: 12,
+          type: "STANDARD",
+          status: "PROD",
+        },
+      ],
+      volumeGroups: [
+        {
+          id: "volume-group-priority",
+          name: "VolumeGroup Priority",
+          startDate: "2025-01-01",
+          status: "PROD",
+        },
+      ],
+    });
+    const file = writeWorkbook(wb);
+    const result = parseExcelFile(file);
+    expect(result.variants.variantpriority.priority).toBe(12);
+  });
+
+  it("uses the LetterVariant priority default when omitted", () => {
+    const wb = buildWorkbook({
+      packs: [
+        {
+          id: "pack-default-priority",
+          name: "Pack Default Priority",
+          status: "PROD",
+          version: "1",
+          createdAt: "2024-01-01",
+          updatedAt: "2024-01-01",
+          billingId: "billing-pack-default-priority",
+          "postage.id": "postage-default-priority",
+          "postage.size": "STANDARD",
+        },
+      ],
+      variants: [
+        {
+          id: "variant-default-priority",
+          name: "Variant Default Priority",
+          volumeGroupId: "volume-group-default-priority",
+          packSpecificationIds: "pack-default-priority",
+          type: "STANDARD",
+          status: "PROD",
+        },
+      ],
+      volumeGroups: [
+        {
+          id: "volume-group-default-priority",
+          name: "VolumeGroup Default Priority",
+          startDate: "2025-01-01",
+          status: "PROD",
+        },
+      ],
+    });
+    const file = writeWorkbook(wb);
+    const result = parseExcelFile(file);
+    expect(result.variants.variantdefaultpriority.priority).toBe(50);
+  });
+
+  it("uses the LetterVariant priority default when the Excel cell is blank", () => {
+    const wb = buildWorkbook({
+      packs: [
+        {
+          id: "pack-blank-priority",
+          name: "Pack Blank Priority",
+          status: "PROD",
+          version: "1",
+          createdAt: "2024-01-01",
+          updatedAt: "2024-01-01",
+          billingId: "billing-pack-blank-priority",
+          "postage.id": "postage-blank-priority",
+          "postage.size": "STANDARD",
+        },
+      ],
+      variants: [
+        {
+          id: "variant-blank-priority",
+          name: "Variant Blank Priority",
+          volumeGroupId: "volume-group-blank-priority",
+          packSpecificationIds: "pack-blank-priority",
+          priority: "   ",
+          type: "STANDARD",
+          status: "PROD",
+        },
+      ],
+      volumeGroups: [
+        {
+          id: "volume-group-blank-priority",
+          name: "VolumeGroup Blank Priority",
+          startDate: "2025-01-01",
+          status: "PROD",
+        },
+      ],
+    });
+    const file = writeWorkbook(wb);
+    const result = parseExcelFile(file);
+    expect(result.variants.variantblankpriority.priority).toBe(50);
+  });
+
+  it("throws when LetterVariant priority is outside the allowed range", () => {
+    const wb = buildWorkbook({
+      packs: [
+        {
+          id: "pack-invalid-priority",
+          name: "Pack Invalid Priority",
+          status: "PROD",
+          version: "1",
+          createdAt: "2024-01-01",
+          updatedAt: "2024-01-01",
+          billingId: "billing-pack-invalid-priority",
+          "postage.id": "postage-invalid-priority",
+          "postage.size": "STANDARD",
+        },
+      ],
+      variants: [
+        {
+          id: "variant-invalid-priority",
+          name: "Variant Invalid Priority",
+          volumeGroupId: "volume-group-invalid-priority",
+          packSpecificationIds: "pack-invalid-priority",
+          priority: 100,
+          type: "STANDARD",
+          status: "PROD",
+        },
+      ],
+      volumeGroups: [
+        {
+          id: "volume-group-invalid-priority",
+          name: "VolumeGroup Invalid Priority",
+          startDate: "2025-01-01",
+          status: "PROD",
+        },
+      ],
+    });
+    const file = writeWorkbook(wb);
+    expect(() => parseExcelFile(file)).toThrow(
+      /Validation failed.*variant-invalid-priority/,
+    );
+  });
+
   it("uses name as description when description is missing", () => {
     const wb = buildWorkbook({
       packs: [
@@ -790,6 +1019,7 @@ describe("parse-excel", () => {
           version: "1",
           createdAt: "2024-01-01",
           updatedAt: "2024-01-01",
+          billingId: "billing-pack-1",
           "postage.id": "postage-1",
           "postage.size": "STANDARD",
         },
@@ -820,6 +1050,7 @@ describe("parse-excel", () => {
           version: "1",
           createdAt: "2024-01-01",
           updatedAt: "2024-01-01",
+          billingId: "billing-pack-1",
           "postage.id": "postage-1",
           "postage.size": "STANDARD",
         },
@@ -851,6 +1082,7 @@ describe("parse-excel", () => {
           version: "1",
           createdAt: "2024-01-01",
           updatedAt: "2024-01-01",
+          billingId: "billing-pack-with-dashes-123",
           "postage.id": "postage-1",
           "postage.size": "STANDARD",
         },
@@ -882,6 +1114,7 @@ describe("parse-excel", () => {
           version: "1",
           createdAt: "2024-01-01",
           updatedAt: "2024-01-01",
+          billingId: "billing-pack-partial-1",
           "postage.id": "postage-1",
           "postage.size": "STANDARD",
           "constraints.sheets": "15",
@@ -906,6 +1139,7 @@ describe("parse-excel", () => {
           version: "1",
           createdAt: "2024-01-01",
           updatedAt: "2024-01-01",
+          billingId: "billing-pack-partial-2",
           "postage.id": "postage-1",
           "postage.size": "STANDARD",
           "constraints.deliveryDays": "7",
@@ -930,6 +1164,7 @@ describe("parse-excel", () => {
           version: "1",
           createdAt: "2024-01-01",
           updatedAt: "2024-01-01",
+          billingId: "billing-pack-partial-3",
           "postage.id": "postage-1",
           "postage.size": "STANDARD",
           "constraints.blackCoveragePercentage": "90.5",
@@ -956,6 +1191,7 @@ describe("parse-excel", () => {
           version: "1",
           createdAt: "2024-01-01",
           updatedAt: "2024-01-01",
+          billingId: "billing-pack-envelope-only",
           "postage.id": "postage-1",
           "postage.size": "STANDARD",
           "assembly.envelopeId": "envelope-123",
@@ -980,6 +1216,7 @@ describe("parse-excel", () => {
           version: "1",
           createdAt: "2024-01-01",
           updatedAt: "2024-01-01",
+          billingId: "billing-pack-print-only",
           "postage.id": "postage-1",
           "postage.size": "STANDARD",
           "assembly.printColour": "BLACK",
@@ -1004,6 +1241,7 @@ describe("parse-excel", () => {
           version: "1",
           createdAt: "2024-01-01",
           updatedAt: "2024-01-01",
+          billingId: "billing-pack-missing-id",
           "postage.size": "STANDARD",
         },
       ],
@@ -1025,6 +1263,7 @@ describe("parse-excel", () => {
           version: "1",
           createdAt: "2024-01-01",
           updatedAt: "2024-01-01",
+          billingId: "billing-pack-missing-size",
           "postage.id": "postage-1",
         },
       ],
@@ -1046,6 +1285,7 @@ describe("parse-excel", () => {
           version: "1",
           createdAt: "2024-01-01",
           updatedAt: "2024-01-01",
+          billingId: "billing-pack-full-assembly",
           "postage.id": "postage-1",
           "postage.size": "STANDARD",
           "assembly.envelopeId": "env-1",
@@ -1084,6 +1324,7 @@ describe("parse-excel", () => {
           version: "1",
           createdAt: "2024-01-01",
           updatedAt: "2024-01-01",
+          billingId: "billing-pack-whitespace-arrays",
           "postage.id": "postage-1",
           "postage.size": "STANDARD",
           "assembly.insertIds": " insert-1 , insert-2 , insert-3 ",
@@ -1115,6 +1356,7 @@ describe("parse-excel", () => {
           version: "1",
           createdAt: "2024-01-01",
           updatedAt: "2024-01-01",
+          billingId: "billing-pack-empty-inserts",
           "postage.id": "postage-1",
           "postage.size": "STANDARD",
           "assembly.insertIds": "  ",
@@ -1141,6 +1383,7 @@ describe("parse-excel", () => {
           version: "1",
           createdAt: "2024-01-01",
           updatedAt: "2024-01-01",
+          billingId: "billing-pack-empty-features",
           "postage.id": "postage-1",
           "postage.size": "STANDARD",
           "assembly.insertIds": "insert-1",
@@ -1186,6 +1429,7 @@ describe("parse-excel", () => {
           version: "1",
           createdAt: "2025-01-01",
           updatedAt: "2025-01-02",
+          billingId: "billing-pack-x",
           "postage.id": "postage-x",
           "postage.size": "STANDARD",
         },
@@ -1232,6 +1476,7 @@ describe("parse-excel", () => {
           version: "1",
           createdAt: "2025-01-01",
           updatedAt: "2025-01-01",
+          billingId: "billing-pack-y",
           "postage.id": "postage-y",
           "postage.size": "STANDARD",
         },
@@ -1289,6 +1534,7 @@ describe("parse-excel", () => {
           version: "1",
           createdAt: "2025-01-01",
           updatedAt: "2025-01-01",
+          billingId: "billing-pack-z",
           "postage.id": "postage-z",
           "postage.size": "STANDARD",
         },
@@ -1323,6 +1569,7 @@ describe("parse-excel", () => {
           version: "1",
           createdAt: "2025-01-01",
           updatedAt: "2025-01-01",
+          billingId: "billing-pack-a",
           "postage.id": "postage-a",
           "postage.size": "STANDARD",
         },
@@ -1401,6 +1648,7 @@ describe("parse-excel", () => {
           version: "1",
           createdAt: "2025-01-01",
           updatedAt: "2025-01-01",
+          billingId: "billing-pack-bounds",
           "postage.id": "postage-bounds",
           "postage.size": "STANDARD",
         },
@@ -1448,6 +1696,7 @@ describe("parse-excel", () => {
           version: "1",
           createdAt: "2025-01-01",
           updatedAt: "2025-01-01",
+          billingId: "billing-pack-bounds2",
           "postage.id": "postage-bounds2",
           "postage.size": "STANDARD",
         },
@@ -1497,6 +1746,7 @@ describe("parse-excel", () => {
           version: "1",
           createdAt: "2025-01-01",
           updatedAt: "2025-01-01",
+          billingId: "billing-pack-sp",
           "postage.id": "postage-sp",
           "postage.size": "STANDARD",
         },
@@ -1562,6 +1812,7 @@ describe("parse-excel", () => {
           version: "1",
           createdAt: "2025-01-01",
           updatedAt: "2025-01-01",
+          billingId: "billing-pack-sp-bad",
           "postage.id": "postage-sp-bad",
           "postage.size": "STANDARD",
         },
@@ -1602,6 +1853,7 @@ describe("parse-excel", () => {
           version: "1",
           createdAt: "2025-01-01",
           updatedAt: "2025-01-01",
+          billingId: "billing-pack-no-constraints",
           "postage.id": "postage-nc",
           "postage.size": "STANDARD",
         },
@@ -1641,6 +1893,7 @@ describe("parse-excel", () => {
           version: "1",
           createdAt: "2025-01-01",
           updatedAt: "2025-01-01",
+          billingId: "billing-pack-space-1",
           "postage.id": "postage-space-1",
           "postage.size": "STANDARD",
         },
@@ -1651,6 +1904,7 @@ describe("parse-excel", () => {
           version: "1",
           createdAt: "2025-01-01",
           updatedAt: "2025-01-01",
+          billingId: "billing-pack-space-2",
           "postage.id": "postage-space-2",
           "postage.size": "STANDARD",
         },
@@ -1697,6 +1951,7 @@ describe("parse-excel", () => {
           version: "1",
           createdAt: "2025-01-01",
           updatedAt: "2025-01-01",
+          billingId: "billing-pack-sanitize",
           "postage.id": "postage-sanitize",
           "postage.size": "STANDARD",
         },
@@ -1740,6 +1995,7 @@ describe("parse-excel", () => {
           version: "1",
           createdAt: "2025-01-01",
           updatedAt: "2025-01-01",
+          billingId: "billing-pack-volume-group-bad",
           "postage.id": "postage-volume-group-bad",
           "postage.size": "STANDARD",
         },
@@ -1782,6 +2038,7 @@ describe("parse-excel", () => {
           version: "1",
           createdAt: "2025-01-01",
           updatedAt: "2025-01-01",
+          billingId: "billing-pack-default-date",
           "postage.id": "postage-default-date",
           "postage.size": "STANDARD",
         },
@@ -1839,8 +2096,9 @@ describe("parse-excel", () => {
           name: "Pack with Excel Serial Dates",
           status: "PROD",
           version: "1",
-          createdAt: 44927, // Excel serial date for 2023-01-01
-          updatedAt: 44958, // Excel serial date for 2023-02-01
+          createdAt: 44_927, // Excel serial date for 2023-01-01
+          updatedAt: 44_958, // Excel serial date for 2023-02-01
+          billingId: "billing-pack-excel-dates",
           "postage.id": "postage-1",
           "postage.size": "STANDARD",
         },
@@ -1863,6 +2121,7 @@ describe("parse-excel", () => {
           version: "1",
           createdAt: "2024-01-01",
           updatedAt: "2024-01-01",
+          billingId: "billing-pack-1",
           "postage.id": "postage-1",
           "postage.size": "STANDARD",
         },
@@ -1872,8 +2131,8 @@ describe("parse-excel", () => {
         {
           id: "volume-group-excel-dates",
           name: "VolumeGroup with Excel Dates",
-          startDate: 44927, // Excel serial date for 2023-01-01
-          endDate: 45292, // Excel serial date for 2024-01-01
+          startDate: 44_927, // Excel serial date for 2023-01-01
+          endDate: 45_292, // Excel serial date for 2024-01-01
           status: "PROD",
         },
       ],
@@ -1898,6 +2157,7 @@ describe("parse-excel", () => {
           version: "1",
           createdAt: "2024-01-01",
           updatedAt: "2024-01-01",
+          billingId: "billing-pack-with-sides",
           "postage.id": "postage-1",
           "postage.size": "STANDARD",
           "constraints.sheets": "10",
@@ -1926,6 +2186,7 @@ describe("parse-excel", () => {
           version: "1",
           createdAt: "2024-01-01",
           updatedAt: "2024-01-01",
+          billingId: "billing-pack-1",
           "postage.id": "postage-1",
           "postage.size": "STANDARD",
         },
@@ -1963,6 +2224,7 @@ describe("parse-excel", () => {
           version: "1",
           createdAt: "2024-01-01",
           updatedAt: "2024-01-01",
+          billingId: "billing-pack-with-paper-finish",
           "postage.id": "postage-1",
           "postage.size": "STANDARD",
           "assembly.paper.id": "paper-glossy",
@@ -1999,6 +2261,7 @@ describe("parse-excel", () => {
           version: "1",
           createdAt: "2024-01-01",
           updatedAt: "2024-01-01",
+          billingId: "billing-pack-without-paper-finish",
           "postage.id": "postage-1",
           "postage.size": "STANDARD",
           "assembly.paper.id": "paper-plain",
@@ -2036,6 +2299,7 @@ describe("parse-excel", () => {
           version: "1",
           createdAt: "2024-01-01",
           updatedAt: "2024-01-01",
+          billingId: "billing-pack-without-paper-colour",
           "postage.id": "postage-1",
           "postage.size": "STANDARD",
           "assembly.paper.id": "paper-default-colour",
@@ -2065,6 +2329,7 @@ describe("parse-excel", () => {
           version: "1",
           createdAt: "2024-01-01",
           updatedAt: "2024-01-01",
+          billingId: "billing-pack-1",
           "postage.id": "postage-1",
           "postage.size": "STANDARD",
         },
@@ -2094,6 +2359,7 @@ describe("parse-excel", () => {
           version: "1",
           createdAt: "2024-01-01",
           updatedAt: "2024-01-01",
+          billingId: "billing-pack-1",
           "postage.id": "postage-1",
           "postage.size": "STANDARD",
         },

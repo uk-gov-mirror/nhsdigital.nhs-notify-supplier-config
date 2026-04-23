@@ -4,7 +4,7 @@ import { $PackSpecification } from "@nhsdigital/nhs-notify-event-schemas-supplie
 import { z } from "zod";
 import { $VolumeGroup } from "./volume-group";
 import { $Supplier } from "./supplier";
-import { $Constraint, $Constraints } from "./constraint";
+import { $Constraints } from "./constraint";
 
 export const $LetterType = z.enum(["STANDARD", "BRAILLE", "AUDIO"]);
 
@@ -44,6 +44,11 @@ export const $LetterVariant = z
           "This is used to restrict a particular variant to a single supplier, " +
           "for example individual admail campaigns.",
       }),
+    priority: z.int().min(1).max(99).default(50).meta({
+      title: "Priority",
+      description:
+        "Integer priority used to order letters for dispatch to suppliers on a 1 to 99 scale, where lower values indicate higher priority. Defaults to 50 when omitted.",
+    }),
     packSpecificationIds: z.array(idRef($PackSpecification)).nonempty().meta({
       title: "Pack Specifications",
       description:

@@ -40,7 +40,7 @@ async function main() {
     .strict()
     .parseAsync();
 
-  const { output, force } = argv as unknown as Arguments;
+  const { force, output } = argv as unknown as Arguments;
 
   // Resolve output file path
   const resolvedOutput = path.isAbsolute(output)

@@ -167,6 +167,7 @@ const variants: Record<string, LetterVariant> = {
     volumeGroupId: "volume-group-12345",
     packSpecificationIds: [bauStandardC5.id, bauStandardC4.id],
     type: "STANDARD",
+    priority: 10,
     status: "PROD",
     constraints: {
       sheets: {
@@ -186,6 +187,7 @@ const variants: Record<string, LetterVariant> = {
     volumeGroupId: "volume-group-12345",
     packSpecificationIds: [braille.id],
     type: "BRAILLE",
+    priority: 20,
     status: "PROD",
     constraints: {
       sheets: {
@@ -205,6 +207,7 @@ const variants: Record<string, LetterVariant> = {
     volumeGroupId: "volume-group-12345",
     packSpecificationIds: [audio.id],
     type: "AUDIO",
+    priority: 30,
     status: "PROD",
     constraints: {
       sheets: {
@@ -224,6 +227,7 @@ const variants: Record<string, LetterVariant> = {
     volumeGroupId: "volume-group-12345",
     packSpecificationIds: [sameDay.id],
     type: "STANDARD",
+    priority: 5,
     status: "PROD",
     constraints: {
       sheets: {
@@ -243,6 +247,7 @@ const variants: Record<string, LetterVariant> = {
     volumeGroupId: "volume-group-campaign1",
     packSpecificationIds: [clientPack1.id],
     type: "STANDARD",
+    priority: 40,
     status: "PROD",
     clientId: "client1",
     campaignIds: ["client1-campaign1"],

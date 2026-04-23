@@ -11,6 +11,7 @@ describe("letter-variant-event-builder", () => {
     description: "Test",
     volumeGroupId: "volume-group-123" as any,
     type: "STANDARD",
+    priority: 10,
     packSpecificationIds: ["00000000-0000-0000-0000-000000000001" as any],
     clientId: "client-1",
   };
