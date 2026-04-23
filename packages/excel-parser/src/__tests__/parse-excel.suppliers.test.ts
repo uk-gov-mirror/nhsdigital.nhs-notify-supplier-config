@@ -5,7 +5,7 @@ import {
   makeSupplierRow,
   makeVolumeGroupRow,
   parseWorkbook,
-} from "../test-helpers/parse-excel";
+} from "./helpers/parse-excel";
 
 describe("parse-excel suppliers, allocations, and supplier packs", () => {
   it("parses Suppliers of all channel types", () => {

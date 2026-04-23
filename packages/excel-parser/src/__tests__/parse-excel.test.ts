@@ -1,8 +1,5 @@
 import { parseExcelFile } from "../parse-excel";
-import {
-  buildWorkbookOmitting,
-  writeWorkbook,
-} from "../test-helpers/parse-excel";
+import { buildWorkbookOmitting, writeWorkbook } from "./helpers/parse-excel";
 
 describe("parse-excel workbook structure", () => {
   it("throws when LetterVariant sheet is missing", () => {

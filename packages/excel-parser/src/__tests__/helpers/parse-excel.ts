@@ -1,8 +1,9 @@
+import { randomUUID } from "node:crypto";
 import * as XLSX from "xlsx";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
-import { parseExcelFile } from "../parse-excel";
+import { parseExcelFile } from "../../parse-excel";
 
 export interface WorkbookData {
   packs?: Record<string, unknown>[];
@@ -180,7 +181,7 @@ export function buildWorkbookOmitting(omit: string): XLSX.WorkBook {
 }
 
 export function writeWorkbook(workbook: XLSX.WorkBook): string {
-  const filePath = path.join(tmpdir(), `test-${Date.now()}.xlsx`);
+  const filePath = path.join(tmpdir(), `test-${randomUUID()}.xlsx`);
   XLSX.writeFile(workbook, filePath);
   return filePath;
 }

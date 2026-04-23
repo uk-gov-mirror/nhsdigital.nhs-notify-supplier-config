@@ -2,7 +2,7 @@ import {
   makePackRow,
   makeVariantRow,
   parseWorkbook,
-} from "../test-helpers/parse-excel";
+} from "./helpers/parse-excel";
 
 describe("parse-excel pack specifications", () => {
   it("throws on invalid postage size", () => {

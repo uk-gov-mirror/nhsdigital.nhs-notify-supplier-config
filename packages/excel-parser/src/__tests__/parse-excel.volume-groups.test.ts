@@ -2,7 +2,7 @@ import {
   makePackRow,
   makeVariantRow,
   parseWorkbook,
-} from "../test-helpers/parse-excel";
+} from "./helpers/parse-excel";
 
 describe("parse-excel volume groups", () => {
   it("parses VolumeGroup with description and endDate", () => {
