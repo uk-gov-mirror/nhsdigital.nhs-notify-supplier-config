@@ -60,6 +60,7 @@ export function generateTemplateExcel(out: string, force = false): string {
     "description",
     "volumeGroupId",
     "packSpecificationIds",
+    "priority",
     "type",
     "status",
     "clientId",

@@ -67,6 +67,7 @@ interface LetterVariantRow {
   description?: string;
   volumeGroupId: string;
   packSpecificationIds: string;
+  priority?: string | number;
   type: string;
   status: string;
   clientId?: string;
@@ -227,6 +228,31 @@ function parsePostage(row: PackSpecificationRow): PackSpecification["postage"] {
   return postage;
 }
 
+function parseAssemblyPaper(
+  row: PackSpecificationRow,
+): NonNullable<PackSpecification["assembly"]>["paper"] | undefined {
+  if (!row["assembly.paper.id"]) {
+    return undefined;
+  }
+
+  const paper: NonNullable<PackSpecification["assembly"]>["paper"] = {
+    id: row["assembly.paper.id"],
+    name: row["assembly.paper.name"] || "",
+    weightGSM: Number.parseFloat(row["assembly.paper.weightGSM"] || "80"),
+    size: row["assembly.paper.size"] as "A5" | "A4" | "A3",
+    colour: (row["assembly.paper.colour"] || "WHITE") as "WHITE",
+    recycled:
+      row["assembly.paper.recycled"] === "true" ||
+      row["assembly.paper.recycled"] === "TRUE",
+  };
+
+  if (row["assembly.paper.finish"]) {
+    paper.finish = row["assembly.paper.finish"] as "MATT" | "GLOSSY" | "SILK";
+  }
+
+  return paper;
+}
+
 function parseAssembly(
   row: PackSpecificationRow,
 ): NonNullable<PackSpecification["assembly"]> | undefined {
@@ -249,24 +275,9 @@ function parseAssembly(
     hasAssembly = true;
   }
 
-  // Parse paper if any paper fields are present
-  if (row["assembly.paper.id"]) {
-    assembly.paper = {
-      id: row["assembly.paper.id"],
-      name: row["assembly.paper.name"] || "",
-      weightGSM: Number.parseFloat(row["assembly.paper.weightGSM"] || "80"),
-      size: row["assembly.paper.size"] as "A5" | "A4" | "A3",
-      colour: (row["assembly.paper.colour"] || "WHITE") as "WHITE",
-      recycled:
-        row["assembly.paper.recycled"] === "true" ||
-        row["assembly.paper.recycled"] === "TRUE",
-    };
-    if (row["assembly.paper.finish"]) {
-      assembly.paper.finish = row["assembly.paper.finish"] as
-        | "MATT"
-        | "GLOSSY"
-        | "SILK";
-    }
+  const paper = parseAssemblyPaper(row);
+  if (paper) {
+    assembly.paper = paper;
     hasAssembly = true;
   }
 
@@ -304,6 +315,13 @@ function parseAssembly(
 }
 
 function parsePackSpecification(row: PackSpecificationRow): PackSpecification {
+  const billingId = row.billingId?.trim();
+  if (!billingId) {
+    throw new Error(
+      `Missing required billingId for PackSpecification id '${row.id}'`,
+    );
+  }
+
   const draft: Partial<PackSpecification> = {
     id: row.id,
     name: row.name,
@@ -311,11 +329,11 @@ function parsePackSpecification(row: PackSpecificationRow): PackSpecification {
     version: Number.parseInt(row.version, 10),
     createdAt: parseDate(row.createdAt),
     updatedAt: parseDate(row.updatedAt),
+    billingId,
     postage: parsePostage(row),
   };
 
   if (row.description) draft.description = row.description;
-  if (row.billingId) draft.billingId = row.billingId;
 
   const constraints = parseConstraints(row);
   if (constraints) draft.constraints = constraints;
@@ -349,6 +367,9 @@ function parseLetterVariant(row: LetterVariantRow): LetterVariant {
   if (row.clientId) draft.clientId = row.clientId;
   if (row.campaignIds) draft.campaignIds = parseArray(row.campaignIds);
   if (row.supplierId) draft.supplierId = row.supplierId;
+  if (`${row.priority ?? ""}`.trim() !== "") {
+    draft.priority = Number(row.priority);
+  }
 
   const constraints = parseConstraints(row);
   if (constraints) draft.constraints = constraints;

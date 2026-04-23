@@ -1,8 +1,8 @@
-/* eslint-disable sonarjs/no-alphabetical-sort,security/detect-non-literal-fs-filename */
+/* eslint-disable sonarjs/no-alphabetical-sort */
 import fs from "node:fs";
 import path from "node:path";
 import * as XLSX from "xlsx";
-import generateTemplateExcel from "../template";
+import { generateTemplateExcel } from "../template";
 
 describe("generateTemplateExcel", () => {
   const tmpFile = path.join(process.cwd(), `specs.template.${Date.now()}.xlsx`);
@@ -39,6 +39,21 @@ describe("generateTemplateExcel", () => {
     expect(headers).toContain("postage.id");
     expect(headers).toContain("assembly.paper.recycled");
     expect(headers).toContain("constraints.blackCoveragePercentage");
+  });
+
+  it("populates header row for LetterVariant including priority", () => {
+    const out = generateTemplateExcel(tmpFile, true);
+    const wb = XLSX.readFile(out);
+    const variantSheet = wb.Sheets.LetterVariant;
+    const headers = XLSX.utils.sheet_to_json<string[]>(variantSheet, {
+      header: 1,
+    })[0];
+
+    expect(headers).toContain("priority");
+    expect(headers.indexOf("priority")).toBe(
+      headers.indexOf("packSpecificationIds") + 1,
+    );
+    expect(headers.indexOf("type")).toBe(headers.indexOf("priority") + 1);
   });
 
   it("throws without force when file exists", () => {
