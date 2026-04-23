@@ -3,11 +3,13 @@ import fs from "node:fs";
 import path from "node:path";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
+import { writeParseResultToConfigStore } from "./config-store-output";
 import { parseExcelFile } from "./parse-excel";
 
 interface Arguments {
   input: string;
   output?: string;
+  outputDir?: string;
   pretty: boolean;
 }
 
@@ -30,6 +32,13 @@ async function main() {
       type: "string",
       description: "Write output to a file instead of stdout",
     })
+    .option("output-dir", {
+      alias: "d",
+      type: "string",
+      description:
+        "Write one JSON file per record into a file-store-compatible directory",
+    })
+    .conflicts("output", "output-dir")
     .option("pretty", {
       alias: "p",
       type: "boolean",
@@ -40,6 +49,10 @@ async function main() {
     .example("$0 config.xlsx --pretty", "Parse and pretty-print to stdout")
     .example("$0 config.xlsx -o output.json", "Parse and save to file")
     .example(
+      "$0 config.xlsx --output-dir ./config-store",
+      "Parse and save one JSON file per record for file-store consumption",
+    )
+    .example(
       "$0 config.xlsx --pretty --output output.json",
       "Parse with pretty formatting and save to file",
     )
@@ -48,7 +61,7 @@ async function main() {
     .strict()
     .parseAsync();
 
-  const { input, output, pretty } = argv as unknown as Arguments;
+  const { input, output, outputDir, pretty } = argv as unknown as Arguments;
 
   // Resolve input file path
   const resolvedInput = path.isAbsolute(input)
@@ -79,7 +92,19 @@ async function main() {
       ? JSON.stringify(result, null, 2)
       : JSON.stringify(result);
 
-    if (output) {
+    if (outputDir) {
+      const resolvedOutputDir = path.isAbsolute(outputDir)
+        ? outputDir
+        : path.join(process.cwd(), outputDir);
+
+      await writeParseResultToConfigStore(result, resolvedOutputDir, {
+        pretty,
+      });
+      // eslint-disable-next-line no-console
+      console.error(
+        `✓ Successfully parsed and wrote file-store output to: ${resolvedOutputDir}`,
+      );
+    } else if (output) {
       // Write to file
       const resolvedOutput = path.isAbsolute(output)
         ? output

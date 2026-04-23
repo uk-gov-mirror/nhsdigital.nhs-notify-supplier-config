@@ -26,6 +26,10 @@ clean:: # Clean-up project resources (main) @Operations
 config:: _install-dependencies version # Configure development environment (main) @Configuration
 	(cd docs && make install)
 
+internal-config:
+	npm run parse --workspace=@supplier-config/excel-parser -- \
+		"$(PWD)/specifications.xlsx" --output-dir "$(PWD)/artifacts/config-store" --pretty
+
 # ==============================================================================
 
 ${VERBOSE}.SILENT: \
