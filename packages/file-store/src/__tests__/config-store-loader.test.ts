@@ -101,4 +101,49 @@ describe("loadConfigStore", () => {
       await rm(root, { recursive: true, force: true });
     }
   });
+
+  it("should decode filename-safe record ids when loading records", async () => {
+    const root = await createTempConfigStore();
+
+    try {
+      await mkdir(path.join(root, "supplier"), { recursive: true });
+      await writeFile(
+        path.join(root, "supplier", "sup%2F1.json"),
+        JSON.stringify({ id: "sup/1", dailyCapacity: 100, name: "Supplier 1" }),
+        "utf8",
+      );
+
+      const store = await loadConfigStore(root);
+
+      expect(store.records).toEqual([
+        {
+          entity: "supplier",
+          sourceFilePath: path.join(root, "supplier", "sup%2F1.json"),
+          id: "sup/1",
+          data: { id: "sup/1", dailyCapacity: 100, name: "Supplier 1" },
+        },
+      ]);
+    } finally {
+      await rm(root, { recursive: true, force: true });
+    }
+  });
+
+  it("should throw when a filename is not valid encoded JSON record id", async () => {
+    const root = await createTempConfigStore();
+
+    try {
+      await mkdir(path.join(root, "supplier"), { recursive: true });
+      await writeFile(
+        path.join(root, "supplier", "%zz.json"),
+        JSON.stringify({ id: "sup-1" }),
+        "utf8",
+      );
+
+      await expect(loadConfigStore(root)).rejects.toThrow(
+        `Invalid encoded config record filename: ${path.join(root, "supplier", "%zz.json")}`,
+      );
+    } finally {
+      await rm(root, { recursive: true, force: true });
+    }
+  });
 });

@@ -22,13 +22,32 @@ function isPersistedEntityDirName(name: string): name is DomainEntityName {
   );
 }
 
+function decodeRecordIdFromFileName(
+  file: string,
+  sourceFilePath: string,
+): string {
+  const encodedId = file.replace(/\.json$/iu, "");
+
+  try {
+    return decodeURIComponent(encodedId);
+  } catch (error) {
+    throw new Error(
+      `Invalid encoded config record filename: ${sourceFilePath}`,
+      {
+        cause: error as Error,
+      },
+    );
+  }
+}
+
 async function readConfigRecord(
   entity: DomainEntityName,
   entityDir: string,
   file: string,
 ): Promise<ConfigRecord> {
   const sourceFilePath = path.join(entityDir, file);
-  const id = file.replace(/\.json$/iu, "");
+  const id = decodeRecordIdFromFileName(file, sourceFilePath);
+  // eslint-disable-next-line security/detect-non-literal-fs-filename
   const raw = await readFile(sourceFilePath, "utf8");
 
   let data: unknown;
@@ -53,6 +72,7 @@ async function readEntityRecords(
   entity: DomainEntityName,
 ): Promise<ConfigRecord[]> {
   const entityDir = path.join(resolvedRoot, entity);
+  // eslint-disable-next-line security/detect-non-literal-fs-filename
   const files = await readdir(entityDir);
   const jsonFiles = files.filter(
     (file) => path.extname(file).toLowerCase() === ".json",
@@ -76,6 +96,7 @@ const loadConfigStore = async (
 
   let dirents: string[];
   try {
+    // eslint-disable-next-line security/detect-non-literal-fs-filename
     dirents = await readdir(resolvedRoot);
   } catch (error) {
     throw new Error(`Config store root path not readable: ${resolvedRoot}`, {
