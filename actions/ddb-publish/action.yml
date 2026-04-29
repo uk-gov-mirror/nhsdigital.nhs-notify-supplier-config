@@ -14,7 +14,7 @@ inputs:
     required: true
   topic-arn:
     description: "ARN of SNS topic to publish events to"
-    required: true  
+    required: true
   force:
     description: "Bypass audit safety checks"
     required: false
