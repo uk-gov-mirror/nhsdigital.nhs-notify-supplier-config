@@ -22,6 +22,11 @@ yargs(hideBin(process.argv))
     demandOption: true,
     describe: "DynamoDB table name",
   })
+  .option("topic-arn", {
+    type: "string",
+    demandOption: true,
+    describe: "ARN of the SNS topic that the event will be published to",
+  })
   .option("force", {
     type: "boolean",
     default: false,
@@ -42,6 +47,7 @@ yargs(hideBin(process.argv))
       sourcePath: args.source,
       env: args.env,
       tableName: args.table,
+      topicArn: args.topicArn,
       force: args.force,
       dryRun: args.dryRun,
     });

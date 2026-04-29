@@ -97,21 +97,16 @@ describe("volume-group-event-builder", () => {
     expect(event).toBeUndefined();
   });
 
-  it("buildVolumeGroupEvents includes undefined for DRAFT volume group", () => {
+  it("skips DRAFT volume group", () => {
     const events = buildVolumeGroupEvents({
       published: baseVolumeGroup,
       draft: draftVolumeGroup,
     });
-    expect(events).toHaveLength(2);
+    expect(events).toHaveLength(1);
     const publishedEvent = events.find(
       (e) => e && e.subject === "volume-group/volume-group-1",
     );
     expect(publishedEvent).toBeDefined();
-    const draftEvent = events.find(
-      (e) => e?.subject === "volume-group/volume-group-draft",
-    );
-    expect(draftEvent).toBeUndefined();
-    expect(events.filter((e) => e === undefined)).toHaveLength(1);
   });
 
   it("builds event for INT status", () => {

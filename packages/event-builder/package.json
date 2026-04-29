@@ -12,6 +12,7 @@
     "jest-mock-extended": "^3.0.7",
     "typescript": "^5.9.3"
   },
+  "main": "./src/index.ts",
   "name": "@supplier-config/event-builder",
   "private": true,
   "scripts": {
@@ -23,5 +24,6 @@
     "test:unit": "jest",
     "typecheck": "tsc --noEmit"
   },
+  "type": "module",
   "version": "0.0.1"
 }

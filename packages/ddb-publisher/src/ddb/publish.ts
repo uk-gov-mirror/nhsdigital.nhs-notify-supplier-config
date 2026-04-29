@@ -2,11 +2,17 @@ import {
   BatchWriteCommand,
   DynamoDBDocumentClient,
 } from "@aws-sdk/lib-dynamodb";
+import {
+  PublishBatchCommand,
+  PublishBatchRequestEntry,
+  SNSClient,
+} from "@aws-sdk/client-sns";
 import { z } from "zod";
 
 import type { ConfigRecord } from "@supplier-config/file-store";
 
 import { pkForEntity, skForId } from "./keys";
+import { mapToEvents } from "../record-mapper";
 
 const persistedRecordShapeSchema = z.looseObject({
   id: z.string(),
@@ -60,6 +66,57 @@ export async function publishRecords(params: {
       unprocessed = (result.UnprocessedItems?.[params.tableName] ??
         []) as any[];
 
+      if (unprocessed.length > 0) {
+        await delay(50 * 2 ** attempt);
+      }
+    }
+
+    if (unprocessed.length > 0) {
+      throw new Error(
+        `Failed to write ${unprocessed.length} items after retries (BatchWrite unprocessed).`,
+      );
+    }
+  }
+}
+
+function buildMessage(
+  event: { id: string },
+  index: number,
+): PublishBatchRequestEntry {
+  return {
+    Id: `${event.id}-${index}`,
+    Message: JSON.stringify(event),
+  };
+}
+
+export async function publishRecords2(params: {
+  sns: SNSClient;
+  topicArn: string;
+  records: ConfigRecord[];
+}): Promise<void> {
+  const chunks: ConfigRecord[][] = [];
+  for (let i = 0; i < params.records.length; i += 10) {
+    chunks.push(params.records.slice(i, i + 10));
+  }
+
+  for (const chunk of chunks) {
+    let unprocessed = mapToEvents(chunk).map((event, index) =>
+      buildMessage(event, index),
+    );
+
+    // Retry unprocessed items with simple backoff
+    for (let attempt = 0; attempt < 5 && unprocessed.length > 0; attempt += 1) {
+      const result = await params.sns.send(
+        new PublishBatchCommand({
+          TopicArn: params.topicArn,
+          PublishBatchRequestEntries: unprocessed,
+        }),
+      );
+
+      const unprocessedIds = new Set(
+        (result.Failed ?? []).map((errorEntry) => errorEntry.Id),
+      );
+      unprocessed = unprocessed.filter((entry) => unprocessedIds.has(entry.Id));
       if (unprocessed.length > 0) {
         await delay(50 * 2 ** attempt);
       }

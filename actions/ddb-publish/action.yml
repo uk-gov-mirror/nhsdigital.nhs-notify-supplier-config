@@ -12,6 +12,9 @@ inputs:
   table-name:
     description: "DynamoDB table name"
     required: true
+  topic-arn:
+    description: "ARN of SNS topic to publish events to"
+    required: true  
   force:
     description: "Bypass audit safety checks"
     required: false
@@ -134,6 +137,7 @@ runs:
           --source "${{ inputs.source-path }}" \
           --env "${{ inputs.target-env }}" \
           --table "${{ inputs.table-name }}" \
+          --topic-arn ${{ inputs.topic-arn }}
           $([[ "${{ inputs.force }}" == "true" ]] && echo "--force") \
           $([[ "${{ inputs.dry-run }}" == "true" ]] && echo "--dry-run")
 

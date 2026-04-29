@@ -55,7 +55,7 @@ export const buildVolumeGroupEvents = (
 ): (VolumeGroupEvent | undefined)[] => {
   const sequenceGenerator = newSequenceGenerator(startingCounter);
 
-  return Object.values(volumeGroups).map((vg) =>
-    buildVolumeGroupEvent(vg, { sequence: sequenceGenerator }),
-  );
+  return Object.values(volumeGroups)
+    .map((vg) => buildVolumeGroupEvent(vg, { sequence: sequenceGenerator }))
+    .filter((e): e is VolumeGroupEvent => e !== undefined);
 };

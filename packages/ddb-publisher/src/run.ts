@@ -10,8 +10,9 @@ import type {
   ValidationIssue,
 } from "@supplier-config/file-store";
 
+import { SNSClient } from "@aws-sdk/client-sns";
 import { auditBeforeLoad } from "./ddb/audit";
-import { publishRecords } from "./ddb/publish";
+import { publishRecords2 } from "./ddb/publish";
 import type { LoadPlan } from "./types";
 
 function issueLabel(i: {
@@ -144,10 +145,11 @@ async function runPublisher(plan: LoadPlan): Promise<void> {
     logStep("Blocking records found but --force enabled; continuing.");
   }
 
+  const snsClient = new SNSClient(clientConfig);
   logStep(`Publishing ${store.records.length} record(s) to DynamoDB...`);
-  await publishRecords({
-    ddb,
-    tableName: plan.tableName,
+  await publishRecords2({
+    sns: snsClient,
+    topicArn: plan.topicArn,
     records: store.records,
   });
 

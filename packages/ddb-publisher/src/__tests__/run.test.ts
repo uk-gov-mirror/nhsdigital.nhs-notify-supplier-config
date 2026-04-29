@@ -21,6 +21,7 @@ jest.mock("../ddb/audit", () => {
 jest.mock("../ddb/publish", () => {
   return {
     publishRecords: jest.fn(),
+    publishRecords2: jest.fn(),
   };
 });
 
@@ -51,10 +52,15 @@ const audit = jest.requireMock("../ddb/audit") as unknown as {
 
 const publish = jest.requireMock("../ddb/publish") as unknown as {
   publishRecords: jest.Mock;
+  publishRecords2: jest.Mock;
 };
 
-const awsClient = jest.requireMock("@aws-sdk/client-dynamodb") as unknown as {
+const ddbClient = jest.requireMock("@aws-sdk/client-dynamodb") as unknown as {
   DynamoDBClient: jest.Mock;
+};
+
+jest.requireMock("@aws-sdk/client-sns") as unknown as {
+  SnsClient: jest.Mock;
 };
 
 describe("runPublisher", () => {
@@ -69,6 +75,7 @@ describe("runPublisher", () => {
       sourcePath: "/tmp",
       env: "draft",
       tableName: "tbl",
+      topicArn: "topic:arn",
       dryRun: true,
       force: false,
     });
@@ -101,6 +108,7 @@ describe("runPublisher", () => {
         sourcePath: "/tmp",
         env: "draft",
         tableName: "tbl",
+        topicArn: "topic:arn",
         dryRun: true,
         force: false,
       }),
@@ -126,6 +134,7 @@ describe("runPublisher", () => {
         sourcePath: "/tmp",
         env: "draft",
         tableName: "tbl",
+        topicArn: "topic:arn",
         dryRun: false,
         force: false,
       }),
@@ -152,11 +161,12 @@ describe("runPublisher", () => {
       sourcePath: "/tmp",
       env: "draft",
       tableName: "tbl",
+      topicArn: "topic:arn",
       dryRun: false,
       force: true,
     });
 
-    expect(publish.publishRecords).toHaveBeenCalledTimes(1);
+    expect(publish.publishRecords2).toHaveBeenCalledTimes(1);
   });
 
   it("should publish when audit reports no blocking items", async () => {
@@ -175,11 +185,12 @@ describe("runPublisher", () => {
       sourcePath: "/tmp",
       env: "draft",
       tableName: "tbl",
+      topicArn: "topic:arn",
       dryRun: false,
       force: false,
     });
 
-    expect(publish.publishRecords).toHaveBeenCalledTimes(1);
+    expect(publish.publishRecords2).toHaveBeenCalledTimes(1);
   });
 
   it("should log entity summary when records are loaded", async () => {
@@ -218,6 +229,7 @@ describe("runPublisher", () => {
       sourcePath: "/tmp",
       env: "draft",
       tableName: "tbl",
+      topicArn: "topic:arn",
       dryRun: true,
       force: false,
     });
@@ -256,11 +268,12 @@ describe("runPublisher", () => {
         sourcePath: "/tmp",
         env: "draft",
         tableName: "tbl",
+        topicArn: "topic:arn",
         dryRun: false,
         force: false,
       });
 
-      expect(awsClient.DynamoDBClient).toHaveBeenCalledWith({
+      expect(ddbClient.DynamoDBClient).toHaveBeenCalledWith({
         endpoint: "http://127.0.0.1:8000",
         region: "eu-west-2",
         credentials: {
@@ -309,11 +322,12 @@ describe("runPublisher", () => {
         sourcePath: "/tmp",
         env: "draft",
         tableName: "tbl",
+        topicArn: "topic:arn",
         dryRun: false,
         force: false,
       });
 
-      expect(awsClient.DynamoDBClient).toHaveBeenCalledWith({
+      expect(ddbClient.DynamoDBClient).toHaveBeenCalledWith({
         endpoint: "https://dynamodb.eu-west-2.amazonaws.com",
       });
     } finally {
@@ -338,11 +352,12 @@ describe("runPublisher", () => {
         sourcePath: "/tmp",
         env: "draft",
         tableName: "tbl",
+        topicArn: "topic:arn",
         dryRun: false,
         force: false,
       });
 
-      expect(awsClient.DynamoDBClient).toHaveBeenCalledWith({
+      expect(ddbClient.DynamoDBClient).toHaveBeenCalledWith({
         endpoint: "not-a-url",
       });
     } finally {
@@ -371,6 +386,7 @@ describe("runPublisher", () => {
         sourcePath: "/tmp",
         env: "draft",
         tableName: "tbl",
+        topicArn: "topic:arn",
         dryRun: true,
         force: false,
       }),
@@ -391,6 +407,7 @@ describe("runPublisher", () => {
         sourcePath: "/tmp",
         env: "draft",
         tableName: "tbl",
+        topicArn: "topic:arn",
         dryRun: false,
         force: false,
       }),
@@ -417,11 +434,12 @@ describe("runPublisher", () => {
         sourcePath: "/tmp",
         env: "draft",
         tableName: "tbl",
+        topicArn: "topic:arn",
         dryRun: false,
         force: false,
       });
 
-      expect(awsClient.DynamoDBClient).toHaveBeenCalledWith({
+      expect(ddbClient.DynamoDBClient).toHaveBeenCalledWith({
         endpoint: "http://localhost:8000",
         region: "eu-central-1",
         credentials: {
