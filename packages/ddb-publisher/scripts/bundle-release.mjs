@@ -35,11 +35,14 @@ function makeWorkspacePlugin(packageName, srcRoot) {
     name: `workspace-source-${packageName}`,
     setup(build) {
       build.onResolve({ filter }, (args) => {
-        const subpath = args.path.slice(packageName.length); // e.g. "" or "/src/domain/foo"
-        const resolved = subpath
-          ? resolve(srcRoot, subpath)
-          : resolve(srcRoot, "index.ts");
-        return { path: resolved };
+        const subpath = args.path.slice(packageName.length).replace(/^\//, ""); // e.g. "" or "src/domain/foo"
+        if (!subpath) {
+          return { path: resolve(srcRoot, "src/index.ts") };
+        }
+        const subpathWithExt = subpath.includes(".")
+          ? subpath
+          : `${subpath}.ts`;
+        return { path: resolve(srcRoot, subpathWithExt) };
       });
     },
   };
@@ -77,12 +80,9 @@ await esbuild.build({
     // Bundle against workspace sources instead of relying on packages being built/linked.
     makeWorkspacePlugin(
       "@nhsdigital/nhs-notify-event-schemas-supplier-config",
-      resolve(schemasRoot, "src"),
+      schemasRoot,
     ),
-    makeWorkspacePlugin(
-      "@supplier-config/event-builder",
-      resolve(eventBuilderRoot, "src"),
-    ),
+    makeWorkspacePlugin("@supplier-config/event-builder", eventBuilderRoot),
   ],
 });
 
