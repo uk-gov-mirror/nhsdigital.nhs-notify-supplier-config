@@ -59,10 +59,6 @@ const ddbClient = jest.requireMock("@aws-sdk/client-dynamodb") as unknown as {
   DynamoDBClient: jest.Mock;
 };
 
-jest.requireMock("@aws-sdk/client-sns") as unknown as {
-  SnsClient: jest.Mock;
-};
-
 describe("runPublisher", () => {
   it("should stop after validation when dryRun=true", async () => {
     const store: LoadedConfigStore = { rootPath: "/tmp", records: [] };

@@ -52,7 +52,7 @@ export const buildVolumeGroupEvent = (
 export const buildVolumeGroupEvents = (
   volumeGroups: Record<string, VolumeGroup>,
   startingCounter = 1,
-): (VolumeGroupEvent | undefined)[] => {
+): VolumeGroupEvent[] => {
   const sequenceGenerator = newSequenceGenerator(startingCounter);
 
   return Object.values(volumeGroups)

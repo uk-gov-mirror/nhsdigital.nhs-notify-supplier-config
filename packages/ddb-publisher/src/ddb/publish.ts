@@ -124,7 +124,7 @@ export async function publishRecords2(params: {
 
     if (unprocessed.length > 0) {
       throw new Error(
-        `Failed to write ${unprocessed.length} items after retries (BatchWrite unprocessed).`,
+        `Failed to write ${unprocessed.length} items after retries (PublishBatch unprocessed).`,
       );
     }
   }

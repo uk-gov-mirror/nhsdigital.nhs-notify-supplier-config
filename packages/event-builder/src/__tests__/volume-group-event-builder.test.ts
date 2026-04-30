@@ -57,11 +57,11 @@ describe("volume-group-event-builder", () => {
       10,
     );
     expect(events).toHaveLength(2);
-    expect(events[0]!.sequence).toBe("00000000000000000010");
-    expect(events[1]!.sequence).toBe("00000000000000000011");
+    expect(events[0].sequence).toBe("00000000000000000010");
+    expect(events[1].sequence).toBe("00000000000000000011");
     // default severity INFO
-    expect(events[0]!.severitytext).toBe("INFO");
-    expect(events[0]!.severitynumber).toBe(2);
+    expect(events[0].severitytext).toBe("INFO");
+    expect(events[0].severitynumber).toBe(2);
   });
 
   it("builds events using generator sequence and default startingCounter", () => {
@@ -70,11 +70,11 @@ describe("volume-group-event-builder", () => {
       vg2: secondVolumeGroup,
     });
     expect(events).toHaveLength(2);
-    expect(events[0]!.sequence).toBe("00000000000000000001");
-    expect(events[1]!.sequence).toBe("00000000000000000002");
+    expect(events[0].sequence).toBe("00000000000000000001");
+    expect(events[1].sequence).toBe("00000000000000000002");
     // default severity INFO
-    expect(events[0]!.severitytext).toBe("INFO");
-    expect(events[0]!.severitynumber).toBe(2);
+    expect(events[0].severitytext).toBe("INFO");
+    expect(events[0].severitynumber).toBe(2);
   });
 
   it("builds event without sequence (undefined branch) and severity WARN", () => {

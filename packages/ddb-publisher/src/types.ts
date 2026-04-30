@@ -5,7 +5,7 @@ export type LoadPlan = {
   env: string;
   /** The name of the DynamoDB table to which records will be published. */
   tableName: string;
-  /** The name of the  */
+  /** The ARN of the topic to which records will be published */
   topicArn: string;
   /** If true, do not write to DynamoDB and do not require AWS credentials. */
   dryRun: boolean;
