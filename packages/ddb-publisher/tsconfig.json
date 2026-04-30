@@ -6,6 +6,7 @@
     "moduleResolution": "node",
     "outDir": "./dist",
     "resolveJsonModule": true,
+    "esModuleInterop": true,
     "rootDir": "src",
     "tsBuildInfoFile": "./dist/.tsbuildinfo"
   },

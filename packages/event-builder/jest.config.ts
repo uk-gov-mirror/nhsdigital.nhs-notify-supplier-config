@@ -41,12 +41,11 @@ const config: Config = {
 
   moduleNameMapper: {
     "^@supplier-config/event-builder/(.*)$": "<rootDir>/src/$1",
-    "^@nhsdigital/nhs-notify-event-schemas-supplier-config/package.json$":
-      "<rootDir>/../events/package.json",
     "^@nhsdigital/nhs-notify-event-schemas-supplier-config$":
       "<rootDir>/../events/src/index.ts",
   },
 
+  testPathIgnorePatterns: ["<rootDir>/dist/"],
   testEnvironment: "node",
   testMatch: ["**/__tests__/**/*.ts", "**/?(*.)+(spec|test).ts"],
   moduleFileExtensions: ["ts", "js", "json", "node"],
