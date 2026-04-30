@@ -3,14 +3,12 @@ import type {
   DomainEntityName,
 } from "@supplier-config/file-store";
 
-import {
-  buildLetterVariantEvents,
-  buildPackSpecificationEvents,
-  buildSupplierAllocationEvents,
-  buildSupplierEvents,
-  buildSupplierPackEvents,
-  buildVolumeGroupEvents,
-} from "@supplier-config/event-builder";
+import { buildLetterVariantEvents } from "@supplier-config/event-builder/src/letter-variant-event-builder";
+import { buildPackSpecificationEvents } from "@supplier-config/event-builder/src/pack-specification-event-builder";
+import { buildSupplierAllocationEvents } from "@supplier-config/event-builder/src/supplier-allocation-event-builder";
+import { buildSupplierEvents } from "@supplier-config/event-builder/src/supplier-event-builder";
+import { buildSupplierPackEvents } from "@supplier-config/event-builder/src/supplier-pack-event-builder";
+import { buildVolumeGroupEvents } from "@supplier-config/event-builder/src/volume-group-event-builder";
 
 type Builder = (entity: Record<string, any>) => any;
 
