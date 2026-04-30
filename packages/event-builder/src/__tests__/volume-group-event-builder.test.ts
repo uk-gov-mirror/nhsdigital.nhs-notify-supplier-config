@@ -1,4 +1,4 @@
-import { VolumeGroup } from "@nhsdigital/nhs-notify-event-schemas-supplier-config";
+import { VolumeGroup } from "@nhsdigital/nhs-notify-event-schemas-supplier-config/src/domain/volume-group";
 import {
   buildVolumeGroupEvent,
   buildVolumeGroupEvents,
