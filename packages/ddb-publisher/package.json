@@ -32,6 +32,7 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "pretypecheck": "[ -f ../events/dist/index.d.ts ] || tsc -p ../events/tsconfig.build.json",
+    "pretest:unit": "[ -f ../event-builder/dist/index.js ] || tsc -p ../event-builder/tsconfig.json",
     "test:integration": "NODE_OPTIONS=--experimental-vm-modules jest --config jest.integration.config.ts --runInBand",
     "test:unit": "jest",
     "typecheck": "tsc --noEmit"
