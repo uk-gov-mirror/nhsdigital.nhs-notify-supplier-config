@@ -39,6 +39,12 @@ const config: Config = {
     ],
   ],
 
+  moduleNameMapper: {
+    "^@supplier-config/event-builder(.*)$": "<rootDir>/../event-builder/src$1",
+    "^@nhsdigital/nhs-notify-event-schemas-supplier-config$":
+      "<rootDir>/../events/src/index.ts",
+  },
+
   testEnvironment: "node",
   testMatch: ["**/__tests__/**/*.ts", "**/?(*.)+(spec|test).ts"],
   testPathIgnorePatterns: ["/__integration__/"],
