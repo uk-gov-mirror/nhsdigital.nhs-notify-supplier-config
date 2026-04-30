@@ -38,7 +38,7 @@ await esbuild.build({
   bundle: true,
   platform: "node",
   // Use a conservative target so the bundle runs on GitHub-hosted runners.
-  target: "node22",
+  target: "node20",
   format: "cjs",
   sourcemap: false,
   logLevel: "debug",

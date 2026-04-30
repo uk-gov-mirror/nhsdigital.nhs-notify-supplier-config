@@ -22,12 +22,24 @@ const buildersByEntity: Record<DomainEntityName, Builder> = {
   "supplier-pack": buildSupplierPackEvents,
 };
 
+function groupByEntity(records: ConfigRecord[]) {
+  const recordsByEntity = new Map<DomainEntityName, ConfigRecord[]>();
+
+  for (const record of records) {
+    if (!recordsByEntity.get(record.entity)) {
+      recordsByEntity.set(record.entity, []);
+    }
+    recordsByEntity.get(record.entity)!.push(record);
+  }
+  return recordsByEntity;
+}
+
 export function mapToEvents(records: ConfigRecord[]) {
-  const recordsByEntity = Map.groupBy(records, (record) => record.entity);
-  return [...recordsByEntity].flatMap(([entity, items]) =>
+  const recordsByEntity = groupByEntity(records);
+  return [...recordsByEntity].flatMap(([entity, items]) => {
     // eslint-disable-next-line security/detect-object-injection
-    buildersByEntity[entity](
-      Object.fromEntries(items.map((r) => [r.id, r.data])),
-    ),
-  );
+    const buildEvents = buildersByEntity[entity];
+    const recordsById = Object.fromEntries(items.map((r) => [r.id, r.data]));
+    return buildEvents(recordsById);
+  });
 }

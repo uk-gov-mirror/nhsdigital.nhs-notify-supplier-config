@@ -3,7 +3,7 @@ import { z } from "zod";
 import {
   $VolumeGroupEvent,
   volumeGroupEvents,
-} from "@nhsdigital/nhs-notify-event-schemas-supplier-config";
+} from "@nhsdigital/nhs-notify-event-schemas-supplier-config/src/events/volume-group-events";
 import { configFromEnv } from "./config";
 import { SeverityText, newSequenceGenerator } from "./lib/envelope-helpers";
 import { buildBaseEventEnvelope } from "./lib/base-event-envelope";
