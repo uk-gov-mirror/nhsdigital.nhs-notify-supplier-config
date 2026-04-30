@@ -165,6 +165,9 @@ jobs:
       - name: "Generate dependencies"
         run: |
           npm run generate-dependencies --workspaces --if-present
+      - name: "Build event-builder"
+        run: |
+          npm run build --workspace=@supplier-config/event-builder
       - name: "Run integration tests"
         run: |
           npm run test:integration
