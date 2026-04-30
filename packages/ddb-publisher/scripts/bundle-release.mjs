@@ -25,6 +25,25 @@ await rm(outDir, { recursive: true, force: true });
 await mkdir(dirname(outFile), { recursive: true });
 
 const schemasRoot = resolve(repoRoot, "packages/events");
+const eventBuilderRoot = resolve(repoRoot, "packages/event-builder");
+
+/** Resolves workspace package imports directly from source, handling subpaths. */
+function makeWorkspacePlugin(packageName, srcRoot) {
+  // eslint-disable-next-line security/detect-non-literal-regexp
+  const filter = new RegExp(`^${packageName}(/.*)?$`);
+  return {
+    name: `workspace-source-${packageName}`,
+    setup(build) {
+      build.onResolve({ filter }, (args) => {
+        const subpath = args.path.slice(packageName.length); // e.g. "" or "/src/domain/foo"
+        const resolved = subpath
+          ? resolve(srcRoot, subpath)
+          : resolve(srcRoot, "index.ts");
+        return { path: resolved };
+      });
+    },
+  };
+}
 
 console.log("[bundle-release] repoRoot=", repoRoot);
 console.log("[bundle-release] packageRoot=", packageRoot);
@@ -54,18 +73,17 @@ await esbuild.build({
     // Make it explicitly unavailable to avoid esbuild emitting confusing debug warnings.
     "import.meta.resolve": "undefined",
   },
-  alias: {
-    // Bundle against the workspace sources instead of relying on the package
-    // being built/linked into node_modules.
-    "@nhsdigital/nhs-notify-event-schemas-supplier-config": resolve(
-      schemasRoot,
-      "src/index.ts",
+  plugins: [
+    // Bundle against workspace sources instead of relying on packages being built/linked.
+    makeWorkspacePlugin(
+      "@nhsdigital/nhs-notify-event-schemas-supplier-config",
+      resolve(schemasRoot, "src"),
     ),
-    "@nhsdigital/nhs-notify-event-schemas-supplier-config/src": resolve(
-      schemasRoot,
-      "src",
+    makeWorkspacePlugin(
+      "@supplier-config/event-builder",
+      resolve(eventBuilderRoot, "src"),
     ),
-  },
+  ],
 });
 
 // Add a small marker file to make the tarball contents obvious when debugging.
