@@ -94,7 +94,7 @@ async function runPublisher(plan: LoadPlan): Promise<void> {
   }
 
   logStep("Initialising DynamoDB client...");
-  
+
   const clientConfig: ConstructorParameters<typeof DynamoDBClient>[0] = {
     endpoint: endpointOverride,
   };
